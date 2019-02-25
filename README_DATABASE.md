@@ -186,6 +186,19 @@ optimize table '表名'
 
 ### MySQL 插入数据
 
+```sql
+INSERT INTO '表名' ('field1', 'field2',... 'fieldN') VALUES ('value1', 'value2',... 'valueN');
+```
+如：
+```sql
+INSERT INTO table
+    -> (title, author, date)
+    -> VALUES
+    -> ("title", "author", 'NOW()');
+```
+
+注释：NOW()是一个MySQL函数，该函数返回日期和时间,
+
 ### MySQL 查询数据
 
 ### MySQL WHERE 子句
