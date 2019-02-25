@@ -34,38 +34,49 @@ RDBMS即关系型数据库管理系统(Ralational Database Management System)的
 * 参照完整性 ：参照完整性要求关系中不允许引用不存在的实体。与实体完整性是关系模型必须满足的完整性约束条件，目的是保证数据的一致性
 
 ### 管理MySQL的命令
-
-* USE '数据库名字'; : 
+```sql
+USE '数据库名字'; 
+```
 > 选择要操作的Mysql数据库，使用该命令后所有Mysql命令都只针对该数据库
-* SHOW DATABASE; : 
+```sql
+* SHOW DATABASE; 
+```
 > 列出MySQL数据库管理系统的数据库列表
-* SHOW TABLES; : 
+```sql
+* SHOW TABLES;
+```
 > 显示指定数据库的所有表，使用该命令前需要使用use命令来选择要操作的数据库
-* SHOW COLUMNS FROM 数据表; :
+```sql
+* SHOW COLUMNS FROM 数据表;
+```
 > 显示数据表的属性，属性类型，主键信息，是否为NULL,默认值等其他信息
-* SHOW INDEX FROM 数据表; : 
+```sql
+* SHOW INDEX FROM 数据表; 
+```
 > 显示数据表的详细索引信息
+```sql
 * SHOW TABLE STATUS LIKE FROM 'db_name' LIKE 'pattern';
+```
 > 输出MySQL数据库管理系统的性能及统计信息
 
 ### MySQL连接
-
-* mysql_connect(host, username, password, dbname, port, socket)
-
+```php
+mysql_connect(host, username, password, dbname, port, socket)
+```
 > host:主机名；username：用户名；password：密码；dbname：使用的数据库；port：MySQL服务器的端口号；socket：pipe
 
 ### MySQL 创建数据库
-
+```sql
 * CREATE DATABASE '数据库名';
-
+```
 ### MySQL 删除数据库
-
+```sql
 * drop DATABASE '数据库名';
-
+```
 ### MySQL 选择数据库
-
+```sql
 * USE '数据库名字';
-
+```
 ### MySQL 数据类型
 
 数据类型分为三类：数值、日期/时间、字符串类型
@@ -118,6 +129,24 @@ BLOB 是一个二进制大对象，可以容纳可变数量的数据。有 4 种
 有 4 种 TEXT 类型：TINYTEXT、TEXT、MEDIUMTEXT 和 LONGTEXT。对应的这 4 种 BLOB 类型，可存储的最大长度不同，可根据实际情况选择。
 
 ### MySQL 创建数据表
+
+创建MySQL数据表需要以下信息：
+* 表名
+* 表字段名
+* 定义每个表字段
+通用语法：
+* CREATE TABLE 'table_name' (column_name column_type);
+
+如：
+```sql
+CREATE TABLE IF NOT EXISTS `runoob_table` (
+    `id` INT UNSIGNED AUTO_INCREMENT,
+    `title` VARCHAR(100) NOT NULL,
+    `author` VARCHAR(40) NOT NULL,
+    `date` DATE,
+    PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+```
 
 ### MySQL 删除数据表
 
