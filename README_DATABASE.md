@@ -59,6 +59,8 @@ USE '数据库名字';
 ```
 > 输出MySQL数据库管理系统的性能及统计信息
 
+注意：*sqL语句后面写分号；*
+
 ### MySQL连接
 ```php
 mysql_connect(host, username, password, dbname, port, socket)
@@ -139,7 +141,7 @@ BLOB 是一个二进制大对象，可以容纳可变数量的数据。有 4 种
 
 如：
 ```sql
-CREATE TABLE IF NOT EXISTS `runoob_table` (
+CREATE TABLE IF NOT EXISTS `dugu_table` (
     `id` INT UNSIGNED AUTO_INCREMENT,
     `title` VARCHAR(100) NOT NULL,
     `author` VARCHAR(40) NOT NULL,
@@ -148,7 +150,39 @@ CREATE TABLE IF NOT EXISTS `runoob_table` (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ```
 
+* 如果不想字段为NULL,可以设置字段的树形为NOT NULL,在操作数据库时如果输入该字段的数据为NULL,就会报错
+* AUTO_INCREMENT 定义为列为自增的属性，一般用于主键，数值会自动加1
+* PRIMARY KEY关键字用于定义列为主键。可以使用多列来定义主键，列见以逗号分隔
+* ENGINE 设置存储引擎
+* CHARSET 设置编码
+
 ### MySQL 删除数据表
+
+* 删除整个表
+```sql
+DROP TABLE '表名'
+```
+
+* 删除表内数据使用delete;
+```sql
+delete from '表名' where '删除条件';
+```
+如：
+```sql
+delete from students where s_name = "";
+```
+注意：*只是删除，不会释放空间(不论是InnoDB还是MyISAM)，delete from 表以后虽然未释放磁盘空间，但是下次插入数据的时候，仍然可以使用这部分空间。*
+
+* 清除表内数据，保存表的结构(*相当于清空数据，但是表不删除*)
+```sql
+truncate table '表名';
+```
+注意：*只是删除，不会释放空间(不论是InnoDB还是MyISAM)*
+
+* delete后使用如下操作可以释放空间
+```sql
+optimize table '表名'
+```
 
 ### MySQL 插入数据
 
