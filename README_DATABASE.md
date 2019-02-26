@@ -39,23 +39,23 @@ USE '数据库名字';
 ```
 > 选择要操作的Mysql数据库，使用该命令后所有Mysql命令都只针对该数据库
 ```sql
-* SHOW DATABASE; 
+SHOW DATABASE; 
 ```
 > 列出MySQL数据库管理系统的数据库列表
 ```sql
-* SHOW TABLES;
+SHOW TABLES;
 ```
 > 显示指定数据库的所有表，使用该命令前需要使用use命令来选择要操作的数据库
 ```sql
-* SHOW COLUMNS FROM 数据表;
+SHOW COLUMNS FROM 数据表;
 ```
 > 显示数据表的属性，属性类型，主键信息，是否为NULL,默认值等其他信息
 ```sql
-* SHOW INDEX FROM 数据表; 
+SHOW INDEX FROM 数据表; 
 ```
 > 显示数据表的详细索引信息
 ```sql
-* SHOW TABLE STATUS LIKE FROM 'db_name' LIKE 'pattern';
+SHOW TABLE STATUS LIKE FROM 'db_name' LIKE 'pattern';
 ```
 > 输出MySQL数据库管理系统的性能及统计信息
 
@@ -69,15 +69,15 @@ mysql_connect(host, username, password, dbname, port, socket)
 
 ### MySQL 创建数据库
 ```sql
-* CREATE DATABASE '数据库名';
+CREATE DATABASE '数据库名';
 ```
 ### MySQL 删除数据库
 ```sql
-* drop DATABASE '数据库名';
+drop DATABASE '数据库名';
 ```
 ### MySQL 选择数据库
 ```sql
-* USE '数据库名字';
+USE '数据库名字';
 ```
 ### MySQL 数据类型
 
@@ -201,11 +201,90 @@ INSERT INTO table
 
 ### MySQL 查询数据
 
+```sql
+
+SELECT 'column_name', 'column_name' 
+FROM 'table_name'
+[WHERE condition1 [AND [OR]] condition2.....
+[LIMIT N][OFFSET N];
+
+```
+
+* 查询语句中可以使用一个或者多个表，表之间用逗号(,)分隔，并使用WHERE语句来设定查询条件
+* SELECT 命令可以读取一条或者多条记录
+* 可以使用星号(*)来代替其他字段,SELECT局域会返回表的所有字段数据
+* 可以使用WHERE语句来包含任何条件
+* 可以使用LIMIT属性来设定返回的记录数据
+* 通过OFFSET制定SELECT语句开始查询的数据偏移量,默认情况下偏移量为0
+
 ### MySQL WHERE 子句
+
+WHERE 类似于程序语言中的if条件，可以使用AND和OR连接，可以用于SELECT,DELETE,UPDATE
+使用BINARY指定是否区分大小写
+
+```sql
+
+SELECT * from runoob_tbl WHERE BINARY runoob_author='RUNOOB.COM';
+
+```
+
+注意：是否等于使用一个等于号=,不是两个等于==
 
 ### MySQL UPDATE 查询
 
+```sql
+
+UPDATE 'table_name' SET field1 = new_value1, field2 = new_value2 WHERE conditions;
+
+```
+
+如：
+```sql
+
+update students_table set age = age + 1 WHERE age > 13;
+
+```
+
+```sql
+
+UPDATE dugu_table SET title = REPLACE(runoob_title, 'C++', 'Python') where 
+id = 3;
+
+```
+
+```sql
+
+update students set name = "小明", age = 19 where tel = "13288097888";
+
+```
+
 ### MySQL DELETE 语句
+
+```sql
+
+DELETE FROM 'table_name' WHERE conditions;
+
+```
+
+注意：*如果没有指定WHERE子句，MySQL表中的所有记录将被删除，可以在WHERE子句中指定任何条件，可以在单个表中一次性删除记录*
+
+如：
+```sql
+
+DELETE FROM table WHERE tb_id = 3;
+
+```
+
+```sql
+
+delete from students where age < 20;
+
+```
+
+delete、drop、truncate都有删除表的作用，区别如下：
+* delete和truncate仅删除表的数据，drop连表数据和表结构一起删除
+* delete是DML语句，操作完之后可以回滚；truncate和drop是DDL语句，操作完不能回滚
+* 执行速度：drop > truncate > delete
 
 ### MySQL LIKE 子句
 

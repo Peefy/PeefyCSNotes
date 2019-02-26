@@ -25,4 +25,4 @@
 
 ## 数据库
 
-(https://github.com/Peefy/PeefyCSNotes/README_DATABASE.md)
+[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_DATABASE.md)
