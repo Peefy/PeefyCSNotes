@@ -484,7 +484,61 @@ INNER JOIN可以理解为A与B两个集合的交集，LEFT JOIN可以理解为A�
 
 ### MySQL NULL值处理
 
+当使用查询子句SELECT时，当提供的查询条件字段为NULL时，该命令可能就无法正常工作,为了处理这种情况，MySQL提供了三大运算符
+
+* IS NULL : 当列的值是NULL,此运算符返回true
+* IS NOT NULL : 当列的值不为NULL,运算符返回true
+* <=> : 比较操作符(不同于=运算符)，当比较的两个值为NULL时返回true
+
+关于NULL的条件比较运算符是比较特殊的。不能使用=NULL或者!=NULL在列中查找NULL值.
+
+在MySQL中,NULL值与任何其他值的比较(即使是NULL)永远返回false,即NULL=NULL返回false,MySQL中处理NULL使用IS NULL和IS NOT NULL运算符
+
+```sql
+
+select *, columnName1 + ifnull(columnName1, 0) from tableName;
+
+```
+
+```sql
+SELECT * FROM dugu_tbl WHERE dugu_count IS NULL;
+```
+
 ### MySQL 正则表达式
+
+MySQL除了可以通过LIKE ...% 来进行模糊匹配,也支持其他正则表达式的匹配,在MySQL中使用REGEXP操作符来进行正则表达式匹配
+
+模式|描述
+---|---
+^|匹配输入字符串的开始位置。如果设置了RegExp对象的Multiline属性,^也匹配'\n'或'\r'之后的位置
+$|匹配输入字符串的结束位置。如果设置了RegExp对象的Multiline属性,^也匹配'\n'或'\r'之前的位置
+.|匹配除'\n'之外的任何单个字符。要匹配包括'\n'在内的任何字符,请使用象'[\.\n]'的模式
+[\.\.\.]|字符集合。匹配所包含的任意一个字符
+[^\.\.\.]|负值字符集合。匹配未包含的任意字符
+p1\|p2\|p3|匹配p1或p2或p3
+*|匹配前面的子表达式一次或者多次,等价于{0,}
++|匹配前面的子表达式一次或者多次,等价于{1,}
+{n}|n是一个非负整数.匹配确定的n次
+{n,m}|n和m均为非负整数,其中n<=m。最少匹配n次且最多匹配m次
+
+实例：
+
+* 查找name字段中以'st'为开头的所有数据:
+```sql
+SELECT names FROM dugu_table WHERE names REGEXP '^st';
+```
+* 查找name字段中以'ok'为结尾的所有数据:
+```sql
+SELECT names FROM dugu_table WHERE names REGEXP 'ok$';
+```
+* 查找name字段中包含'mar'字符串的所有数据:
+```sql
+SELECT names FROM dugu_table WHERE names REGEXP 'mar';
+```
+* 查找name字段中以元音字符开头或以'ok'字符串结尾的所有数据:
+```sql
+SELECT names FROM dugu_table WHERE names REGEXP '^[aeiou]|ok$';
+```
 
 ### MySQL 事物
 
