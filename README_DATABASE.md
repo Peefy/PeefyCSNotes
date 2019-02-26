@@ -288,7 +288,63 @@ delete、drop、truncate都有删除表的作用，区别如下：
 
 ### MySQL LIKE 子句
 
+WHERE语句实现固定条件判断，LIKE语句实现类似正则表达式的模式匹配，如获取某字符串字段含均有"COM"的列数据
+
+SQL LIKE 子句中使用百分号%字符来表示任意字符，类似UNIX或正则表达式中的*号，如果没有使用百分号%,LIKE子句与等号=的效果是一样的
+
+```sql
+
+SELECT field1, field2,... fieldN
+FROM table_name
+WHERE field1 LIKE condition [AND [OR]] field2 = 'somevalue';
+
+```
+
+* 可以在WHERE子句中指定任何条件
+* 可以在WHERE子句中使用LIKE子句
+* 可以使用LIKE子句代替等号=
+* LIKE通常与%一同使用，类似于一个元字符的搜索
+* 可以使用AND或者OR指定一个或多个条件
+* 可以在DELETE或UPDATE命令中使用WHERE...LIKE子句来指定条件
+
+如：
+```sql
+
+SELECT dugu_id from tbl WHERE dugu_name LIKE '%COM';
+
+```
+
+LIKE语句实现 匹配/模糊匹配：
+* '%a'      `以a结尾的数据`
+* 'a%'      `以a开头的数据`
+* '%a%'     `含有a的数据`
+* '\_a\_'   `三位且中间字母是a的`
+* '\_a%'    `两位且结尾字母是a的`
+* 'a\_%'    `两位且开头字母是a的`
+
 ### MySQL UNION
+
+MySQL UNION操作符用于连接两个以上的SELECT语句的结果组合到一个结果集合中。多个SELECT语句会删除重复的数据
+
+```sql
+
+SELECT expression1, expression2,... expression_n
+FROM tables
+[WHERE conditions]
+UNION [ALL | DISTINCT]
+SELECT expression1, expression2,... expression_n
+FROM tables
+[WHERE conditions];  
+
+```
+
+参数：
+* expression1, expression2,... expression_n 要检索的列
+* tables: 要检索的数据库
+* WHERE conditions: 可选，检索条件
+* DISTINCT: 可选，删除结果集中重复的数据。默认情况下UNION操作符已经删除了重复数据，所以DISTINCT修饰符对结果没啥影响
+* ALL: 可选，返回所有结果集，包含重复数据
+
 
 ### MySQL 排序
 
