@@ -370,9 +370,117 @@ ORDER BY country;
 
 ### MySQL 排序
 
+如果需要对数据库中读取的数据进行排序，就使用ORDER BY子句设定想按哪个字段哪种方式来进行排序，再返回搜索结果
+
+```sql
+
+SELECT field1, field2,... fieldN table_name1, table_name2...
+ORDER BY field, [field2...] [ASC [DESC]]
+
+```
+
+* 可以使用任何字段作为排序的条件，从而返回排序后的查询结果
+* 可以设定多个字段来排序
+* 可以使用ASC或DESC关键字来设置查询结果是按升序还是降序
+* 可以添加WHERE...LIKE子句来设置条件
+
+如：
+```sql
+
+SELECT * from dugu_tbl ORDER BY sub_date ASC;
+
+```
+
+```sql
+
+SELECT * from dugu_tbl WHERE age > 18 ORDER BY sub_date DESC;
+
+```
+
+> MySQL拼音排序:如果字符集采用的是gbk(汉字编码字符集),直接在查询语句后边添加ORDER BY:
+
+```sql
+
+SELECT * FROM dugu_table ORDER BY dugu_title;
+
+```
+
+> 如果字符集采用的是utf6(万国码),需要先对字段进行转码然后排序
+
+```sql
+
+SELECT * FROM dugu_table ORDER BY CONVERT(dugu_title using gbk);
+
+```
+
 ### MySQL 分组
 
+GROUP BY语句根据一个或多个列对结果集进行分组.
+在分组的列上可以使用COUNT,SUM,AVG等函数
+
+```sql
+
+SELECT column_name, function(column_name)
+FROM table_name
+WHERE column_name `operator` value
+GROUP BY column_name;
+
+```
+
+如：
+```sql
+
+SELECT coalesce(duguname, '总数'), COUNT(*) as sign_count FROM dugu_table GROUP BY duguname WITH ROLLUP
+
+```
+
+```sql
+
+SELECT name ,sum(*)  FROM employee_tbl WHERE id<>1 GROUP BY name  HAVING sum(*)>5 ORDER BY sum(*) DESC;
+
+```
+
 ### MySQL 连接的使用
+
+之前的操作都是从一个表中读取数据，但是真正的应用中需要从多个数据表中读取数据
+
+可以使用SELECT, UPDATE和DELETE语句中使用MySQL的JOIN来联合多表查询，JOIN按照功能大致分为如下三类：
+* INNER JOIN(内连接,或等值连接)：获取两个表中字段匹配关系的记录
+* LEFT JOIN(左连接)：获取左表所有记录，即使右表没有对应匹配的记录
+* RIGHT JOIN(右连接)：与LEFT JOIN相反，用于获取右表所有记录，即使左表没有对应匹配的记录
+
+```sql
+
+SELECT a.id, a.author, b.count FROM dugu_tbl a INNER JOIN tcount_tbl b ON a.author = b.author;
+
+```
+
+等价于：
+
+```sql
+
+SELECT a.id a.author b.count FROM dugu_tbl a,
+tcount b WHERE a.author = b.author;
+
+```
+
+LEFT JOIN 和 RIGHT JOIN
+
+```sql
+
+SELECT a.runoob_id, a.runoob_author, b.runoob_count FROM runoob_tbl a LEFT JOIN tcount_tbl b ON a.runoob_author = b.runoob_author;
+
+```
+
+```sql
+
+SELECT a.runoob_id, a.runoob_author, b.runoob_count FROM runoob_tbl a RIGHT JOIN tcount_tbl b ON a.runoob_author = b.runoob_author;
+
+```
+
+LEFT JOIN、INNER JOIN、RIGHT JOIN的区别：
+INNER JOIN可以理解为A与B两个集合的交集，LEFT JOIN可以理解为A与B两个集合的交集再与A的集合并集，RIGHT JOIN以理解为A与B两个集合的交集再与B的集合并集
+
 
 ### MySQL NULL值处理
 
