@@ -326,6 +326,8 @@ LIKE语句实现 匹配/模糊匹配：
 
 MySQL UNION操作符用于连接两个以上的SELECT语句的结果组合到一个结果集合中。多个SELECT语句会删除重复的数据
 
+select ... union select ...
+
 ```sql
 
 SELECT expression1, expression2,... expression_n
@@ -345,6 +347,26 @@ FROM tables
 * DISTINCT: 可选，删除结果集中重复的数据。默认情况下UNION操作符已经删除了重复数据，所以DISTINCT修饰符对结果没啥影响
 * ALL: 可选，返回所有结果集，包含重复数据
 
+如：
+```sql
+
+SELECT country FROM Websites
+UNION ALL
+SELECT country FROM apps
+ORDER BY country;
+
+```
+
+```sql
+
+SELECT country, duguname FROM Websites
+WHERE country = 'CN'
+UNION DISTINCT
+SELECT country, appname FROM apps
+WHERE country = 'CN'
+ORDER BY country;
+
+```
 
 ### MySQL 排序
 
