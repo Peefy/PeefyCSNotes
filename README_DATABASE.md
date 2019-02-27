@@ -555,8 +555,34 @@ MySQL事物主要用于处理操作量大，复杂度高的数据。比如：在
 * **隔离性**：数据库允许多个并发事务同时对其数据进行读写和修改的能力。事务隔离分为不同级别，包括读未提交、读提交、可重复读和串行化
 * **持久性**：事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失
 
-> 事务控制语句
+注意：*在MySQL命令行的默认设置下，事物都是自动提交的，即执行SQL语句后就会马上执行COMMIT操作。因此要显式地开启一个事务必须使用命令BEGIN或START TRANSACTION,或者执行命令SET AUTOCOMMIT=0,用来进制使用当前会话的自动提交*
 
+事务控制语句:
+
+* BEGIN或START TRANSACTION; 显式地开启一个事务
+* COMMIT;也可以使用COMMIT WORK,不过二者是等价的。COMMIT会提交事务,并使已对数据进行的所有修改称为永久性的；
+* ROLLBACK;有可以使用ROLLBACK WORK,不过二者是等价的。回滚会结束用户的事务，并赊销正在进行的所有未提交的修改；
+* SAVEPOINT identifier: SAVEPOINT允许在事务中创建一个保存点，一个事务中有多个SAVEPOINT;
+* RELEASE SAVEPOINT identifier; 删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；
+* ROLLBACK TO identifier；把事务回滚到标记点;
+* SET TRANSACTION;用来设置事务的隔离级别。InnoDB存储引擎提供事务的隔离级别有READ UNCOMMITTED、READ COMMITTED、REPRATABLE READ 和 SERIALIZABLE
+
+MySQL事务处理主要有两种方法：
+
+1.用BEGIN,ROLLBACK,COMMIT来实现：
+* BEGIN开始一个事务
+* ROLLBACK事务回滚
+* COMMIT事务确认
+2.直接用SET来改变MySQL的自动提交模式；
+* SET AUTOCOMMIT=0 禁止自动提交
+* SET AUTOCOMMIT=1 开始自动提交
+
+```sql
+
+SET AUTOCOMIT = 0;
+INSERT INTO dugutable (id) values(9);
+
+```
 
 ### MySQL ALTER命令
 
