@@ -586,6 +586,31 @@ INSERT INTO dugutable (id) values(9);
 
 ### MySQL ALTER命令
 
+当需要*修改数据表名*或者*修改数据表字段(增加，删除)*时,就需要使用到MySQL ALTER命令。
+
+删除，添加或者修改表字段
+
+如下命令使用了ALTER命令及DROP子句来删除以上创建表的i字段;
+
+```sql
+
+ALTER TABLE test_table DROP i;
+
+```
+
+注意：*如果数据库中只剩余一个字段则无法使用DROP来删除字段*
+
+MySQL中使用ADD子句来向数据表中添加列，如下实例在表test_table中添加i字段，并定义数据类型
+
+```sql
+
+ALTER TABLE test_table ADD i INT
+
+```
+
+执行以上命令以后，i字段会自动添加到数据表字段的末尾
+
+
 ### MySQL 索引
 
 ### MySQL 临时表
