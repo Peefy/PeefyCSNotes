@@ -604,12 +604,55 @@ MySQL中使用ADD子句来向数据表中添加列，如下实例在表test_tabl
 
 ```sql
 
-ALTER TABLE test_table ADD i INT
+ALTER TABLE test_table ADD i INT;
 
 ```
 
 执行以上命令以后，i字段会自动添加到数据表字段的末尾
 
+如果要指定新增字段的位置，可以使用MySQL提供的关键字FIRST(设定为第一列),AFTER字段名(设定位于某个字段之后)。尝试以下ALTER TABLE语句，在执行成功后，使用SHOW COLUMNS查看表结构的变化
+
+```sql
+
+ALTER TABLE test_table DROP i;
+ALTER TABLE test_table ADD i INT FIRST;
+ALTER TABLE test_table DROP i;
+ALTER TABLE test_table ADD i INT AFTER c;
+
+```
+
+如果需要修改字段类型及名称，可以在ALTER命令中使用MODIFY或CHANGE子句
+
+```sql
+ALTER TABLE test_table MODIFY c CHAR(10);
+```
+
+```sql
+ALTER TABLE test_table CHANGE j j INT;
+```
+
+```sql
+
+ALTER TABLE testalter_tbl 
+    -> MODIFY j BIGINT NOT NULL DEFAULT 100;
+
+```
+
+修改数据表类型
+
+```sql
+
+ALTER TABLE test_table ENGINE = MYISAM
+
+```
+
+修改字段的相对位置
+
+```sql
+
+ALTER TABLE test_table modify 'name1' 'type1' first/after 'name2'
+
+```
 
 ### MySQL 索引
 
