@@ -733,6 +733,45 @@ UNIQUE [indexName] username(length)
 );
 ```
 
+**使用ALTER命令添加和删除索引**
+
+```sql
+ALTER TABLE tbl_name ADD PRIMARY KEY (column_list); 
+```
+该语句添加一个主键，这意味着索引值必须是唯一的,且不能为NULL
+```sql
+ALTER TABLE tbl_name ADD UNIQUE index_name(column_list);
+```
+这条语句创建的索引的值必须是唯一的(除了NULL外,NULL可能会出现多次)
+```sql
+ALTER TABLE tbl_name ADD INDEX index_name(column_list);
+```
+添加普通索引，索引值可出现多次
+```sql
+ALTER TABLE tbl_name ADD FULLTEXT index_name(column_list);
+```
+该语句指定了索引为FULLTEXT，用于全文索引
+
+如下实例为在表中添加索引
+```sql
+ALTER TABLE test_table ADD INDEX (c);
+```
+```sql
+ALTER TABLE test_table DROP INDEX c;
+```
+
+**使用ALTER命令添加和删除主键**
+```sql
+ALTER TABLE test_table MODIFY i INT NOT NULL;
+```
+```sql
+ALTER TABLE test_table DROP PRIMARY KEY;
+```
+**显示索引信息**
+```sql
+SHOW INDEX FROM table_name; \G
+```
+
 ####
 
 ### MySQL 临时表
