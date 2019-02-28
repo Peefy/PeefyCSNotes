@@ -772,9 +772,36 @@ ALTER TABLE test_table DROP PRIMARY KEY;
 SHOW INDEX FROM table_name; \G
 ```
 
-####
-
 ### MySQL 临时表
+
+临时表只是在当前可见，当关闭连接时，MySQL会自动删除表并释放所有空间.
+
+临时表在MySQL3.23版本中添加.
+
+临时表语句是在正常建表建表语句中加入TEMPORARY
+
+```sql
+
+CREATE TEMPORARY TABLE dugu_table(
+    product_name VARCHAR(50) NOT NULL,
+    sales DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    price DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    sold INT UNSIGNED NOT NULL DEFAULT 0
+);
+
+```
+
+当使用SHOW TABLES命令显示数据表列表时间，将无法看到创建的临时表
+
+**删除MySQL临时表**
+
+默认情况下，当断开与数据库的连接后，临时表就会自动被销毁，当然也可以执行语句来销毁临时表
+
+```sql
+
+DROP TABLE dugu_table;
+
+```
 
 ### MySQL 复制表
 
