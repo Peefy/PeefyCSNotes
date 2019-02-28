@@ -805,6 +805,61 @@ DROP TABLE dugu_table;
 
 ### MySQL 复制表
 
+如果我们需要完全的赋值MySQL的数据表，包括表的结构，索引，默认值等。
+如果仅仅使用CREATE TABLE ...SELECT命令，是无法实现的
+
+完整的复制MySQL数据表的步骤:
+* 使用SHOW CREATE TABLE 命令获取创建数据表(CREATE TABLE)语句，该语句包含了原数据表的结构，索引等。
+* 复制以下命令显示的SQL语句，修改数据表名，并执行SQL语句，通过以上命令将完全的复制数据表结构。
+* 如果想复制表的内容，就可以使用INSERT INTO ... SELECT 语句来实现
+
+```sql
+
+SHOW CREATE TABLE dugu_table \G;
+
+>>> Create Table: CREATE TABLE `dugu_table` (
+  `runoob_id` int(11) NOT NULL auto_increment,
+  `runoob_title` varchar(100) NOT NULL default '',
+  `runoob_author` varchar(40) NOT NULL default '',
+  `submission_date` date default NULL,
+  PRIMARY KEY  (`runoob_id`),
+  UNIQUE KEY `AUTHOR_INDEX` (`runoob_author`)
+) ENGINE=InnoDB 
+```
+
+```sql
+
+CREATE TABLE `copy_dugu_table` (
+  `runoob_id` int(11) NOT NULL auto_increment,
+  `runoob_title` varchar(100) NOT NULL default '',
+  `runoob_author` varchar(40) NOT NULL default '',
+  `submission_date` date default NULL,
+  PRIMARY KEY  (`runoob_id`),
+  UNIQUE KEY `AUTHOR_INDEX` (`runoob_author`)
+) ENGINE=InnoDB; 
+
+```
+
+```sql
+
+INSERT INTO copy_dugu_table (runoob_id,
+    ->                        runoob_title,
+    ->                        runoob_author,
+    ->                        submission_date)
+    -> SELECT runoob_id,runoob_title,
+    ->        runoob_author,submission_date
+    -> FROM runoob_tbl;
+
+```
+
+第二种完整复制表的方法
+```sql
+
+CREATE TABLE copy_dugu_table LIKE dugu_table;
+INSERT INTO copy_dugu_table SELECT * FROM dugu_table
+
+```
+
 ### MySQL 元数据
 
 ### MySQL 序列使用
