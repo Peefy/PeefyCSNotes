@@ -656,6 +656,85 @@ ALTER TABLE test_table modify 'name1' 'type1' first/after 'name2'
 
 ### MySQL 索引
 
+MySQL索引的建立对于MySQL的高效运行是很重要的，索引可以大大提高MySQL的检索速度.
+
+索引分为单列索引和组合索引。单列索引，一个索引只包含单个列，一个表可以有多个单列索引，但这不是组合索引。组合索引，即一个索引包含多个列。创建索引时，需要确保该索引是应用在SQL查询语句的条件（一般作为WHERE子句的条件）
+
+实际上，索引也是一张表，该表保存了主键与索引字段，并指向实体表的记录。
+
+过多的使用索引将会造成滥用，因此索引也会有它的缺点；虽然索引大大提高了查询速度，同时却会降低更新表的速度，如对表进行INSERT、UPDATE和DELETE.因为更新表时，MySQL不仅要保存数据，还要保存一下索引文件。
+
+建立索引会占用磁盘空间的索引文件
+
+**普通索引**
+
+普通索引创建的方式：
+
+* 直接创建
+
+```sql
+
+CREATE INDEX 'indexname' ON 'table_name(username(length))';
+
+```
+
+注意：*如果是CHAR，VARCHA类型,length可以小于字段实际长度；如果是BLOB和TEXT类型，必须指定length*
+
+* 修改表结构(添加索引)
+
+```sql
+ALTER TABLE 'table_name' ADD INDEX indexName(columnName);
+```
+
+* 创建表的时候直接指定
+
+```sql
+CREATE TABLE mytable(
+ID INT NOT NULL,
+username VARCHAR(16) NOT NULL,
+INDEX [indexName] username(length)
+);
+```
+
+删除索引的语法：
+```sql
+DROP INDEX [indexName] ON mytable
+```
+
+**唯一索引**
+
+与普通索引类似，不同的是：索引列的值必须唯一，但允许有空值。如果是组合索引，则列值的组合必须唯一。它有以下几种创建方式
+
+创建唯一索引的方式：
+
+* 直接创建
+
+```sql
+
+CREATE UNIQUE INDEX 'indexname' ON 'table_name(username(length))';
+
+```
+
+注意：*如果是CHAR，VARCHA类型,length可以小于字段实际长度；如果是BLOB和TEXT类型，必须指定length*
+
+* 修改表结构(添加索引)
+
+```sql
+ALTER TABLE 'table_name' ADD UNIQUE indexName(columnName);
+```
+
+* 创建表的时候直接指定
+
+```sql
+CREATE TABLE mytable(
+ID INT NOT NULL,
+username VARCHAR(16) NOT NULL,
+UNIQUE [indexName] username(length)
+);
+```
+
+####
+
 ### MySQL 临时表
 
 ### MySQL 复制表
