@@ -1006,10 +1006,88 @@ like查询时，如果用户输入的值有\_和\%，则会出现如下情况：
 
 ### MySQL 导出数据
 
+使用SELECT...INTO OUTFILE语句来简单地导出数据到文本文件上
+
+```sql
+SELECT * FROM dugu_table INTO OUTFILE '/tmp/dugu.txt'
+```
+
+可以通过命令行选项来设置数据输出的指定格式，以下实例为导出CSV格式
+
+```sql
+SELECT * FROM passwd INTO OUTFILE '/tmp/runoob.txt'
+    -> FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+    -> LINES TERMINATED BY '\r\n';
+```
+
+在下面的例子中，生成一个文件，各值用逗号隔开。这种格式可以被许多程序使用
+
+```sql
+SELECT a,b,a+b INTO OUTFILE 'tmp/dugu.txt'
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+FROM test_table;
+```
+
+**SELECT...INTO OUTFILE的属性**
+
+* LOAD DATA INFILE是SELECT...INTO OUTFILE的逆操作，SELECT句法。为了将一个数据库的数据写入一个文件，使用SELECT...INTO OUTFILE,为了将文件读回数据库，使用LOAD DATA INFILE
+* SELECT...INTO OUTFILE 'file_name'形式的SELECT可以把被选择的行写入一个文件中,该文件被创建到服务器主机上，因此必须拥有FILE权限，才能使用此语法
+* 输出不能是一个已存在的文件，放置文件数据被篡改
+* 需要有一个登陆服务器的账号来检索文件。否则SELECT...INTO OUTFILE不会起任何作用
+* 在UNIX中，该文件被创建后是可读的，权限由MySQL服务器所拥有。虽然你可以读取该文件，但可能无法将其删除
+
+**导出表作为原始数据**
+mysqldump是mysql用于转存数据库的实用程序。主要生产一个SQL脚本，其中包含从头重新创建数据库所必需的命令CREATE TABLE INSERT等
+
 ### MySQL 导入数据
+
+几种简单的MySQL导出的数据的命令:
+* 1.mysql命令导入
+```sql
+# mysql -uroot -p123456 < dugu.sql
+```
+* 2.source命令导入
+```sql
+create database abc;
+use abc;
+set names utf8;
+source /home/abc/abc.sql;
+```
+* 3.使用LOAD DATA导入数据
+```sql
+LOAD DATA LOCAL INFILE 'dump.txt' INTO TABLE mytbl;
+```
+
+```sql
+LOAD DATA LOCAL INFILE 'dump.txt' INTO TABLE mytbl
+  -> FIELDS TERMINATED BY ':'
+  -> LINES TERMINATED BY '\r\n';
+```
+
+* 4.使用mysqliimport导入数据
+mysqlimport客户端提供了LOAD DATA INFILEQL语句的一个命令行接口。mysqlimport的大多数选项直接对应LOAD DATA INFILE子句。
+
+从文件dump.txt中将数据导入到mytbl数据表中,可以使用以下命令
+```
+mysqlimport -u root -p --local data_base dump.txt
+```
+
+```
+mysqlimport -u root -p --local --columns=b,c,a \
+    database_name dump.txt
+```
 
 ### MySQL 函数
 
+字符串函数、数字函数、日期函数、高级函数、
+
+转自菜鸟教程
+[http://www.runoob.com/mysql/mysql-functions.html]
+
 ### MySQL 运算符
 
+算术运算符、比较运算符、逻辑运算符、位运算符
 
+转自菜鸟教程
+[http://www.runoob.com/mysql/mysql-operator.html]
