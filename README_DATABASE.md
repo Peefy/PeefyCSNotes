@@ -862,9 +862,56 @@ INSERT INTO copy_dugu_table SELECT * FROM dugu_table
 
 ### MySQL 元数据
 
+MySQL的三种信息:
+* **查询结果信息**：SELECT, UPDATE或DELETE语句影响的记录数
+* **数据库和数据表的信息**：包含了数据库及数据表的结构信息
+* **MySQL**：包含了数据库服务器的当前状态，版本号等
+
+在MySQL的命令提示符中，可以调用简单的语句或者以上服务器信息，但是如果使用Perl或者PHP等脚本语言，就需要调用特定的接口函数获取。
+因为查询语句会影响数据库的记录数.
+
+**数据库和数据表列表**
+可以很容易地在MySQL服务器中获取数据库和数据表列表.如果没有足够的权限，结果将返回null.可以使用SHOW TABLES或SHOW DATABASES 语句来获取数据库和数据表列表。
+
+**获取服务器元数据**
+* SELECT VERSION() 服务器版本信息
+* SELECT DATABASE() 当前数据库名
+* SELECT USER() 当前用户名
+* SHOW STATUS 服务器状态
+* SHOW VARIABLES 服务器配置变量
+
 ### MySQL 序列使用
 
+MySQL序列是一组整数：1,2,3...,由于一张数据表只能有一个字段自增主键,如果想实现其他字段也实现自动增加,就可以使用MySQL序列来实现
+
+**使用AUTO_INCREMENT**
+MySQL中最简单使用序列的方法就是使用MySQL AUTO_INCREMENT来定义列
+**获取AUTO_INCREMENT**
+在MySQL的客户端中可以使用SQL中的LAST_INSERT_ID()函数来获取最后的插入表中的自增列的值
+
+**重置序列**
+如果删除了数据表中的多条记录，并希望对剩下数的AUTO_INCREMENT列进行重新排列,那么你可以通过删除自增的列，然后重新添加来实现。不过该操作要非常小心,如果在删除的同时又有新纪录添加，有可能会出现数据混乱。
+
+**设置序列的开始值**
+```sql
+
+CREATE TABLE dugu_table(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (id),
+    dname VARCHAR(30) NOT NULL,
+    ddate DATE NOT NULL,
+    origin VARCHAR(30) NOT NULL
+)engine=innodb auto_increment=100 charset=utf8;
+
+```
+
+```sql
+ALTER TABLE dugu_table AUTO_INCREMENT = 100;
+```
+
 ### MySQL 处理重复数据
+
+
 
 ### MySQL SQL注入
 
