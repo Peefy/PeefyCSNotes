@@ -871,9 +871,11 @@ MySQL的三种信息:
 因为查询语句会影响数据库的记录数.
 
 **数据库和数据表列表**
+
 可以很容易地在MySQL服务器中获取数据库和数据表列表.如果没有足够的权限，结果将返回null.可以使用SHOW TABLES或SHOW DATABASES 语句来获取数据库和数据表列表。
 
 **获取服务器元数据**
+
 * SELECT VERSION() 服务器版本信息
 * SELECT DATABASE() 当前数据库名
 * SELECT USER() 当前用户名
@@ -885,11 +887,15 @@ MySQL的三种信息:
 MySQL序列是一组整数：1,2,3...,由于一张数据表只能有一个字段自增主键,如果想实现其他字段也实现自动增加,就可以使用MySQL序列来实现
 
 **使用AUTO_INCREMENT**
+
 MySQL中最简单使用序列的方法就是使用MySQL AUTO_INCREMENT来定义列
+
 **获取AUTO_INCREMENT**
+
 在MySQL的客户端中可以使用SQL中的LAST_INSERT_ID()函数来获取最后的插入表中的自增列的值
 
 **重置序列**
+
 如果删除了数据表中的多条记录，并希望对剩下数的AUTO_INCREMENT列进行重新排列,那么你可以通过删除自增的列，然后重新添加来实现。不过该操作要非常小心,如果在删除的同时又有新纪录添加，有可能会出现数据混乱。
 
 **设置序列的开始值**
@@ -911,9 +917,92 @@ ALTER TABLE dugu_table AUTO_INCREMENT = 100;
 
 ### MySQL 处理重复数据
 
+有些MySQL数据表可能存在重复的记录，有些情况允许重复数据的存在，有时也需要删除这些重复的数据
 
+**防止表中出现重复数据**
+
+可以在MySQL数据表中设置指定的字段为PRIMARY KEY或者UNIQUE唯一索引来保证数据的唯一性,如果设置了唯一索引，那么在插入重复数据时,SQL语句将无法执行成功,并抛出错误.
+
+如果想设置表中字段first_name,last_name 数据不能重复,可以设置双主键模式来设置数据的唯一,注意：*设置了主键的字段默认值不能为NULL*
+```sql
+
+CREATE TABLE person_table(
+    first_name CHAR(20) NOT NULL,
+    last_name CHAR(20) NOT NULL,
+    sex CHAR(10),
+    PRIMARY KEY (last_name, first_name)
+);
+
+```
+
+```sql
+CREATE TABLE person_table
+(
+   first_name CHAR(20) NOT NULL,
+   last_name CHAR(20) NOT NULL,
+   sex CHAR(10),
+   UNIQUE (last_name, first_name)
+);
+```
+
+**使用INSERT IGNORE INTO**
+
+INSERT IGNORE INTO语句会忽略数据库已经存在的数据，如果数据库没有数据就插入新的数据，如果有数据的话就跳过这段数据
+
+**统计重复数据**
+
+以下实例将统计表中first_name和last_name的重复记录数
+```sql
+SELECT COUNT(*) as repetitions, last_name, first_name 
+-> FROM person_table
+-> GROUP BY last_name, first_name
+-> HAVING repetitions > 1;
+```
+
+**过滤重复数据**
+```sql
+SELECT DISTINCT last_name, first_name FROM person_table;
+```
+
+**删除重复数据**
+```sql
+CREATE TABLE tmp SELECT last_name, first_name, sex FROM person_table GROUP BY (last_name, first_name, sex);
+
+DROP TABLE person_table;
+
+ALTER TABLE tmp RENAME TO person_table;
+
+```
+
+**向已有的表中添加INDEX(索引)和PRIMARY KEY(主键)**
+```sql
+ALTER INGORE TABLE person_table
+-> ADD PRIMARY KEY (last_name, first_name)
+```
 
 ### MySQL SQL注入
+
+如果通过网页获取用户输入的数据并将其插入一个MySQL数据库,那么就有可能发生SQL注入安全的问题.可以通过脚本来过滤SQL中注入的字符
+
+SQL注入，就是通过把SQL命令插入到Web表单递交或输入域名或页面请求的查询字符串，最终达到欺骗服务器执行恶意的SQL命令
+
+防止SQL注入的要点
+* 1.对用户的输入进行校验：正则表达式、限制长度；对单引号和双“-”进行转换等
+* 2.不使用动态拼装sql,可以使用参数化的sql或者直接使用存储过程进行数据查询存取
+* 3.不要使用管理员权限的数据连接，为每个应用使用单独的权限有限的数据库连接
+* 4.不要把机密信息直接存放，加密或者hash掉密码和敏感的信息.
+* 5.应用的异常信息应该该处尽可能少的提示，最好使用自定义的错误信息对原始错误信息进行包装
+* 6.sql注入的检测方法一般采用辅助软件或网站平台来检测，软件一般采用sql注入检测工具jsky,网站平台就有亿思网站安全平台检测工具。MDCSOFT SCAN等。采用MDCSOFT-IPS可以有效的防御SQL注入，XSS攻击等。
+
+**防止SQL注入**
+
+在脚本语言中，可以对用户输入的数据进行转义从而来放置SQL注入
+
+**Like语句中的注入**
+
+like查询时，如果用户输入的值有\_和\%，则会出现如下情况：
+
+> 用户本来只是想查询"abcd\_",查询结果中却有“abcd\_”,"abcde","abcdf"等等,用户要查询“30%”（注：百分之三十）时也会出现问题
 
 ### MySQL 导出数据
 
