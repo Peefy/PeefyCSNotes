@@ -247,5 +247,117 @@ Redis有序集合和集合一样也是string类型元素的集合，且不允许
 * ZUNIONSTORE destination numkeys key [key ...] 
 * ZSCAN key cursor [MATCH pattern] [COUNT count] 
 
+### Redis HyperLogLog
+
+HyperLogLog是用来做基数统计的算法，HyperLogLog的优点是，在输入元素的数量或者体积非常非常大时，计算基数所需的空间总是固定的、并且是很小的。
+
+在Redis里面，每个HyperLogLog键只需要花费12KB的内存，就可以计算接近2^64个不同元素的基数，这和计算基数时，元素越多耗费内存就越多的集合形成鲜明对比
+
+但是因为HyperLogLog只会根据输入元素来计算基数，而不会存储输入元素本身，所以HyperLogLog不能像集合那样，返回输入的各个元素
+
+**基数**
+比如数据集{1,3,7,5,7,8},那么这个数据集的基数集为{1,3,5,7,8},基数(不重复元素)为5.基数估计就是在误差可接受的范围内，快速计算基数
+
+* PFADD key element [element...] | 添加指定元素到 HyperLogLog 中。
+* PFCOUNT key [key...] | 返回给定 HyperLogLog 的基数估算值。
+* PFMERGE destkey sourcekey [sourcekey...] | 将多个 HyperLogLog 合并为一个 HyperLogLog
+
+### Redis发布订阅
+
+Redis发布订阅是一种消息通信模式：发送者(pub)发送消息，订阅者(sub)接收消息
+
+* PSUBSCRIME pattern [pattern...] | 订阅一个或多个符合给定模式的频道
+* PUBSUB subcommand [argument [augument...]] | 查看订阅与发布系统状态。
+* PUBLISH channel message | 将信息发送到指定的频道。
+* PUBSUBSCRIBE [pattern [pattern...]] | 退订所有给定模式的频道。
+* SUBSCRIBE channel [channel..] | 订阅给定的一个或多个频道的信息。
+* UNSUBSCRIBE [channel [channel...]] | 指退订给定的频道。
+
+### Redis事务
+
+* 批量操作在发送EXEC命令前被放入队列缓存
+* 收到EXEC命令后进入事务执行，事务中任意命令执行失败，其余的命令依然被执行
+* 在事务执行过程，其他客户端提交的命令请求不会插入到事务执行命令序列中
+
+一个事务，单个Redis命令的执行是原子性的,但Redis没有在事务上增加任何维持原子性的机制，所以Redis事务的执行并不是原子性的。事务可以理解为一个打包的批量执行脚本，但批量指令并非是原子化的操作，中间某条指令的失败不会导致前面已做指令的回滚，也不会造成后续的指令不做。
+
+* DISCARD | 取消事务，放弃执行事务块内的所有命令。
+* EXEC | 执行所有事务块内的命令。
+* MULTI | 标记一个事务块的开始。
+* UNWATCH | 取消 WATCH 命令对所有 key 的监视。
+* WATCH key [key...] | 监视一个(或多个) key ，如果在事务执行之前这个(或这些) key 被其他命令所改动，那么事务将被打断。
+
+### Redis脚本
+
+Redis脚本使用Lua解释器来执行脚本。Redis2.6版本通过内嵌支持Lua环境。执行脚本的常用命令为EVAL
+
+* EVAL script numkeys key [key...] arg [arg...] | 执行 Lua 脚本。
+* EVALSHA script sha1 numkeys key [key...] arg [arg...] | 执行 Lua 脚本。
+* SCRIPT EXISIS script [script...] | 查看指定的脚本是否已经被保存在缓存当中。
+* SCRIPT FLUSH | 从脚本缓存中移除所有脚本。
+* SCRIPT KILL | 杀死当前正在运行的 Lua 脚本。
+* SCRIPT LOAD script | 将脚本 script 添加到脚本缓存中，但并不立即执行这个脚本。
+
+### Redis连接
+
+Redis连接命令主要是用于连接Redis服务
+
+* AUTH password | 验证密码是否正确
+* ECHO message | 打印字符串
+* PING | 查看服务是否运行
+* QUIT | 关闭当前连接
+* SELECT index | 切换到指定的数据库
+
+### Redis服务器
+
+Redis服务器命令主要是用于管理redis服务
+
+* BGREWRITEAOF | 异步执行一个 AOF（AppendOnly File） 文件重写操作
+* BGSAVE | 在后台异步保存当前数据库的数据到磁盘
+* CLIENT KILL [ip:port] [ID client-id] | 关闭客户端连接
+* CLIENT LIST | 获取连接到服务器的客户端连接列表
+* CLIENT GETNAME | 获取连接的名称
+* CLIENT PAUSE timeout | 在指定时间内终止运行来自客户端的命令
+* CLIENT SETNAME connection-name | 设置当前连接的名称
+* CLUSTER SLOTS | 获取集群节点的映射数组
+* COMMAND | 获取 Redis 命令详情数组
+* COMMAND COUNT | 获取 Redis 命令总数
+* COMMAND GETKEYS | 获取给定命令的所有键
+* TIME | 返回当前服务器时间
+* COMMAND INFO command-name [command-name] | 获取指定 Redis 命令描述的数组
+* CONFIG GET parameter | 获取指定配置参数的值
+* CONFIG REWRITE | 对启动 Redis 服务器时所指定的 redis.conf 配置文件进行改写
+* CONFIG SET parameter value | 修改 redis 配置参数，无需重启
+* CONFIG RESETSTAT | 重置 INFO 命令中的某些统计数据
+* DBSIZE | 返回当前数据库的 key 的数量
+* DEBUG OBJECT key | 获取 key 的调试信息
+* DEBUG SEGFUALT | 让 Redis 服务崩溃
+* FLUSHALL | 删除所有数据库的所有key
+* FLUSHDB | 删除当前数据库的所有key
+* INFO [section] | 获取 Redis 服务器的各种信息和统计数值
+* LASTSAVE | 返回最近一次 Redis 成功将数据保存到磁盘上的时间，以 UNIX 时间戳格式表示
+* MONITOR | 实时打印出 Redis 服务器接收到的命令，调试用
+* ROLE | 返回主从实例所属的角色
+* SAVE | 同步保存数据到硬盘
+* SHUTDOWN [NOSAVE] [SAVE] | 异步保存数据到硬盘，并关闭服务器
+* SLAEOF host port | 将当前服务器转变为指定服务器的从属服务器(slave server)
+* SLOWLOG subcommand [argument] | 管理 redis 的慢日志
+* SYNC | 用于复制功能(replication)的内部命令
+
+### Redis数据备份与恢复
+
+Redis **SAVE** 命令用于创建当前数据库的备份 
+
+该命令将在redis安装目录中创建dump.rdb文件
+
+**恢复数据**
+
+如果要恢复数据，只需将备份文件(dump.rdb)移动到redis安装目录并启动服务即可。获取redis目录可以使用CONFIG命令，如下所示
+
+**Bgsave**
+
+创建redis备份文件也可以使用命令BGSAVE，该命令在后台执行
+
+### Redis安全
 
 
