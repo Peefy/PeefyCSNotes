@@ -101,7 +101,19 @@ ls /
 
 ### Linux远程登录
 
+可以通过远程登录Linux服务器来管理维护系统。Linux系统中是通过ssh服务实现的远程登录功能，默认ssh服务端口号为22.
+
+windows系统上Linux远程登录客户端SecureCRT,Putty,SSH Secure Shell, 文本以Putty为例来登录远程服务器
+
+**使用密钥认证机制远程登录Linux**
+
+SSH为Secure Shell的缩写，有IETF的网络工作小组(Network Working Group)所制定，SSH为建立在应用层和传输层基础上的安全协议
+
 ### Linux文件基本属性
+
+Linux系统是一种典型的多用户系统，不同的用户处于不同的地位，拥有不同的权限，为了保护系统的安全性，Linux系统对不同的用户访问同一文件(包括目录文件)的权限做了不同的规定
+
+在Linux中可以使用ll或ls -l命令来显示一个文件的属性以及文件所属的用户和组
 
 ### Linux文件与目录管理
 
