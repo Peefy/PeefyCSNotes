@@ -1089,3 +1089,8 @@ mysqlimport -u root -p --local --columns=b,c,a \
 
 转自菜鸟教程
 [http://www.runoob.com/mysql/mysql-operator.html]
+
+## Redis
+
+
+[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_REDIS.md)
