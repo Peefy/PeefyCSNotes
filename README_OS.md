@@ -414,8 +414,15 @@ groupmod 选项 用户组
 
 * 1.先编辑一个文本用户文件:每一列按照/etc/passwd密码文件的格式书写，要注意每个用户的用户名、UID/宿主目录都不可以相同，其中密码栏可以留作空白或输入x号。
 * 2.以root身份执行命令、/usr/sbin/newusers,从刚创建的用户文件user.txt中导入数据
+* 3.执行命令/usr/sbin/pwunconv。
+* 4.编辑每个用户的密码对照文件。
+* 5.以root身份执行命令 /usr/sbin/chpasswd
+* 6.确定密码经编码写入/etc/passwd的密码栏后。
 
 ### Linux磁盘管理
+
+Linux磁盘管理好坏直接关系到整个系统的性能问题
+Linux磁盘管理常用三个命令为df、du和fidisk
 
 ### Linux vi/vim
 
