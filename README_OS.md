@@ -515,9 +515,83 @@ inode：记录文件的属性，一个文件占用一个 inode，同时记录此
 
 所有的Unix Like系统都会内建vi文书编辑器，其他的不一定存在。目前使用较多是vim编辑器
 
-Vim是从vi发展出来的一个文本编辑器
+Vim是从vi发展出来的一个文本编辑器，类似于Sublime，VS Code等
+
+**三种使用模式**:
+* 命令模式：
+
+几种常用的几个命令
+* i切换到输入模式，以输入字符
+* **x**删除当前光标所在处的字符
+* :切换到底线命令模式，以在最底一行输入命令
+
+* 输入模式：
+
+输入模式中可以使用的按键
+* 字符按键以及Shift组合：输入字符
+* ENTER:回车键，换行
+* BACK SPACE:退格键，删除光标前一个字符
+* DEL:删除键，删除光标后一个字符
+* 方向键：在文本中移动光标
+* HOME/END:移动光标到行首/行尾
+* Page Up/Page Down:上/下翻页
+* Insert:切换光标为输入/替换模式，光标将变成竖线/下划线
+* ESC:退出输入模式，切换到命令模式
+
+* 底线命令模式：
+
+在命令模式下按下英文冒号就进入了底线命令模式
+* q 退出程序
+* w 保存文件
 
 ### Linux yum命令
+
+yum (Yellow dog Updater, Modified)是一个在Fedora和RedHat以及SUSE中的Shell前端软件包管理器。基于RPM包管理，能够从指定的服务器自动下载RPM包并且安装，可以自动处理依赖关系，并且一次安装所有依赖的软件包，无须繁琐地一次次下载、安装
+
+yum提供了查找、安装、删除某一个、一组甚至全部软件包的命令，简洁好记
+
+语法：
+```bash
+yum [options] [command] [package ...]
+```
+
+* options：可选，选项包括-h（帮助），-y（当安装过程提示选择全部为“yes”）,-q（不显示安装的过程）等等。
+* command：要进行的操作
+* package：操作的对象
+
+常用命令:
+* **yum check-update** ：列出所有可更新的软件清单命令
+* **yum update** ：更新所有软件命令
+* **yum install \<package_name\>** ：仅安装指定的软件命令
+* **yum update \<package_name\>** ：仅更新指定的软件命令
+* **yum list** ：列出所有可安裝的软件清单命令
+* **yum remove \<package_name\>** ：删除软件包命令
+* **yum search \<keyword\>** ：查找软件包命令
+* **yum clean packages** ：清除缓存目录下的软件包
+* **yum clean headers** ：清除缓存目录下的 headers
+* **yum clean oldheaders** ：清除缓存目录下旧的 headers
+* **yum clean, yum clean all** ：清除缓存目录下的软件包及旧的headers
+
+**国内yum源**
+
+网易(163)yum源是国内最好的yum源之一，无论是速度还是软件版本，都非常不错
+将yum源设置为163 yum，可以提升软件包安装和更新速度，同时避免一些常见软件版本无法找到
+
+安装步骤
+* 1.首先备份/etc/yum.repos.d/CentOS-Base.repo
+```bash
+mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+```
+* 2.下载对应操作系统版本的repo文件，放入/etc/yum.repos.d/ (操作前做好相应备份)
+```bash
+wget http://mirrors.163.com/.help/CentOS6-Base-163.repo
+mv CentOS6-Base-163.repo CentOS-Base.repo
+```
+* 3.运行以下命令生成缓存
+```bash
+yum clean all
+yum makecache
+```
 
 ### Linux命令大全
 
