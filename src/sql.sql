@@ -1,0 +1,1 @@
+select * from dugu_table
