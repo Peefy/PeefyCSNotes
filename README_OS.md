@@ -599,6 +599,43 @@ yum makecache
 
 ## Shell
 
+Shell是一个用C语言编写的程序，是用户使用Linux的桥梁。Shell既是一种命令语言，又是一种程序设计语言。Shell既是一种命令语言，又是一种程序设计语言。Shell是指一种应用程序，这个应用程序提供可一个界面，用户通过这个界面访问操作系统内核的服务。
+Ken Thompson的sh是一种Unix Shell，Windows Explorer是一个典型的图形界面Shell。
+
+**Shell脚本**
+
+Shell脚本(shell script),是一种为shell编写的脚本程序。
+但是shell和shell script是两个不同的概念
+
+**Shell环境**
+Shell编程跟java、php编程一样，只要有一个能编写代码的文本编辑器和一个能解释执行的脚本解释器就可以了。Linux的Shell种类：
+* Bourme Shell (usr/bin/sh或)
+* Bourme Again Shell (/bin/bash) *bash*
+* C Shell (/usr/bin/csh)
+* K Shell (/usr/bin/ksh)
+* Shell for Root (/sbin/sh)
+* etc.
+
+*bash也是大多数Linux系统默认的Shell,一般不区分Bourne Shell 和 Bourne Again Shell，所以像#!bin/sh,同样可以改为#!bin/bash*
+
+`#!`是一个约定的标记，告诉系统这个脚本需要什么解释器来执行，即使用哪一种Shell 
+
+第一个shell脚本*first.sh*,sh代表shell
+
+```bash
+echo "Hello World"
+```
+
+运行Shell脚本有两种方法
+* 1.作为可执行程序:
+将代码保存，并cd到相应目录
+```cmd
+chmod +x ./test.sh
+```
+* 2.作为解释器参数:
+
+
+
 ### Shell教程
 
 ### Shell变量
