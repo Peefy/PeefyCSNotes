@@ -159,6 +159,111 @@ echo -e $str
 * 双引号里面可以有变量
 * 双引号可以出现转义字符
 
+**拼接字符串**
+
+```bash
+your_name="dugu"
+# 使用双引号拼接
+greeting="hello, "$your_name" !"
+greeting_1="hello, ${your_name} !"
+echo $greeting $greeting_1
+# 使用单引号拼接
+greeting_2='hello, '$your_name' !'
+greeting_3='hello, ${your_name} !'
+echo $greeting_2 $greeting_3
+```
+
+输出结果为
+> hello, dugu ! hello, dugu !
+> hello, dugu ! hello, ${your_name} !
+
+**获取字符串长度**
+
+```bash
+string="abcd"
+echo ${#string} #输出4
+```
+
+**提取子字符串**
+
+从字符串第2个字符开始截取4个字符
+```bash
+string="abcdefghi"
+echo ${string:1:4} # 输出bcde
+```
+
+**查找子字符串**
+
+查找字符i或o的位置
+
+```bash
+string="abcdefg"
+echo `expr index "$string" cd` #输出 4
+```
+
+**Shell数组**
+
+bash支持一维数组（不支持多维数组），并且没有限定数组的大小.
+类似于C语言，数组元素的下标由0开始编号。获取数组中的元素要利用下标,下标可以是整数或算术表达式,其值应大于或等于0
+
+**定义数组**
+
+在Shell中，用括号来表示数组，数组元素用“空格”符号分隔开。定义数组的一般形式为:
+```bash
+数组名=(值1 值2 ... 值n)
+```
+```bash
+array_name=(value0 value1 value2 value3)
+```
+
+*shell数组可以不使用连续的下标，而且下标的范围没有限制*
+
+**读取数组**
+
+读取数组元素值的一般格式是：
+```bash
+${数组名[下标]}
+```
+
+例如:
+```bash
+value=${array_name[@]}
+```
+
+**获取数组的长度**
+
+获取数组长度的方法与获取字符串长度的方法相同,例如：
+```bash
+# 取得数组元素的个数
+length=${#array_name[@]}
+# 或者
+length=${#array_name[*]}
+# 取得数组单个元素的长度
+lengthn=${#array_name[n]}
+```
+
+**Shell注释**
+
+以`#`开头的行就是注释，会被解释器忽略
+通过每一行加一个#号设置多行注释,像这样:
+
+多行注释
+```bash
+:<<EOF
+注释内容...
+注释内容...
+注释内容...
+EOF
+```
+当然`EOF`也可以使用其他符号
+```bash
+:<<!
+注释内容...
+注释内容...
+注释内容...
+!
+```
+
 ### Shell传递参数
 
 ### Shell数组
