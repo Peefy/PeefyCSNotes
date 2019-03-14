@@ -23,15 +23,15 @@
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_NETWORK.md)
 
-## 编译原理
+## 编译原理 
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_COMPILE.md)
-
-## 数据库
+ 
+## 数据库 
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_DATABASE.md)
 
-## 算法
+## 算法 
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM.md)
 
@@ -39,6 +39,6 @@
 
 [机器学习笔记](https://github.com/Peefy/StatisticalLearningMethod.Python/tree/master/src)
 
-## 编程
+## 编程 
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_CODING.md)
