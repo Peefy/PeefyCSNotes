@@ -749,7 +749,31 @@ read命令一个一个词组地接收输入的参数，每个词组需要使用�
 除了echo命令，shell的另一个输出命令printf,printf命令模仿C程序库里面(library)的printf()程序。
 printf由POSIX标准所定义，因此使用printf的脚本比使用echo移植性好
 
+printf使用引用文本或空格分隔符的参数，外刊可以在printf中使用格式化字符串，还可以制定字符串的宽度,左右对齐方式等，默认printf不会像echo自动添加换行符号，可以手动添加\n
+
+```bash
+printf format-string [arguments]
+```
+
+参数说明
+* format-string：格式控制字符串
+* arguments：参数列表
+
+```bash
+echo "Hello, Shell"
+printf "Hello, Shell\n"
+```
+
+```bash
+printf "%-10s %-8s %-4s\n" 姓名 性别 体重kg  
+printf "%-10s %-8s %-4.2f\n" 郭靖 男 66.1234 
+printf "%-10s %-8s %-4.2f\n" 杨过 男 48.6543 
+printf "%-10s %-8s %-4.2f\n" 郭芙 女 47.9876 
+```
+
 ### Shell test命令
+
+
 
 ### Shell 流程控制
 
