@@ -771,11 +771,116 @@ printf "%-10s %-8s %-4.2f\n" 杨过 男 48.6543
 printf "%-10s %-8s %-4.2f\n" 郭芙 女 47.9876 
 ```
 
-### Shell test命令
+### Shell test函数
 
-
+test函数与[]类似
 
 ### Shell 流程控制
+
+**if else**
+
+```bash
+if condition
+then
+   command1
+   command2
+   command3
+elif condition2
+   command4
+else
+   command5  
+fi
+```
+
+末尾的fi就是if倒过来
+
+举例
+```bash
+a=10
+b=20
+if [ $a == $b ]
+then
+   echo "a 等于 b"
+elif [ $a -gt $b ]
+then
+   echo "a 大于 b"
+elif [ $a -lt $b ]
+then
+   echo "a 小于 b"
+else
+   echo "没有符合的条件"
+fi
+```
+
+```bash
+if [ $(ps -ef | grep -c "ssh") -gt 1 ]; then echo "true"; fi
+```
+
+**for循环**
+
+当变量值在列表里面，for循环即执行一次所有命令，使用变量名获取列表中的当前取值。命令可以为任何有效的shell命令和语句，in列表可以包含替换，字符串和文件名
+
+```bash
+for var in item1 item2 ... itemN
+do
+   command1
+   command2
+   ...
+done
+```
+
+```bash
+for loop in 1 2 3 4 5 
+do
+   echo "loop count: ${loop}"
+done
+```
+
+for (( ; ; )) 无限循环
+
+**while语句**
+
+```bash
+int=1
+while(( $int<=5 ))
+do
+   echo $int
+   let "int++"
+done
+```
+
+**util语句**
+
+```bash
+a=0
+until [ ! $a -lt 10 ]
+do
+   echo $a
+   a=`expr $a + 1`
+done
+```
+
+**case语句**
+
+```bash
+aNum=2
+case $aNum in
+    1)  echo '你选择了 1'
+    ;;
+    2)  echo '你选择了 2'
+    ;;
+    3)  echo '你选择了 3'
+    ;;
+    4)  echo '你选择了 4'
+    ;;
+    *)  echo '你没有输入 1 到 4 之间的数字'
+    ;;
+esac
+```
+
+case的语法和C family语言差别很大，它需要一个esac（就是case反过来）作为结束标记，每个case分支用右圆括号，用两个分号表示break。
+
+**continue**与**break**与c语音中类似
 
 ### Shell 函数
 

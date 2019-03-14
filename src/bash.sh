@@ -232,3 +232,54 @@ printf "%-10s %-8s %-4s\n" 姓名 性别 体重kg
 printf "%-10s %-8s %-4.2f\n" 郭靖 男 66.1234 
 printf "%-10s %-8s %-4.2f\n" 杨过 男 48.6543 
 printf "%-10s %-8s %-4.2f\n" 郭芙 女 47.9876 
+
+# 流程控制
+
+a=10
+b=20
+if [ $a == $b ]
+then
+   echo "a 等于 b"
+elif [ $a -gt $b ]
+then
+   echo "a 大于 b"
+elif [ $a -lt $b ]
+then
+   echo "a 小于 b"
+else
+   echo "没有符合的条件"
+fi
+
+for loop in 1 2 3 4 5
+do
+    echo "The value is: $loop"
+done
+
+int=1
+while(( $int<=5 ))
+do
+   echo $int
+   let "int++"
+done
+
+a=0
+
+until [ ! $a -lt 10 ]
+do
+   echo $a
+   a=`expr $a + 1`
+done
+
+aNum=2
+case $aNum in
+    1)  echo '你选择了 1'
+    ;;
+    2)  echo '你选择了 2'
+    ;;
+    3)  echo '你选择了 3'
+    ;;
+    4)  echo '你选择了 4'
+    ;;
+    *)  echo '你没有输入 1 到 4 之间的数字'
+    ;;
+esac
