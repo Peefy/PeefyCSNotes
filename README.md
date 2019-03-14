@@ -11,12 +11,10 @@
 
 ## 操作系统
 
-### Linux
-### Docker
-### Shell Bash
-### CMake
-
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_OS.md)
+* [Linux](https://github.com/Peefy/PeefyCSNotes/blob/master/README_OS.md)
+* [Docker]
+* [Shell Bash](https://github.com/Peefy/PeefyCSNotes/blob/master/README_SHELL.md)
+* [CMake]
 
 ## 计算机网络
 
@@ -36,6 +34,10 @@
 ## 算法
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM.md)
+
+[算法导论笔记](https://github.com/Peefy/IntroductionToAlgorithm.Python)
+
+[机器学习笔记](https://github.com/Peefy/StatisticalLearningMethod.Python/tree/master/src)
 
 ## 编程
 
