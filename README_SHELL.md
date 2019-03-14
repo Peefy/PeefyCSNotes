@@ -746,6 +746,9 @@ read命令一个一个词组地接收输入的参数，每个词组需要使用�
 
 ### Shell printf命令
 
+除了echo命令，shell的另一个输出命令printf,printf命令模仿C程序库里面(library)的printf()程序。
+printf由POSIX标准所定义，因此使用printf的脚本比使用echo移植性好
+
 ### Shell test命令
 
 ### Shell 流程控制
