@@ -677,6 +677,73 @@ abc : 字符串不为空
 
 ### Shell echo命令
 
+echo命令都是用于字符串的输出
+
+**1.显示普通字符串**
+
+```bash
+echo "It is a test"
+```
+
+**2.显示转义字符**
+
+```bash
+echo "\"It is a test\""
+```
+
+**3.显示变量**
+
+```bash
+read name
+echo "It is my ${name}"
+```
+
+**4.显示换行**
+
+```bash
+#!/bin/sh
+read name 
+echo "$name It is a test"
+```
+
+**5.显示不换行**
+
+```bash
+#!bin/sh
+echo -e "OK! \c" # -e 开启转义 \c 不换行
+echo "It is a test"
+```
+
+**6.显示结果定向至文件**
+
+```bash
+echo "It is a test" > myfile
+```
+
+**7.原样输出字符串，不进行转义或取变量(用单引号)**
+
+```bash
+echo '$name\"'
+```
+
+**8.显示命令执行结果**
+
+```bash
+echo `date`
+```
+
+注意：*显示命令使用的是反引号\` \`,而不是单引号*
+
+**read命令**
+
+read命令一个一个词组地接收输入的参数，每个词组需要使用空格进行分隔，如果输入的词组个数大于需要的参数个数，则多出的词组将被作为整体为最后一个参数接收
+
+选项与参数说明
+* **-p** 输入提示文字
+* **-n** 输入字符长度限制(达到6位,自动结束)
+* **-t** 输入限时
+* **-s** 隐藏输入内容
+
 ### Shell printf命令
 
 ### Shell test命令
