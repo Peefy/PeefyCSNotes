@@ -18,8 +18,8 @@
 
 ## 计算机网络
 
-### Http1.0 2.0
-### TCP UDP Socket
+### HTTP
+### TCP UDP Socket TCP/IP
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_NETWORK.md)
 
