@@ -283,3 +283,15 @@ case $aNum in
     *)  echo '你没有输入 1 到 4 之间的数字'
     ;;
 esac
+
+# shell函数
+
+demoFun() {
+   echo "this is a function"
+   a=10
+   b=20
+   c=$1
+   return (($a+$b+$c))
+}
+
+demoFun 10
