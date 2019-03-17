@@ -1,13 +1,5 @@
-# PeefyCSNotes
 
-计算机科学与技术笔记
-
-* 操作系统 Linux
-* 计算机网络 TCP UDP HTTP
-* 数据库 MySQL
-* 算法
-* 程序语言设计：面向对象、设计模式、容器Ioc&DI
-* 编译原理
+# 计算机网络 TCP/IP TCP UDP HTTP
 
 ## 计算机网络
 
@@ -170,4 +162,187 @@ HTTP三点注意事项：
 
 **HTTP消息结构**
 
+HTTP是基于客户端/服务端(C/S)的架构模型，通过一个可靠的连接来交换信息，是一个无状态的请求/响应协议。一个HTTP“客户端”是一个应用程序(Web浏览器或其他任何客户端)，通过连接到服务器达到向服务器发送一个或多个HTTP的请求的目的。
 
+一个HTTP“服务器”同样也是一个应用程序(通常是Web服务,如Apache Web服务器或IIS服务器等)，通过接收的客户端的请求并向客户端发送HTTP响应数据.
+
+HTTP使用统一资源表示符(Uniform Resource Identifiers, URI)来传输数据和建立连接.一旦建立连接后，数据消息就通过类似Internet邮件所使用的格式[RFC5322]和多用途Internet邮件扩展(MIME)[RFC2045]来传送
+
+**客户端请求消息**
+
+客户端发送一个HTTP请求到服务器的请求消息包括以下格式：*请求行(request line)*、*请求头部(header)*、*空行*和*请求数据*四个部分组成
+
+**服务器相应消息**
+
+HTTP相应也由四个部分组成，分别是：*状态行*, *消息报头*, *空行*, *相应正文*
+```xml
+HTTP/1.1 200 OK
+Date: Sat, 31, Dec 2005 23:59:59 GMT
+Content-Type: text/html;charset=ISO-8859-1
+Content-Length: 122
+
+<html>
+<head>
+<title>Homepage</title>
+</head>
+<body>
+contents
+<!-- comments -->
+</body>
+</html>
+
+```
+
+**使用HTTP GET来向服务器获取数据**
+
+客户端请求
+
+```http
+GET /hello.txt HTTP/1.1
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
+Host: www.example.com
+Accept-Language: en, mi
+```
+
+服务器相应
+
+```http
+HTTP/1.1 200 OK
+Date: Mon, 27 Jul 2009 12:28:53 GMT
+Server: Apache
+Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
+ETag: "34aa387-d-1568eb00"
+Accept-Ranges: bytes
+Content-Length: 51
+Vary: Accept-Encoding
+Content-Type: text/plain
+```
+
+**HTTP协议的8种请求类型**
+
+HTTP 协议中共定义了八种方法或者叫“动作”来表明对 Request-URI 指定的资源的不同操作方式，具体介绍如下：
+
+* `OPTIONS`: 返回服务器针对特定资源所支持的HTTP请求方法。也可以利用Web服务器发送'*'的请求来测试服务器的功能性
+* `HAED`: 向服务器索要与GET请求相一致的响应，只不过响应体将不会被返回。这一方法可以在不必传输整个响应内容的情况下，就可以获取包含在响应消息头中的元信息
+* `GET`: 向特定的资源发出请求
+* `POST`: 向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST请求可能会导致新的资源的创建和/或已有资源的修改
+* `PUT`: 向指定资源位置上传其最新内容
+* `DELETE`: 请求服务器删除 Request-URI 所标识的资源
+* `TRACE`: 回显服务器收到的请求，主要用于测试或诊断
+* `CONNECT`: HTTP/1.1 协议中预留给能够将连接改为管道方式的代理服务器
+
+虽然HTTP的请求方式有8种，但是我们在实际应用中常用的也就是**get**和**post**,其他请求方式也都可以通过两种方式间接的来实现
+
+**HTTP请求方法**
+
+根据HTTP标准，HTTP请求可以使用多种请求方法。
+
+HTTP1.0定义了三种请求方法：`GET` `POST` 和 `HEAD` 方法
+
+序号|方法|描述
+-|-|-
+1|GET|请求指定的页面信息，并放回实体主体
+2|HEAD|类似于get请求,只不过返回响应中没有具体的内容，用于获取报头
+3|POST|向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST请求可能会导致新的资源的建立和/或已有资源的修改。
+4|PUT|从客户端向服务器传送的数据取代指定的文档的内容。
+5|DELETE|请求服务器删除指定的页面。
+6|CONNECT|HTTP/1.1协议中预留给能够将连接改为管道方式的代理服务器。
+7|OPTIONS|允许客户端查看服务器的性能。
+8|TRACE|回显服务器收到的请求，主要用于测试或诊断。
+
+**HTTP响应头信息**
+
+HTTP请求头提供了关于请求，响应或者其他的发送实体的信息
+
+应答头|说明
+-|-
+Allow|服务器支持哪些请求方法(如GET/POST等)
+Content-Encoding|文档的编码（Encode）方法。只有在解码之后才可以得到Content-Type头指定的内容类型。利用gzip压缩文档能够显著地减少HTML文档的下载时间。Java的GZIPOutputStream可以很方便地进行gzip压缩，但只有Unix上的Netscape和Windows上的IE 4、IE 5才支持它。因此，Servlet应该通过查看Accept-Encoding头（即request.getHeader("Accept-Encoding")）检查浏览器是否支持gzip，为支持gzip的浏览器返回经gzip压缩的HTML页面，为其他浏览器返回普通页面
+Content-Length|表示内容长度。只有当浏览器使用持久HTTP连接时才需要这个数据。如果想要利用持久连接的优势，可以把输入文档写入ByteArrayOutputStream，完成后查看其大小，然后把该值放入Content-Length头
+Date|当前的GMT时间
+Expires|应该在什么时候认为文档已经过期，从而不再缓存它
+Last-Modified|文档的最后改动时间。客户可以通过If-Modified-Since请求头提供一个日期，该请求将被视为一个条件GET，只有改动时间迟于指定时间的文档才会返回，否则返回一个304(Not Modified)状态
+Location|表示客户应当到哪里去提取文档。Location通常不是直接设置的
+Refresh|表示浏览器应该在多少时间之后刷新文档，以秒计。除了刷新当前文档之外，还可以通过指令让浏览器读取指定的页面。*注意：Refresh的意义是“N秒之后刷新本页面或访问指定页面”，而不是“每隔N秒刷新本页面或访问指定页面”。因此，连续刷新要求每次都发送一个Refresh头，而发送204状态码则可以阻止*
+Server|服务器名字。Servlet一般不设置这个值，而是由Web服务器自己设置
+Set-Cookie|设置和页面关联的Cookie。
+WWW-Authenticate|客户应该在Authorization头中提供什么类型的授权信息.在包含401(Unauthorized)状态行的应答中这个头是必需的。*注意Servlet一般不进行这方面的处理，而是让Web服务器的专门机制来控制受密码保护页面的访问*
+
+**HTTP状态码**
+
+当浏览器访问一个网页时，浏览者的浏览器会向网页所在服务器发出请求。当浏览器接收并显示网页前，此网页所在的服务器会返回一个包含HTTP状态码的信息头(server header)用以相应浏览器的请求
+
+HTTP状态码的英文为HTTP Status Code
+
+常见HTTP状态码
+
+* **200**：请求成功 
+* **301**：资源(网页等)被永久转移到其他URL
+* **404**：请求的资源(网页等)不存在
+* **500**：内部服务器错误
+
+**HTTP状态码分类**
+
+HTTP状态码由三个十进制数字组成，第一个十进制数字定义了状态码的类型，后两个数字没有分类的作用。HTTP状态码分为5种类型
+
+分类|描述
+-|-
+1**|信息，服务器收到请求，需要请求者继续执行操作
+2**|成功，操作被成功接收并处理
+3**|重定向，需要进一步的操作以完成请求
+4**|客户端错误，请求包含语法错误或无法完成请求
+5**|服务器错误，服务器在处理请求的过程中发生了错误
+
+**HTTP状态码列表**
+
+状态码|状态码英文名称|中文描述
+-|-|-
+**100**|Continue|继续。客户端应继续其请求
+**101**|Switching Protocols|切换协议。服务器根据客户端的请求切换协议。只能切换到更高级的协议，例如，切换到HTTP的新版本协议
+**200**|OK|请求成功。一般用于GET与POST请求
+**201**|Created|已创建。成功请求并创建了新的资源
+**202**|Accepted|已接受。已经接受请求，但未处理完成
+**203**|Non-Authoritative Information|非授权信息。请求成功。但返回的meta信息不在原始的服务器，而是一个副本
+**204**|No Content|无内容。服务器成功处理，但未返回内容。在未更新网页的情况下，可确保浏览器继续显示当前文档
+**205**|Reset Content|重置内容。服务器处理成功，用户终端（例如：浏览器）应重置文档视图。可通过此返回码清除浏览器的表单域
+**206**|Partial Content|部分内容。服务器成功处理了部分GET请求
+**300**|Multiple Choices|多种选择。请求的资源可包括多个位置，相应可返回一个资源特征与地址的列表用于用户终端（例如：浏览器）选择
+**301**|Moved Permanently|永久移动。请求的资源已被永久的移动到新URI，返回信息会包括新的URI，浏览器会自动定向到新URI。今后任何新的请求都应使用新的URI代替
+**302**|Found|临时移动。与301类似。但资源只是临时被移动。客户端应继续使用原有URI
+**303**|See Other|查看其它地址。与301类似。使用GET和POST请求查看
+**304**|Not Modified|未修改。所请求的资源未修改，服务器返回此状态码时，不会返回任何资源。客户端通常会缓存访问过的资源，通过提供一个头信息指出客户端希望只返回在指定日期之后修改的资源
+**305**|Use Proxy|使用代理。所请求的资源必须通过代理访问
+**306**|Unused|已经被废弃的HTTP状态码
+**307**|Temporary Redirect|临时重定向。与302类似。使用GET请求重定向
+**400**|Bad Request|客户端请求的语法错误，服务器无法理解
+**401**|Unauthorized|请求要求用户的身份认证
+**402**|Payment Required|保留，将来使用
+**403**|Forbidden|服务器理解请求客户端的请求，但是拒绝执行此请求
+**404**|Not Found|服务器无法根据客户端的请求找到资源（网页）。通过此代码，网站设计人员可设置"您所请求的资源无法找到"的个性页面
+**405**|Method Not Allowed|客户端请求中的方法被禁止
+**406**|Not Acceptable|服务器无法根据客户端请求的内容特性完成请求
+**407**|Proxy Authentication Required|请求要求代理的身份认证，与401类似，但请求者应当使用代理进行授权
+**408**|Request Time-out|服务器等待客户端发送的请求时间过长，超时
+**409**|Conflict|服务器完成客户端的PUT请求是可能返回此代码，服务器处理请求时发生了冲突
+**410**|Gone|客户端请求的资源已经不存在。410不同于404，如果资源以前有现在被永久删除了可使用410代码，网站设计人员可通过301代码指定资源的新位置
+**411**|Length Required|服务器无法处理客户端发送的不带Content-Length的请求信息
+**412**|Precondition Failed|客户端请求信息的先决条件错误
+**413**|Request Entity Too Large|由于请求的实体过大，服务器无法处理，因此拒绝请求。为防止客户端的连续请求，服务器可能会关闭连接。如果只是服务器暂时无法处理，则会包含一个Retry-After的响应信息
+**414**|Request-URI Too Large|请求的URI过长（URI通常为网址），服务器无法处理
+**415**|Unsupported Media Type|服务器无法处理请求附带的媒体格式
+**416**|Requested range not satisfiable|客户端请求的范围无效
+**417**|Expectation Failed|服务器无法满足Expect的请求头信息
+**500**|Internal Server Error|服务器内部错误，无法完成请求
+**501**|Not Implemented|服务器不支持请求的功能，无法完成请求
+**502**|Bad Gateway|作为网关或者代理工作的服务器尝试执行请求时，从远程服务器接收到了一个无效的响应
+**503**|Service Unavailable|由于超载或系统维护，服务器暂时的无法处理客户端的请求。延时的长度可包含在服务器的Retry-After头信息中
+**504**|Gateway Time-out|充当网关或代理的服务器，未及时从远端服务器获取请求
+**505**|HTTP Version not supported|服务器不支持请求的HTTP协议的版本，无法完成处理
+
+**HTTP Content-Type**
+
+Content-Type,内容类型，一般是指网页中存在的Content-Type，用于定义网络文件的类型和网页的编码，决定浏览器将以什么形式、什么编码读取这个文件，这就是经常看到一些Asp网页点击的结果却是下载到的一个文件或一张图片的原因
+
+[Content-Type对照表](http://www.runoob.com/http/http-content-type.html)
+
+## TCP & UDP
