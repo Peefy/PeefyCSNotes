@@ -25,8 +25,15 @@ DI-Dependency Injection,即“依赖注入”；*组件之间的依赖关系*由
 
 反射机制是在运行状态中，对于任意的一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为反射
 
+[Java反射的例子](https://github.com/Peefy/JavaInVSCode/blob/master/src/ReflectionDemo.java)
 
+[C#反射的例子]()
 
+[Java注解的例子](https://github.com/Peefy/JavaInVSCode/blob/master/src/AnnotationDemo.java)
+
+[C#特性的例子]
+
+[Python装饰器的例子]
 
 ## C++知识点
 
