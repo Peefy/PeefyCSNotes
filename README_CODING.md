@@ -5,7 +5,9 @@
 
 ## 面向对象
 
-## 依赖注入、控制反转、反射、注解、装饰器
+## 依赖注入DI、控制反转Ioc、反射Reflection、注解(Annotation)、特性(Attribute)、装饰器(Decorator)
+
+
 
 ## C++知识点
 
