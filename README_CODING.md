@@ -27,11 +27,11 @@ DI-Dependency Injection,即“依赖注入”；*组件之间的依赖关系*由
 
 [Java反射的例子](https://github.com/Peefy/JavaInVSCode/blob/master/src/ReflectionDemo.java)
 
-[C#反射的例子]()
+[C#反射的例子](https://github.com/Peefy/CSharpInVsCode/blob/master/Demos/RelectionDemo.cs)
 
 [Java注解的例子](https://github.com/Peefy/JavaInVSCode/blob/master/src/AnnotationDemo.java)
 
-[C#特性的例子]
+[C#特性的例子](https://github.com/Peefy/CSharpInVsCode/blob/master/Demos/AttributeDemo.cs)
 
 [Python装饰器的例子]
 
