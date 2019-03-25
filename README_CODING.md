@@ -33,7 +33,7 @@ DI-Dependency Injection,即“依赖注入”；*组件之间的依赖关系*由
 
 [C#特性的例子](https://github.com/Peefy/CSharpInVsCode/blob/master/Demos/AttributeDemo.cs)
 
-[Python装饰器的例子]
+[Python装饰器的例子](https://github.com/Peefy/PythonsWithVSCode/blob/master/decorator.py)
 
 ## C++知识点
 
