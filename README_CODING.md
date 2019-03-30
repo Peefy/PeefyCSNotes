@@ -306,6 +306,8 @@ C++内存池、内存管理、内存泄露
 
 ## java知识点
 
+[Java笔记](https://github.com/Peefy/JavaInVSCode/tree/master/src)
+
 JVM虚拟机，StringBuffer、StringBuilder
 
 HashTable、HashMap、ConcurentHashMap

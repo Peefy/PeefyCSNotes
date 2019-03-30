@@ -14,12 +14,9 @@
 * [Linux](https://github.com/Peefy/PeefyCSNotes/blob/master/README_OS.md)
 * [Docker]
 * [Shell Bash](https://github.com/Peefy/PeefyCSNotes/blob/master/README_SHELL.md)
-* [CMake]
+* [Make](https://github.com/Peefy/CppInVSCode/blob/master/makefile)
 
 ## 计算机网络
-
-### HTTP
-### TCP UDP Socket TCP/IP
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_NETWORK.md)
 
@@ -42,3 +39,7 @@
 ## 编程 
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_CODING.md)
+
+## Thanks
+
+[菜鸟教程](http://www.runoob.com/)
