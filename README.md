@@ -12,9 +12,10 @@
 ## 操作系统
 
 * [Linux](https://github.com/Peefy/PeefyCSNotes/blob/master/README_OS.md)
-* [Docker]
+* [Docker](https://github.com/Peefy/PeefyCSNotes/blob/master/README_DOCKER.md)
 * [Shell Bash](https://github.com/Peefy/PeefyCSNotes/blob/master/README_SHELL.md)
 * [Make](https://github.com/Peefy/CppInVSCode/blob/master/makefile)
+* [CMake](https://github.com/Peefy/PeefyCSNotes/blob/master/README_CMAKE.md)
 
 ## 计算机网络
 
@@ -30,11 +31,13 @@
 
 ## 算法 
 
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM.md)
+[Leetcode](https://github.com/Peefy/PeefyLeetCode)
 
 [算法导论笔记](https://github.com/Peefy/IntroductionToAlgorithm.Python)
 
 [机器学习笔记](https://github.com/Peefy/StatisticalLearningMethod.Python/tree/master/src)
+
+[正则表达式](https://github.com/Peefy/PeefyCSNotes/blob/master/README_REGEX.md)
 
 ## 编程 
 
@@ -43,3 +46,5 @@
 ## Thanks
 
 [菜鸟教程](http://www.runoob.com/)
+
+[牛客网](https://www.nowcoder.com/)
