@@ -39,6 +39,8 @@
 
 [正则表达式](https://github.com/Peefy/PeefyCSNotes/blob/master/README_REGEX.md)
 
+[其他算法](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM.md)
+
 ## 编程 
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_CODING.md)
