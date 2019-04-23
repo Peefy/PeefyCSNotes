@@ -1092,5 +1092,8 @@ mysqlimport -u root -p --local --columns=b,c,a \
 
 ## Redis
 
-
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_REDIS.md)
+
+## 数据库问答
+
+1. MySQL的端口号是多少，如何修改这个端口号
