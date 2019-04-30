@@ -2,12 +2,12 @@
 
 计算机科学与技术笔记
 
-* 操作系统 Linux Shell
-* 计算机网络 Socket TCP UDP HTTP
-* 数据库 MySQL Redis
-* 算法
-* 程序语言设计：面向对象、设计模式、容器Ioc&DI
-* 编译原理
+* **操作系统** 
+* **计算机网络** 
+* **数据库** 
+* **算法**
+* **程序语言设计**
+* **编译原理**
 
 ## 操作系统
 
@@ -21,10 +21,6 @@
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_NETWORK.md)
 
-## 编译原理 
-
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_COMPILE.md)
- 
 ## 数据库 
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_DATABASE.md)
@@ -41,9 +37,13 @@
 
 [其他算法](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM.md)
 
-## 编程 
+## 程序语言设计
 
 [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_CODING.md)
+
+## 编译原理 
+
+[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_COMPILE.md)
 
 ## Thanks
 
