@@ -1,7 +1,7 @@
 
 ## 设计模式
 
-[链接](https://github.com/Peefy/DotNetCore.DesignPatternByCSharp/blob/master/README%20-%20zh.md)
+[C#实现的设计模式](https://peefy.github.io/blog/2018/04/13/CSharp-DesignPatterns/)
 
 ## C++知识点
 
