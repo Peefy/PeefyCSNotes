@@ -13,7 +13,7 @@
 
 ## Python知识点
 
-[Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/dugu_python.py)
+[Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/README_NOTE.md)
 
 ## 面向对象
 
