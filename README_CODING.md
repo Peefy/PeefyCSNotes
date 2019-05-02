@@ -11,6 +11,10 @@
 
 [Java笔记](https://github.com/Peefy/JavaInVSCode/tree/master/)
 
+## Python知识点
+
+[Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/dugu_python.py)
+
 ## 面向对象
 
 ## 控制反转Ioc、依赖注入DI、反射Reflection、注解(Annotation)、特性(Attribute)、装饰器(Decorator)
