@@ -890,6 +890,7 @@ int main()
 * **最佳置换算法OPT**-这是理想算法，不可能实现的。该算法是指，其所选择的淘汰页面，将是以后不再使用，或者未来最长时间内不再被访问的页面。这样来保证最低的缺页率。
 * **先进先出置换算法FIFO**-置换最先调入内存的页面，即置换在内存中驻留时间最久的页面。按照进入内存的先后次序排列成队列，从队尾进入，从队首删除。
 * **最近最久未使用算法LRU**-是对最优置换算法的近似，以过去推未来。根据程序的局部性原理，如果最近一段时间内某些页面被频繁访问，那么在将来还可能被频繁访问。反之，未被访问的将来也不会被访问
+* **时钟**-时钟是 LRU 的近似实现。最简单的时钟策略需要给每一页框管理一个附加位，称为使用位。当某一页首次装入内存时，则将该页框的使用位置为 1；当该页随后被访问到时（在访问产生缺页中断后），他的使用位也会被置为 1。对于页面置换算法用于置换的候选页框集合被视为一个循环缓冲区，并且有一个指针与之相关联。当一页被置换时，该指针被设置成指向缓冲区中的下一个页框。当需要置换一页时，操作系统扫描缓冲区，以查找使用位被置为 0 的一个页框。每当遇到一个使用位为 1 的页框时，操作系统就将该为重新置为 0 ；如果在这个过程开始时，缓冲区所有页框的使用位均为 0，则选择遇到的第一个页框置换；如果所有页框的使用位均为 1，则指针在缓冲区中完整地循环一周，把所有使用位都置为 0，并且停留在最初的位置上，置换该页框中的页。
 
 **14. 多进程和多线程的使用场景**
 
@@ -954,9 +955,687 @@ int main()
 
 **16. 虚拟内存和物理内存怎么对应**
 
+操作系统有虚拟内存与物理内存的概念。在很久以前，还没有虚拟内存概念的时候，程序寻址用的都是物理地址。程序能寻址的范围是有限的，这取决于CPU的地址线条数。比如在32位平台下，寻址的范围是2^32也就是4G。并且这是固定的
+
+进程得到的这4G虚拟内存是一个连续的地址空间（这也只是进程认为），而实际上，它通常是被分隔成多个物理内存碎片，还有一部分存储在外部磁盘存储器上，在需要时进行数据交换。
+
+* 每次访问地址空间上的某一个地址，都需要把地址翻译为实际物理内存地址
+* 所有进程共享这整一块物理内存，每个进程只把自己目前需要的虚拟地址空间映射到物理内存上
+* 进程需要知道哪些地址空间上的数据在物理内存上，哪些不在（可能这部分存储在磁盘上），还有在物理内存上的哪里，这就需要通过**页表**来记录
+* 页表的每一个表项分两部分，第一部分记录此页是否在物理内存上，第二部分记录物理内存页的地址（如果在的话）
+* 当进程访问某个虚拟地址的时候，就会先去看页表，如果发现对应的数据不在物理内存上，就会发生缺页异常
+* 缺页异常的处理过程，操作系统立即阻塞该进程，并将硬盘里对应的页换入内存，然后使该进程就绪，如果内存已经满了，没有空地方了，那就找一个页覆盖，至于具体覆盖的哪个页，就需要看操作系统的页面置换算法是怎么设计的了。
+
 **17. 操作系统中的结构体对齐，字节对齐**
 
+*对齐规则*：结构体的对齐规则是先按数据类型自身进行对齐，然后再按整个结构体进行对齐，对齐值必须是2的幂，比如1，2， 4， 8， 16。如果一个类型按n字节对齐，那么该类型的变量起始地址必须是n的倍数。比如int按四字节对齐，那么int类型的变量起始地址一定是4的倍数，比如 0x0012ff60，0x0012ff48等。
+
 **18. 进程间怎么通信**
+
+* **管道Pipe**-管道，通常指无名管道，是 UNIX 系统IPC最古老的形式。它是半双工的（即数据只能在一个方向上流动），具有固定的读端和写端;只能用于具有亲缘关系的进程之间的通信（也是父子进程或者兄弟进程之间）;可以看成是一种特殊的文件，对于它的读写也可以使用普通的read、write 等函数。但是它不是普通的文件，并不属于其他任何文件系统，并且只存在于内存中。
+
+```c
+#include<stdio.h>
+#include<unistd.h>
+
+int main()
+{
+    int fd[2];  // 两个文件描述符
+    pid_t pid;
+    char buff[20];
+
+    if(pipe(fd) < 0)  // 创建管道
+        printf("Create Pipe Error!\n");
+
+    if((pid = fork()) < 0)  // 创建子进程
+        printf("Fork Error!\n");
+    else if(pid > 0)  // 父进程
+    {
+        close(fd[0]); // 关闭读端
+        write(fd[1], "hello world\n", 12);
+    }
+    else
+    {
+        close(fd[1]); // 关闭写端
+        read(fd[0], buff, 20);
+        printf("%s", buff);
+    }
+
+    return 0;
+}
+```
+
+* **FIFO**-FIFO，也称为命名管道，它是一种文件类型。FIFO可以在无关的进程之间交换数据，与无名管道不同。IFO有路径名与之相关联，它以一种特殊设备文件形式存在于文件系统中。
+
+write_fifo.c
+```c
+#include<stdio.h>
+#include<stdlib.h>   // exit
+#include<fcntl.h>    // O_WRONLY
+#include<sys/stat.h>
+#include<time.h>     // time
+
+int main()
+{
+    int fd;
+    int n, i;
+    char buf[1024];
+    time_t tp;
+
+    printf("I am %d process.\n", getpid()); // 说明进程ID
+    
+    if((fd = open("fifo1", O_WRONLY)) < 0) // 以写打开一个FIFO 
+    {
+        perror("Open FIFO Failed");
+        exit(1);
+    }
+
+    for(i=0; i<10; ++i)
+    {
+        time(&tp);  // 取系统当前时间
+        n=sprintf(buf,"Process %d's time is %s",getpid(),ctime(&tp));
+        printf("Send message: %s", buf); // 打印
+        if(write(fd, buf, n+1) < 0)  // 写入到FIFO中
+        {
+            perror("Write FIFO Failed");
+            close(fd);
+            exit(1);
+        }
+        sleep(1);  // 休眠1秒
+    }
+
+    close(fd);  // 关闭FIFO文件
+    return 0;
+}
+```
+
+read_fifo.c
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<errno.h>
+#include<fcntl.h>
+#include<sys/stat.h>
+
+int main()
+{
+    int fd;
+    int len;
+    char buf[1024];
+
+    if(mkfifo("fifo1", 0666) < 0 && errno!=EEXIST) // 创建FIFO管道
+        perror("Create FIFO Failed");
+
+    if((fd = open("fifo1", O_RDONLY)) < 0)  // 以读打开FIFO
+    {
+        perror("Open FIFO Failed");
+        exit(1);
+    }
+    
+    while((len = read(fd, buf, 1024)) > 0) // 读取FIFO管道
+        printf("Read message: %s", buf);
+
+    close(fd);  // 关闭FIFO文件
+    return 0;
+}
+```
+
+* **消息队列**-消息队列，是消息的链接表，存放在内核中。一个消息队列由一个标识符（即队列ID）来标识。消息队列是面向记录的，其中的消息具有特定的格式以及特定的优先级。消息队列独立于发送与接收进程。进程终止时，消息队列及其内容并不会被删除。消息队列可以实现消息的随机查询,消息不一定要以先进先出的次序读取,也可以按消息的类型读取。
+
+msg_server.c
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/msg.h>
+
+// 用于创建一个唯一的key
+#define MSG_FILE "/etc/passwd"
+
+// 消息结构
+struct msg_form {
+    long mtype;
+    char mtext[256];
+};
+
+int main()
+{
+    int msqid;
+    key_t key;
+    struct msg_form msg;
+    
+    // 获取key值
+    if((key = ftok(MSG_FILE,'z')) < 0)
+    {
+        perror("ftok error");
+        exit(1);
+    }
+
+    // 打印key值
+    printf("Message Queue - Server key is: %d.\n", key);
+
+    // 创建消息队列
+    if ((msqid = msgget(key, IPC_CREAT|0777)) == -1)
+    {
+        perror("msgget error");
+        exit(1);
+    }
+
+    // 打印消息队列ID及进程ID
+    printf("My msqid is: %d.\n", msqid);
+    printf("My pid is: %d.\n", getpid());
+
+    // 循环读取消息
+    for(;;) 
+    {
+        msgrcv(msqid, &msg, 256, 888, 0);// 返回类型为888的第一个消息
+        printf("Server: receive msg.mtext is: %s.\n", msg.mtext);
+        printf("Server: receive msg.mtype is: %d.\n", msg.mtype);
+
+        msg.mtype = 999; // 客户端接收的消息类型
+        sprintf(msg.mtext, "hello, I'm server %d", getpid());
+        msgsnd(msqid, &msg, sizeof(msg.mtext), 0);
+    }
+    return 0;
+}
+```
+
+msg_client.c
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/msg.h>
+
+// 用于创建一个唯一的key
+#define MSG_FILE "/etc/passwd"
+
+// 消息结构
+struct msg_form {
+    long mtype;
+    char mtext[256];
+};
+
+int main()
+{
+    int msqid;
+    key_t key;
+    struct msg_form msg;
+
+    // 获取key值
+    if ((key = ftok(MSG_FILE, 'z')) < 0) 
+    {
+        perror("ftok error");
+        exit(1);
+    }
+
+    // 打印key值
+    printf("Message Queue - Client key is: %d.\n", key);
+
+    // 打开消息队列
+    if ((msqid = msgget(key, IPC_CREAT|0777)) == -1) 
+    {
+        perror("msgget error");
+        exit(1);
+    }
+
+    // 打印消息队列ID及进程ID
+    printf("My msqid is: %d.\n", msqid);
+    printf("My pid is: %d.\n", getpid());
+
+    // 添加消息，类型为888
+    msg.mtype = 888;
+    sprintf(msg.mtext, "hello, I'm client %d", getpid());
+    msgsnd(msqid, &msg, sizeof(msg.mtext), 0);
+
+    // 读取类型为777的消息
+    msgrcv(msqid, &msg, 256, 999, 0);
+    printf("Client: receive msg.mtext is: %s.\n", msg.mtext);
+    printf("Client: receive msg.mtype is: %d.\n", msg.mtype);
+    return 0;
+}
+```
+
+* **信号量**-信号量（semaphore）与已经介绍过的 IPC 结构不同，它是一个计数器。信号量用于实现进程间的互斥与同步，而不是用于存储进程间通信数据。信号量用于进程间同步，若要在进程间传递数据需要结合共享内存。信号量基于操作系统的 PV 操作，程序对信号量的操作都是原子操作。每次对信号量的 PV 操作不仅限于对信号量值加 1 或减 1，而且可以加减任意正整数。支持信号量组。
+
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/sem.h>
+
+// 联合体，用于semctl初始化
+union semun
+{
+    int              val; /*for SETVAL*/
+    struct semid_ds *buf;
+    unsigned short  *array;
+};
+
+// 初始化信号量
+int init_sem(int sem_id, int value)
+{
+    union semun tmp;
+    tmp.val = value;
+    if(semctl(sem_id, 0, SETVAL, tmp) == -1)
+    {
+        perror("Init Semaphore Error");
+        return -1;
+    }
+    return 0;
+}
+
+// P操作:
+//    若信号量值为1，获取资源并将信号量值-1 
+//    若信号量值为0，进程挂起等待
+int sem_p(int sem_id)
+{
+    struct sembuf sbuf;
+    sbuf.sem_num = 0; /*序号*/
+    sbuf.sem_op = -1; /*P操作*/
+    sbuf.sem_flg = SEM_UNDO;
+
+    if(semop(sem_id, &sbuf, 1) == -1)
+    {
+        perror("P operation Error");
+        return -1;
+    }
+    return 0;
+}
+
+// V操作：
+//    释放资源并将信号量值+1
+//    如果有进程正在挂起等待，则唤醒它们
+int sem_v(int sem_id)
+{
+    struct sembuf sbuf;
+    sbuf.sem_num = 0; /*序号*/
+    sbuf.sem_op = 1;  /*V操作*/
+    sbuf.sem_flg = SEM_UNDO;
+
+    if(semop(sem_id, &sbuf, 1) == -1)
+    {
+        perror("V operation Error");
+        return -1;
+    }
+    return 0;
+}
+
+// 删除信号量集
+int del_sem(int sem_id)
+{
+    union semun tmp;
+    if(semctl(sem_id, 0, IPC_RMID, tmp) == -1)
+    {
+        perror("Delete Semaphore Error");
+        return -1;
+    }
+    return 0;
+}
+
+
+int main()
+{
+    int sem_id;  // 信号量集ID
+    key_t key;  
+    pid_t pid;
+
+    // 获取key值
+    if((key = ftok(".", 'z')) < 0)
+    {
+        perror("ftok error");
+        exit(1);
+    }
+
+    // 创建信号量集，其中只有一个信号量
+    if((sem_id = semget(key, 1, IPC_CREAT|0666)) == -1)
+    {
+        perror("semget error");
+        exit(1);
+    }
+
+    // 初始化：初值设为0资源被占用
+    init_sem(sem_id, 0);
+
+    if((pid = fork()) == -1)
+        perror("Fork Error");
+    else if(pid == 0) /*子进程*/ 
+    {
+        sleep(2);
+        printf("Process child: pid=%d\n", getpid());
+        sem_v(sem_id);  /*释放资源*/
+    }
+    else  /*父进程*/
+    {
+        sem_p(sem_id);   /*等待资源*/
+        printf("Process father: pid=%d\n", getpid());
+        sem_v(sem_id);   /*释放资源*/
+        del_sem(sem_id); /*删除信号量集*/
+    }
+    return 0;
+}
+```
+
+* **共享内存**-共享内存（Shared Memory），指两个或多个进程共享一个给定的存储区。共享内存是最快的一种 IPC，因为进程是直接对内存进行存取。因为多个进程可以同时操作，所以需要进行同步。信号量+共享内存通常结合在一起使用，信号量用来同步对共享内存的访问。
+
+server.c
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/shm.h>  // shared memory
+#include<sys/sem.h>  // semaphore
+#include<sys/msg.h>  // message queue
+#include<string.h>   // memcpy
+
+// 消息队列结构
+struct msg_form {
+    long mtype;
+    char mtext;
+};
+
+// 联合体，用于semctl初始化
+union semun
+{
+    int              val; /*for SETVAL*/
+    struct semid_ds *buf;
+    unsigned short  *array;
+};
+
+// 初始化信号量
+int init_sem(int sem_id, int value)
+{
+    union semun tmp;
+    tmp.val = value;
+    if(semctl(sem_id, 0, SETVAL, tmp) == -1)
+    {
+        perror("Init Semaphore Error");
+        return -1;
+    }
+    return 0;
+}
+
+// P操作:
+//  若信号量值为1，获取资源并将信号量值-1 
+//  若信号量值为0，进程挂起等待
+int sem_p(int sem_id)
+{
+    struct sembuf sbuf;
+    sbuf.sem_num = 0; /*序号*/
+    sbuf.sem_op = -1; /*P操作*/
+    sbuf.sem_flg = SEM_UNDO;
+
+    if(semop(sem_id, &sbuf, 1) == -1)
+    {
+        perror("P operation Error");
+        return -1;
+    }
+    return 0;
+}
+
+// V操作：
+//  释放资源并将信号量值+1
+//  如果有进程正在挂起等待，则唤醒它们
+int sem_v(int sem_id)
+{
+    struct sembuf sbuf;
+    sbuf.sem_num = 0; /*序号*/
+    sbuf.sem_op = 1;  /*V操作*/
+    sbuf.sem_flg = SEM_UNDO;
+
+    if(semop(sem_id, &sbuf, 1) == -1)
+    {
+        perror("V operation Error");
+        return -1;
+    }
+    return 0;
+}
+
+// 删除信号量集
+int del_sem(int sem_id)
+{
+    union semun tmp;
+    if(semctl(sem_id, 0, IPC_RMID, tmp) == -1)
+    {
+        perror("Delete Semaphore Error");
+        return -1;
+    }
+    return 0;
+}
+
+// 创建一个信号量集
+int creat_sem(key_t key)
+{
+    int sem_id;
+    if((sem_id = semget(key, 1, IPC_CREAT|0666)) == -1)
+    {
+        perror("semget error");
+        exit(-1);
+    }
+    init_sem(sem_id, 1);  /*初值设为1资源未占用*/
+    return sem_id;
+}
+
+
+int main()
+{
+    key_t key;
+    int shmid, semid, msqid;
+    char *shm;
+    char data[] = "this is server";
+    struct shmid_ds buf1;  /*用于删除共享内存*/
+    struct msqid_ds buf2;  /*用于删除消息队列*/
+    struct msg_form msg;  /*消息队列用于通知对方更新了共享内存*/
+
+    // 获取key值
+    if((key = ftok(".", 'z')) < 0)
+    {
+        perror("ftok error");
+        exit(1);
+    }
+
+    // 创建共享内存
+    if((shmid = shmget(key, 1024, IPC_CREAT|0666)) == -1)
+    {
+        perror("Create Shared Memory Error");
+        exit(1);
+    }
+
+    // 连接共享内存
+    shm = (char*)shmat(shmid, 0, 0);
+    if((int)shm == -1)
+    {
+        perror("Attach Shared Memory Error");
+        exit(1);
+    }
+
+
+    // 创建消息队列
+    if ((msqid = msgget(key, IPC_CREAT|0777)) == -1)
+    {
+        perror("msgget error");
+        exit(1);
+    }
+
+    // 创建信号量
+    semid = creat_sem(key);
+    
+    // 读数据
+    while(1)
+    {
+        msgrcv(msqid, &msg, 1, 888, 0); /*读取类型为888的消息*/
+        if(msg.mtext == 'q')  /*quit - 跳出循环*/ 
+            break;
+        if(msg.mtext == 'r')  /*read - 读共享内存*/
+        {
+            sem_p(semid);
+            printf("%s\n",shm);
+            sem_v(semid);
+        }
+    }
+
+    // 断开连接
+    shmdt(shm);
+
+    /*删除共享内存、消息队列、信号量*/
+    shmctl(shmid, IPC_RMID, &buf1);
+    msgctl(msqid, IPC_RMID, &buf2);
+    del_sem(semid);
+    return 0;
+}
+```
+
+client.c
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/shm.h>  // shared memory
+#include<sys/sem.h>  // semaphore
+#include<sys/msg.h>  // message queue
+#include<string.h>   // memcpy
+
+// 消息队列结构
+struct msg_form {
+    long mtype;
+    char mtext;
+};
+
+// 联合体，用于semctl初始化
+union semun
+{
+    int              val; /*for SETVAL*/
+    struct semid_ds *buf;
+    unsigned short  *array;
+};
+
+// P操作:
+//  若信号量值为1，获取资源并将信号量值-1 
+//  若信号量值为0，进程挂起等待
+int sem_p(int sem_id)
+{
+    struct sembuf sbuf;
+    sbuf.sem_num = 0; /*序号*/
+    sbuf.sem_op = -1; /*P操作*/
+    sbuf.sem_flg = SEM_UNDO;
+
+    if(semop(sem_id, &sbuf, 1) == -1)
+    {
+        perror("P operation Error");
+        return -1;
+    }
+    return 0;
+}
+
+// V操作：
+//  释放资源并将信号量值+1
+//  如果有进程正在挂起等待，则唤醒它们
+int sem_v(int sem_id)
+{
+    struct sembuf sbuf;
+    sbuf.sem_num = 0; /*序号*/
+    sbuf.sem_op = 1;  /*V操作*/
+    sbuf.sem_flg = SEM_UNDO;
+
+    if(semop(sem_id, &sbuf, 1) == -1)
+    {
+        perror("V operation Error");
+        return -1;
+    }
+    return 0;
+}
+
+
+int main()
+{
+    key_t key;
+    int shmid, semid, msqid;
+    char *shm;
+    struct msg_form msg;
+    int flag = 1; /*while循环条件*/
+
+    // 获取key值
+    if((key = ftok(".", 'z')) < 0)
+    {
+        perror("ftok error");
+        exit(1);
+    }
+
+    // 获取共享内存
+    if((shmid = shmget(key, 1024, 0)) == -1)
+    {
+        perror("shmget error");
+        exit(1);
+    }
+
+    // 连接共享内存
+    shm = (char*)shmat(shmid, 0, 0);
+    if((int)shm == -1)
+    {
+        perror("Attach Shared Memory Error");
+        exit(1);
+    }
+
+    // 创建消息队列
+    if ((msqid = msgget(key, 0)) == -1)
+    {
+        perror("msgget error");
+        exit(1);
+    }
+
+    // 获取信号量
+    if((semid = semget(key, 0, 0)) == -1)
+    {
+        perror("semget error");
+        exit(1);
+    }
+    
+    // 写数据
+    printf("***************************************\n");
+    printf("*                 IPC                 *\n");
+    printf("*    Input r to send data to server.  *\n");
+    printf("*    Input q to quit.                 *\n");
+    printf("***************************************\n");
+    
+    while(flag)
+    {
+        char c;
+        printf("Please input command: ");
+        scanf("%c", &c);
+        switch(c)
+        {
+            case 'r':
+                printf("Data to send: ");
+                sem_p(semid);  /*访问资源*/
+                scanf("%s", shm);
+                sem_v(semid);  /*释放资源*/
+                /*清空标准输入缓冲区*/
+                while((c=getchar())!='\n' && c!=EOF);
+                msg.mtype = 888;  
+                msg.mtext = 'r';  /*发送消息通知服务器读数据*/
+                msgsnd(msqid, &msg, sizeof(msg.mtext), 0);
+                break;
+            case 'q':
+                msg.mtype = 888;
+                msg.mtext = 'q';
+                msgsnd(msqid, &msg, sizeof(msg.mtext), 0);
+                flag = 0;
+                break;
+            default:
+                printf("Wrong input!\n");
+                /*清空标准输入缓冲区*/
+                while((c=getchar())!='\n' && c!=EOF);
+        }
+    }
+
+    // 断开连接
+    shmdt(shm);
+
+    return 0;
+}
+```
+
+五种通信方式总结：
+* **管道**-速度慢，容量有限，只有父子进程能通讯
+* **FIFO**-任何进程间都能通讯，但速度慢    
+* **消息队列**-容量受到系统限制，且要注意第一次读的时候，要考虑上一次没有读完数据的问题   
+* **信号量**-不能传递复杂消息，只能用来同步    
+* **共享内存区**-能够很容易控制容量，速度快，但要保持同步，比如一个进程在写的时候，另一个进程要注意读写的问题，相当于线程中的线程安全，当然，共享内存区同样可以用作线程间通讯，不过没这个必要，线程间本来就已经共享了同一进程内的一块内存
 
 **19. 虚拟内存置换的方式**
 
