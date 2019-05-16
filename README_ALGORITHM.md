@@ -1,7 +1,89 @@
 
 **1. 给定三角形ABC和一点P(x,y,z)，判断点P是否在ABC内**
 
+最常用的两种方法：面积法、向量同向法。
+
+```c++
+template<typename T> class Vec2 {
+
+ T x, y;
+
+public:
+
+ typedef T value_type;
+
+ Vec2(T xx = 0, T yy = 0) : x(xx), y(yy) {};
+
+ T cross(const Vec2& v) const { return x * v.y - y * v.x;} // 矢量积
+
+ Vec2 operator-(const Vec2& v) const { return Vec2(x - v.x, y - v.y); }
+
+};
+
+typedef Vec2<double> Vd2;
+
+bool is_in_triangle(const Vd2& a, const Vd2& b, const Vd2& c, const Vd2& p)
+
+{
+
+Vd2 ab(b -a), ac(c - a), ap(p - a);
+
+//用矢量积计算面积，下面4个值的绝对值，是对应的三角形的面积的两倍，
+
+double abc = ab.cross(ac);
+
+double abp = ab.cross(ap);
+
+double apc = ap.cross(ac);
+
+double pbc = abc - abp - apc;   //等于pb.cross(pc)
+
+//面积法：4个三角形的面积差 等于 0
+
+double delta = fabs(abc) - fabs(abp) - fabs(apc) - fabs(pbc);
+
+return fabs(delta) < DBL_EPSILON;        
+
+}
+
+```
+
 **2. 怎么判断一个数是二的倍数，怎么求一个数中有几个1**
+
+```c++
+int mian()
+{
+    int num = 119;
+    /*判断是否是二的倍数*/
+    if (num & 0b1)
+    {
+        cout<<"odd"<<endl;
+    }
+    else
+    {
+        cout<<"even"<<endl;
+    }
+ 
+    /*10进制1的个数*/
+    int m10 = num, sum10 = 0;
+    while (m10)
+    {
+        if (m10 % 10 == 1)
+            sum10++;
+        m10 /= 10;
+    }
+    cout<<sum10<<endl;
+ 
+    /*2进制1的个数*/
+    int m2 = num, sum2 = 0;
+    while (m2)
+    {
+         sum2++;
+         m2 = m2 & (m2-1);
+    }  cout<<sum10<<endl;
+    return 0;
+}
+```
 
 **3. n个整数的无序数组，找到每个元素后面比它大的第一个数，要求时间复杂度为O(N)**
 
