@@ -35,7 +35,9 @@
 
 [正则表达式](https://github.com/Peefy/PeefyCSNotes/blob/master/README_REGEX.md)
 
-[其他算法](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM.md)
+[其他算法知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM.md)
+
+[算法习题](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM_PRACTICE.md)
 
 ## 程序语言设计
 
