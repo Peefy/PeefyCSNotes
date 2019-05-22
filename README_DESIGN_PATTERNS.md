@@ -4,6 +4,7 @@
 [C#实现的设计模式](https://peefy.github.io/blog/2018/04/13/CSharp-DesignPatterns/)
 
 1、java中有哪些代理模式？
+
 2、如何实现动态代理
 
 3、IO流熟悉吗，用的什么设计模式？
