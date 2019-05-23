@@ -253,6 +253,49 @@ private void walk(File file){
 
 **15. 二叉树 Z 字型遍历**
 
+bfs遍历 使用双向队列，层与层之间倒序遍历
+
+```java
+public class Solution{
+    List<List<Integer> > result = new ArrayList<List<Integer>>();
+    if (root == null){
+        return result;
+    }
+    LinkedList<TreeNode> queue = new LinkedList<>();
+    int depth = 0;
+    queue.offer(root);
+    while(!queue.isEmpty()){
+        int size = queue.size();
+        List<Integer> tmp = new ArrayList<>();
+        for(int i = 0; i < size; i++){
+            TreeNode node = null;
+            //因为是走z字形，所有相邻两层的节点处理是相反的
+            if(depth%2 == 0){
+                node = queue.pollLast();//获取链表最后一个节点
+                if(node.left != null){
+                    queue.offerFirst(node.left);
+                }
+                if(node.right != null){
+                    queue.offerFirst(node.right);
+                }
+            }else{
+                node = queue.poll();//获取链表第一个节点
+                if(node.right != null){
+                    queue.offer(node.right);
+                }
+                if(node.left != null){
+                    queue.offer(node.left);
+                }
+            }
+            tmp.add(node.val);
+        }
+        depth++;
+        result.add(tmp);
+    }
+    return result;
+}
+```
+
 **16. 反转单链表**
 
 **17. 随机链表的复制**
