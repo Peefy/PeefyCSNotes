@@ -629,39 +629,430 @@ public class OddIncreaseEvenDecrease {
 
 **19. bucket如果用链表存储，它的缺点是什么？**
 
+不支持随机访问，查找的时间复杂度是O(n)
+
 **20. 何判断链表检测环**
+
+双指针slow,fast
+
+```c++
+position IsLoop(list l){
+    if (l == NULL) {
+        printf("Invalid parameter for function IsLoop!\n");
+        exit(-1);
+    }
+    list fast, slow;
+    fast = slow = 1;
+    while (fast != NULL && fast-> next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (slow == fast)
+            return slow;
+    }
+    return NULL;
+}
+```
 
 **21. 寻找一数组中前K个最大的数**
 
+* 算法1: 降序快速排序,取前k个数
+* 算法2: 前面k个数比后面的数的最大值要大，则前面k个数就是最大的k个
+* 算法3: 构建最大堆，然后调整k次
+
+```java
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+ 
+//给定一个长度为n的数组，寻找其中最大的k个数
+public class FindKthElements {
+	
+	//算法一：排序，时间复杂度O(nlogn)，空间复杂度O(1)
+	public ArrayList<Integer> findKthElements(int[] arr, int k) {
+		
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		if(arr.length <= 0 || arr == null || arr.length < k) {
+			return res;
+		}
+		
+		Arrays.sort(arr);
+		for(int i = arr.length - 1;i > arr.length - 1 - k;i --) {
+			res.add(arr[i]);
+		}
+		return res;
+	}
+	
+	//算法二；前面k个数都比后面的数的最大值要大，则前面k个数就是最大的k个，时间复杂度O(k*(n-k))，空间复杂度O(1)
+	public ArrayList<Integer> findKthElements2(int[] arr, int k) {
+		
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		if(arr.length <= 0 || arr == null || arr.length < k) {
+			return res;
+		}
+		
+		for(int i = 0;i < k;i ++) {
+			int maxValueIndex = this.getMaxValueIndex(arr, k);
+			if(arr[maxValueIndex] > arr[i]) {
+				int temp = arr[maxValueIndex];
+				arr[maxValueIndex] = arr[i];
+				arr[i] = temp;
+			}
+		}
+		
+		for(int i = 0;i < k;i ++) {
+			res.add(arr[i]);
+		}
+		return res;
+	}
+	
+	//选择排序：选出最大值的下标
+	public int getMaxValueIndex(int[] arr, int k) {
+		
+		int maxValueIndex = k;
+		for(int i = k + 1;i < arr.length;i ++) {
+			if(arr[i] > arr[maxValueIndex]) {
+				maxValueIndex = i;
+			}
+		}
+		return maxValueIndex;
+	}
+	
+	//算法三：构建大顶堆，然后调整k次，得到最大的k个数。时间复杂度(k+1)O(nlogn)，空间复杂度O(1)
+	public ArrayList<Integer> findKthElements3(int[] arr, int k) {
+		
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		if(arr.length <= 0 || arr == null || arr.length < k) {
+			return res;
+		}
+		//构建大顶堆
+		int len = arr.length;
+		for(int i = len / 2;i < len;i ++) {
+			heapSort(arr, i, len);
+		}
+		//调整k次大顶堆
+		for(int i = arr.length - 1;i > arr.length - 1 - k;i --) {
+			//交换最大的值到底部
+			int temp = arr[i];
+			arr[i] = arr[0];
+			arr[0] = temp;
+			res.add(arr[i]);
+			heapSort(arr, 0, i);
+		}
+		return res;
+	}
+	
+	public void heapSort(int[] arr, int start, int len) {
+		
+		int parent = start;
+		int leftChild = parent * 2 + 1;
+		int parentValue = arr[parent];
+		while(leftChild < len) {
+			int rightChild = leftChild + 1;
+			if(rightChild < len && arr[leftChild] < arr[rightChild]) {	//在左右孩子里选一个较大的出来
+				leftChild = rightChild;
+			}			
+			if(parentValue > arr[leftChild]) {
+				break;
+			}
+			arr[parent] = arr[leftChild];
+			parent = leftChild;
+			leftChild = parent * 2 + 1;
+		}
+		arr[parent] = parentValue;
+	}
+	
+	public static void main(String[] args) {
+		
+		int[] arr = {9,4,5,8,2};
+		FindKthElements fke = new FindKthElements();
+		List<Integer> res = fke.findKthElements3(arr, 3);
+		System.out.println(res);
+	}
+}
+```
+
 **22. 求一个数组中连续子向量的最大和**
+
+```java
+/*
+ * 如果向量中包含负数,是否应该包含某个负数,并期望旁边的正数会弥补它呢？
+ * 例如:{6,-3,-2,7,-15,1,2,2},连续子向量的最大和为8(从第0个开始,到第3个为止)。
+ * [-2,-8,-1,-5,-9]
+ * 问题：求一个数组中连续子向量的最大和
+ */
+public class FindGreatestSumOfSubArray {
+	public int findGreatestSumOfSubArray(int[] array) {
+		int sum = array[0];
+		int max = array[0];
+		
+		for(int i = 1;i < array.length;i ++) {
+			//前面sum大于0，认为是有贡献的，可以叠加在上面。否则认为没有贡献，另起炉灶
+			if(sum >= 0) {
+				sum = sum + array[i];
+			}
+			else {
+				sum = array[i];
+			}
+			
+			if(sum > max) {
+				max = sum;
+			}
+		}
+		
+		return max;
+	}
+	
+	public static void main(String[] args) {
+		int[] array = {6,-3,-2,7,-15,1,2,2};
+		System.out.println(new FindGreatestSumOfSubArray().findGreatestSumOfSubArray(array));
+	}
+}
+```
 
 **23. 找出数组中和为S的一对组合，找出一组就行**
 
+```java
+public class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        int[] result = new int[2];
+        result[0] = 1;
+        result[1] = 2;
+        ArrayList<Integer> list = new ArrayList<Integer>(10);
+        for(int num : nums)
+        {
+            list.add(num);
+        }
+        Collections.sort(list);
+        int num = nums.length;
+        for(int i = 0;i < num;++i)
+        {
+            for(int j = i + 1;j < num; ++j)
+            {
+                if(nums[i] + nums[j] == target){
+                    result[0] = i;
+                    result[1] = j;
+                }
+            }
+        }
+        return result;
+    }
+}
+```
+
 **24. 一个数组，除一个元素外其它都是两两相等，求那个元素?**
+
+异或运算满足交换律，相同数异或为0，结果就是 0 xor x = x
+
+```c++
+int a = 0;
+for(auto i : nums)
+    a ^= i;
+return a;
+```
 
 **25. 算法题：将一个二维数组顺时针旋转90度，说一下思路。**
 
+```java
+public class twoDimensionalArrayRotate {
+
+    public static void main(String[] args) {
+        int[][] numsix={
+                {1,2,3},
+                {4,5,6},
+                {7,8,9}
+        };
+        int[][] rotate = rotate(numsix);
+    }
+
+    public static int[][] rotate(int[][] matrix) {
+        int abs1 = 0;
+        int abs2 = matrix.length - 1;
+        int times = 0;
+        while (abs1 <= abs2) {
+            int p1 = abs1;
+            int p2 = abs2;
+            while (p1 != abs2) {
+                // 转换的思路：
+                // 1.先保存左上的值到临时变量
+                // 2.左下--> 左上， 右下-->左上， 右上-->右下，临时变量内的左上-->右上
+                int temp = matrix[abs1][p1];         //左上
+                matrix[abs1][p1] = matrix[p2][abs1]; //左上 = 左下
+                matrix[p2][abs1] = matrix[abs2][p2]; //左下 = 右下
+                matrix[abs2][p2] = matrix[p1][abs2]; //右下 = 右上
+                matrix[p1][abs2] = temp;             //右上 = 左上
+                p1 += 1;
+                p2 -= 1;
+            }
+            abs1 += 1;
+            abs2 -= 1;
+        }
+        return matrix;
+    }
+}
+```
+
 **26. 排序算法知道哪些，时间复杂度是多少，解释一下快排？**
+
+[排序算法汇总](https://github.com/Peefy/IntroductionToAlgorithm.Python/tree/master/src/dugulib)
 
 **27. 如何得到一个数据流中的中位数？**
 
+```c++
+class Solution {
+public:
+    /**
+     * @param nums: A list of integers.
+     * @return: The median of numbers
+     */
+    vector<int> medianII(vector<int> &nums) {
+        // write your code here
+        multiset<int> left, right;
+        vector<int> res;
+        bool flag = true;
+        for (int n : nums) {
+            int tmp = n;
+            if (flag) {
+                if (!right.empty() && n > *right.begin()) {
+                    right.insert(n);
+                    tmp = *right.begin();
+                    right.erase(right.find(tmp));
+                }
+                left.insert(tmp);
+            } else {
+                if (!left.empty() && n < *left.rbegin()) {
+                    left.insert(n);
+                    tmp = *left.rbegin();
+                    left.erase(left.find(tmp));
+                }
+                right.insert(tmp);
+            }
+            flag = !flag;
+            res.push_back(*left.rbegin());
+        }
+        return res;
+    }
+};
+```
+
 **28. 堆排序的原理是什么？**
+
+堆排序是利用堆的性质进行的一种选择排序。下面先讨论一下堆, 利用大顶堆(小顶堆)堆顶记录的是最大关键字(最小关键字)这一特性，使得每次从无序中选择最大记录(最小记录)变得简单。
+
+```c++
+#include <iostream>
+#include <algorithm>
+#include <stdio.h>
+using namespace std;
+
+int n,a[100];      //大顶堆
+
+int Heap_Adjust(int *a,int i,int n){ //调整堆，i待调整节点，n 总结点
+    int i_left=2*i;
+    int i_right=2*i+1;
+    int temp=i;   //临时变量
+    if(i<=n/2)     //i为叶子节点 无需调整
+    {
+        if(i_left<=n&&a[i_left]>a[temp])
+            temp=i_left;
+        if(i_right<=n&&a[i_right]>a[temp])
+            temp=i_right;
+        if(temp!=i)
+        {
+            swap(a[i],a[temp]);
+            Heap_Adjust(a,temp,n);     //避免调整之后以temp为父节点的子树不是堆
+        }
+    }
+}
+void BuildHeap(int *a,int size)    //建立堆
+{
+    int i;
+    for(i=size/2;i>=1;i--)    //非叶节点最大序号值为size/2
+    {
+        Heap_Adjust(a,i,size);
+    }
+}
+void Heap_Sort(int *a,int size)
+{
+    int i;
+    BuildHeap(a,size);
+    for(i=size;i>=1;i--)
+    {
+        cout<<a[1]<<endl;
+        swap(a[1],a[i]);
+        Heap_Adjust(a,1,i-1);
+
+    }
+
+}
+
+int main(int argc, char *argv[])
+{
+     //int a[]={0,16,20,3,11,17,8};
+    int a[100];
+    int size;
+    while(scanf("%d",&size)==1&&size>0)
+    {
+        int i;
+        for(i=1;i<=size;i++)
+            cin>>a[i];
+        Heap_Sort(a,size);
+
+    }
+    return 0;
+}
+```
 
 **29. 归并排序的原理是什么？**
 
+归并排序是一种递归算法，不断将列表拆分为一半，如果列表为空或有一个项，则按定义进行排序。如果列表有多个项，我们分割列表，并递归调用两个半部分的合并排序。一旦对两半排序完成，获取两个较小的排序列表并将它们组合成单个排序的新列表的过程
+
 **30. 排序都有哪几种方法？请列举出来。**
+
+[排序算法汇总](https://github.com/Peefy/IntroductionToAlgorithm.Python/tree/master/src/dugulib)
 
 **31. 如何用java写一个冒泡排序？**
 
+```java
+for(int i = 0;i < arr.length - 1; i++){//外层循环控制排序趟数
+　　for(int j = 0; j < arr.length - 1 - i; j++){//内层循环控制每一趟排序多少次
+　　　　if ( arr[j] > arr[j+1] ) {
+　　　　　　int temp = arr[j];
+　　　　　　arr[j] = arr[j + 1];
+　　　　　　arr[j + 1] = temp;
+　　　　}
+　　}
+} 
+```
+
 **32. 堆与栈的不同是什么？**
+
+* 栈区（stack）— 由编译器自动分配释放 ，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈。
+* 堆区（heap） — 一般由程序员分配释放， 若程序员不释放，程序结束时可能由OS回收 。注意它与数据结构中的堆是两回事，分配方式倒是类似于链表
+
+栈是先入后出，堆是二项堆
 
 **33. heap和stack有什么区别。**
 
+* 栈区（stack）— 由编译器自动分配释放 ，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈。
+* 堆区（heap） — 一般由程序员分配释放， 若程序员不释放，程序结束时可能由OS回收 。注意它与数据结构中的堆是两回事，分配方式倒是类似于链表
+
+栈是先入后出，堆是二项堆
+
 **34. 解释内存中的栈(stack)、堆(heap)和静态区(static area)的用法。**
+
+* 栈区（stack）— 由编译器自动分配释放 ，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈。
+* 堆区（heap） — 一般由程序员分配释放， 若程序员不释放，程序结束时可能由OS回收 。注意它与数据结构中的堆是两回事，分配方式倒是类似于链表
+* 全局区（静态区）（static）—，全局变量和静态变量的存储是放在一块的，初始化的全局变量和静态变量在一块区域， 未初始化的全局变量和未初始化的静态变量在相邻的另一块区域
 
 **35. 什么是Java优先级队列(Priority Queue)？**
 
-**36. **
+PriorityQueue是一个基于优先级堆的无界队列。它的元素是按照自然顺序排序的。在创建元素的时候，我们给它一个一个负责排序的比较器。PriorityQueue不允许null值，因为
+
+它们没有自然排序，或者说没有任何相关联的比较器。最后PriorityQueue不是线程安全的，出对和入队的时间复杂度都是O(log(n))
+
+**36. 1亿个数中找到最大的前100个数**
+
+找最大的前100个数，那么我们就创建一个大小为100的最小化堆，每来一个元素就与堆顶元素比较，因为堆顶元素是目前前100大数中的最小数，前来的元素如果比该元素大，那么就把原来的堆顶替换掉。
 
 **37. **
 

@@ -477,18 +477,103 @@ public class ObserverPatternDemo {
 }
 ```
 
-**说说你所熟悉或听说过的j2ee中的几种常用模式?及对设计模式的一些看法**
+**说说你所熟悉或听说过的j2ee中的几种常用模式?**
 
-
+* **业务委托模式**-表示层组件将与业务层服务交互。这样，业务层改变会使表示层也需要改变。业务委托模式可以解决这个问题。业务委托模式的目的就是减少表示层和业务层的耦合，隐藏业务服务的各种复杂实现细节，如查找与访问细节。
+* **会话门面模式**-在服务器方编写服务层组件时，我们要处理复杂的企业Bean，封装业务逻辑和数据。由于提供的接口很复杂，因此会使服务层也更复杂。会话门面设计模式可以减少这种复杂性。
+* **数值对象设计模式**-在用ejb框架建立的企业应用程序中，不同的分布式组件之间需要交换数据。此外，前面曾介绍过，EJB框架将企业应用程序业务组件实现为会话Bean或实体Bean。而数值对象设计模式可以简化企业Bean之间的数据交换。
+* **累积实体设计模式**-实体Bean主要用于持久存储。设计企业应用程序时，实体Bean不需要表示每个持久对象，这更适合数据结构方法。累积实体设计模式可以设计这种粗粒机制。
 
 **j2ee常用的设计模式？说明工厂模式**
 
+* **业务委托模式**-表示层组件将与业务层服务交互。这样，业务层改变会使表示层也需要改变。业务委托模式可以解决这个问题。业务委托模式的目的就是减少表示层和业务层的耦合，隐藏业务服务的各种复杂实现细节，如查找与访问细节。
+* **会话门面模式**-在服务器方编写服务层组件时，我们要处理复杂的企业Bean，封装业务逻辑和数据。由于提供的接口很复杂，因此会使服务层也更复杂。会话门面设计模式可以减少这种复杂性。
+* **数值对象设计模式**-在用ejb框架建立的企业应用程序中，不同的分布式组件之间需要交换数据。此外，前面曾介绍过，EJB框架将企业应用程序业务组件实现为会话Bean或实体Bean。而数值对象设计模式可以简化企业Bean之间的数据交换。
+* **累积实体设计模式**-实体Bean主要用于持久存储。设计企业应用程序时，实体Bean不需要表示每个持久对象，这更适合数据结构方法。累积实体设计模式可以设计这种粗粒机制。
 
+* **工厂模式**-工厂模式（Factory Pattern）是 Java 中最常用的设计模式之一。这种类型的设计模式属于创建型模式，它提供了一种创建对象的最佳方式。
 
-**开发中都用到了那些设计模式?用在什么场合?**
+```java
+public interface Shape {
+    void draw();
+}
 
+public class Rectangle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Inside Rectangle::draw() method.")
+    }
+}
 
+public class Square implements Shape {
+ 
+   @Override
+   public void draw() {
+      System.out.println("Inside Square::draw() method.");
+   }
+}
+
+public class Circle implements Shape {
+ 
+   @Override
+   public void draw() {
+      System.out.println("Inside Circle::draw() method.");
+   }
+}
+
+public class ShapeFactory {
+    
+   //使用 getShape 方法获取形状类型的对象
+   public Shape getShape(String shapeType){
+      if(shapeType == null){
+         return null;
+      }        
+      if(shapeType.equalsIgnoreCase("CIRCLE")){
+         return new Circle();
+      } else if(shapeType.equalsIgnoreCase("RECTANGLE")){
+         return new Rectangle();
+      } else if(shapeType.equalsIgnoreCase("SQUARE")){
+         return new Square();
+      }
+      return null;
+   }
+}
+
+public class FactoryPatternDemo {
+ 
+   public static void main(String[] args) {
+      ShapeFactory shapeFactory = new ShapeFactory();
+      //获取 Circle 的对象，并调用它的 draw 方法
+      Shape shape1 = shapeFactory.getShape("CIRCLE");
+      //调用 Circle 的 draw 方法
+      shape1.draw();
+      //获取 Rectangle 的对象，并调用它的 draw 方法
+      Shape shape2 = shapeFactory.getShape("RECTANGLE");
+      //调用 Rectangle 的 draw 方法
+      shape2.draw();
+      //获取 Square 的对象，并调用它的 draw 方法
+      Shape shape3 = shapeFactory.getShape("SQUARE");
+      //调用 Square 的 draw 方法
+      shape3.draw();
+   }
+}
+```
 
 **简述一下你了解的Java设计模式**
+
+*java的设计模式大体上分为三大类*:
+
+* **创建型模式（5种）**-工厂方法模式，抽象工厂模式，单例模式，建造者模式，原型模式。
+* **结构型模式（7种）**-适配器模式，装饰器模式，代理模式，外观模式，桥接模式，组合模式，享元模式。
+* **行为型模式（11种）**-策略模式、模板方法模式、观察者模式、迭代子模式、责任链模式、命令模式、备忘录模式、状态模式、访问者模式、中介者模式、解释器模式。
+
+*设计模式遵循的原则有6个*:
+
+* **开闭原则（Open Close Principle）**-对扩展开放，对修改关闭。
+* **里氏代换原则（Liskov Substitution Principle）**-只有当衍生类可以替换掉基类，软件单位的功能不受到影响时，基类才能真正被复用，而衍生类也能够在基类的基础上增加新的行为。
+* **依赖倒转原则（Dependence Inversion Principle）**-这个是开闭原则的基础，对接口编程，依赖于抽象而不依赖于具体。
+* **接口隔离原则（Interface Segregation Principle）**-使用多个隔离的借口来降低耦合度。
+* **迪米特法则（最少知道原则）（Demeter Principle）**-一个实体应当尽量少的与其他实体之间发生相互作用，使得系统功能模块相对独立。
+* **合成复用原则（Composite Reuse Principle）**-原则是尽量使用合成/聚合的方式，而不是使用继承。继承实际上破坏了类的封装性，超类的方法可能会被子类修改。
 
 
