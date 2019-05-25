@@ -11,19 +11,19 @@
 
 ## 操作系统
 
-* [Linux](https://github.com/Peefy/PeefyCSNotes/blob/master/README_OS.md)
-* [Docker](https://github.com/Peefy/PeefyCSNotes/blob/master/README_DOCKER.md)
-* [Shell Bash](https://github.com/Peefy/PeefyCSNotes/blob/master/README_SHELL.md)
+* [Linux](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_OS.md)
+* [Docker](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_DOCKER.md)
+* [Shell Bash](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_SHELL.md)
 * [Make](https://github.com/Peefy/CppInVSCode/blob/master/makefile)
-* [CMake](https://github.com/Peefy/PeefyCSNotes/blob/master/README_CMAKE.md)
+* [CMake](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_CMAKE.md)
 
 ## 计算机网络
 
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_NETWORK.md)
+[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_NETWORK.md)
 
 ## 数据库 
 
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_DATABASE.md)
+[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_DATABASE.md)
 
 ## 算法 
 
@@ -33,19 +33,19 @@
 
 [机器学习笔记](https://github.com/Peefy/StatisticalLearningMethod.Python/tree/master/src)
 
-[正则表达式](https://github.com/Peefy/PeefyCSNotes/blob/master/README_REGEX.md)
+[正则表达式](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_REGEX.md)
 
-[其他算法知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM.md)
+[其他算法知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_ALGORITHM.md)
 
-[算法习题](https://github.com/Peefy/PeefyCSNotes/blob/master/README_ALGORITHM_PRACTICE.md)
+[算法习题](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_ALGORITHM_PRACTICE.md)
 
 ## 程序语言设计
 
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_CODING.md)
+[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_CODING.md)
 
 ## 编译原理 
 
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/README_COMPILE.md)
+[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_COMPILE.md)
 
 ## Thanks
 
