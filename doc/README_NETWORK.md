@@ -726,11 +726,21 @@ OSI模型的七层应该都会涉及
 * 流模式与数据报模式；
 * TCP保证数据正确性，UDP可能丢包，TCP保证数据顺序，UDP不保证。
 
+**38. TCP time_wait状态**
 
+time_wait状态是四次挥手中server向client发送FIN终止连接后进入的状态。
 
-**38. TCP三次握手四次挥手的过程，为什么tcp连接握手需要三次, time_wait状态**
+time_wait存在的原因有两点：
+* 可靠的终止TCP连接
+* 保证让迟来的TCP报文段有足够的时间被识别并丢弃
+
+time_wait状态是一般有client的状态。并且会占用port，有时产生在server端，由于server主动断开连接或者发生异常。
 
 **39. http协议**
+
+HTTP协议(HyperText Transfer Protocol,超文本传输协议)是因特网上应用最为广泛的一种网络传输协议，所有的WWW文件都必须遵守这个标准
+
+HTTP是一个基于TCP/IP通信协议来传递数据(HTML文件,图片文件,查询结果)
 
 **40. GET和POST的区别**
 
