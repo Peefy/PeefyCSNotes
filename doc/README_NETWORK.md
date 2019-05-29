@@ -744,11 +744,180 @@ HTTP是一个基于TCP/IP通信协议来传递数据(HTML文件,图片文件,查
 
 **40. GET和POST的区别**
 
+GET和POST是HTTP请求的两种基本方法，最直观的区别就是GET把参数包含在URL中，POST通过request body传递参数。
+
+* GET在浏览器回退时是无害的，而POST会再次提交请求
+* GET产生的URL地址可以被Bookmark，而POST不可以
+* GET请求会被浏览器主动cache，而POST不会，除非手动设置
+* GET请求只能进行url编码，而POST支持多种编码方式
+* GET请求参数会被完整保留在浏览器历史记录里，而POST中的参数不会被保留
+* GET请求在URL中传送的参数是有长度限制的，而POST么有
+* 对参数的数据类型，GET只接受ASCII字符，而POST没有限制
+* GET比POST更不安全，因为参数直接暴露在URL上，所以不能用来传递敏感信息
+* GET参数通过URL传递，POST放在Request body中
+
 **41. socket编程中服务器端和客户端主要用到哪些函数**
+
+服务器程序：
+
+* 1.创建一个socket，用函数socket()
+* 2.绑定IP地址、端口等信息到socket上，用函数bind()
+* 3.设置允许的最大连接数，用函数listen()
+* 4.接收客户端上来的连接，用函数accept()
+* 5.收发数据，用函数send()和recv()，或者read()和write()
+* 6.关闭网络连接
+
+```c++
+#include<stdio.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<stdlib.h>
+#include<netinet/in.h>
+#include<arpa/inet.h>
+#include<string.h>
+#include<pthread.h>
+#define PORT 8000 
+void *ClientHandler(void *arg)
+{
+	pthread_detach(pthread_self())  ;  //线程分离 
+	int ret;
+	int fd=*(int *)arg;
+	char buf[32]={0};
+	
+	ret=recv(fd,buf,sizeof(buf),0);   //4个参数 
+	if(-1==ret)
+	{
+		perror("recv");
+	//	exit(1);
+	}
+	printf("recv from %d client %s!\n",fd,buf);
+	memset(buf,0,sizeof(buf));
+}
+ 
+int main()
+{
+	int sockfd;
+	struct sockaddr_in server_addr;
+	struct sockaddr_in client_addr;	
+	int fd[1000]={0},i=0;
+	pthread_t tid; 
+	sockfd=socket(PF_INET,SOCK_STREAM,0);    //创建socket ，有 3个参数
+	if(-1==sockfd)     //若创建失败 
+	{
+	 	perror("socket");
+	 	exit(1);
+	} 
+	  int length=sizeof(server_addr);
+	  server_addr.sin_family=PF_INET;  //PF_INET 地址族
+	  server_addr.sin_port= PORT;   //端口号
+	  server_addr.sin_addr.s_addr=inet_addr("127.0.0.1");   //ip地址  绑定什么连接什么地址 
+	  int ret=bind(sockfd,(struct sockaddr *)&server_addr,length);    //绑定   ,强制类型转换 
+	  if(-1==ret)
+	  {
+	  	perror("bind");
+	  	exit(1);
+	  }
+	  ret=listen(sockfd,5);  //监听队列的大小
+	  if(-1==ret)    //若监听失败 
+	  {
+	  	perror("listen");
+	  	exit(1);
+	   } 
+	   while(1)  
+	   {
+	   		length=sizeof(client_addr);
+	   		memset (&client_addr,0,sizeof(client_addr));
+	   		fd[i]=accept(sockfd,(struct sockaddr *)&client_addr,&length);
+	   		if(-1==ret)
+	   		{
+	   			perror("accept");
+	   			exit(1);
+		    }
+		    printf("accept port %d fd %d\n",client_addr.sin_port,fd[i]);
+		    ret=pthread_create(&tid,NULL,ClientHandler,&fd[i]) ;              //创建线程
+			if(ret!=0)
+			{
+				perror("pthread_create");
+			} 
+			i++; 
+		//	pthread_join();  //等待线程结束，回收资源 ,阻塞性函数，聊天室不能用。 卡死
+		     
+	   }
+	return 0;
+}
+```
+
+客户端程序：
+
+* 1.创建一个socket，用函数socket()
+* 2.设置要连接的对方的IP地址和端口等属性
+* 3.连接服务器，用函数connect()
+* 4.收发数据，用函数send()和recv()，或者     read()和write()
+* 5.关闭网络连接 
+
+```c++
+#include<stdio.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<stdlib.h>
+#include<string.h>
+#include<netinet/in.h>
+#include<arpa/inet.h>
+#include<pthread.h>
+#define PORT 8000
+int main()
+{
+	int sockfd,ret;
+	char buf[32]={0};
+	struct sockaddr_in server_addr;
+	sockfd=socket(PF_INET,SOCK_STREAM,0); 
+	if(sockfd==-1)
+	{
+		perror("socket");
+		exit(1);
+	}	
+    int length=sizeof(server_addr);
+	server_addr.sin_family=PF_INET;  //PF_INET 地址族
+	server_addr.sin_port= PORT;   //端口号
+	server_addr.sin_addr.s_addr=inet_addr("127.0.0.1");   //ip地址  绑定什么连接什么地址 
+	ret=connect (sockfd,(struct sockaddr *)&server_addr,length);
+	if(-1==ret)
+	{
+		perror("connect");
+		exit(1);
+	}
+	while(1)
+	{
+		scanf("%s",buf);
+		ret=send(sockfd,buf,strlen(buf),0);
+		if(-1==ret)
+		{
+			perror("send");
+		}
+		memset(buf,0,sizeof(buf));
+	}
+	return 0;
+}
+```
 
 **42. 数字证书是什么，里面都包含那些内容**
 
+数字证书就是互联网通讯中标志通讯各方身份信息的一串数字，提供了一种在Internet上验证通信实体身份的方式，数字证书不是数字身份证，而是身份认证机构盖在数字身份证上的一个章或印（或者说加在数字身份证上的一个签名）。它是由权威机构——CA机构，又称为证书授权（Certificate Authority）中心发行的，人们可以在网上用它来识别对方的身份
+
+包含的内容:
+
+* 证书的版本信息；
+* 证书的序列号，每个证书都有一个唯一的证书序列号；
+* 证书所使用的签名算法；
+* 证书的发行机构名称，命名规则一般采用X.500格式；
+* 证书的有效期，通用的证书一般采用UTC时间格式，它的计时范围为1950-2049；
+* 证书所有人的名称，命名规则一般采用X.500格式；
+* 证书所有人的公开密钥；
+* 证书发行者对证书的签名。
+
 **43. C++ UDP的connect函数**
+
+udp客户端建立了socket后可以直接调用sendto()函数向服务器发送数据，但是需要在sendto()函数的参数中指定目的地址/端口，但是可以调用connect()函数先指明目的地址/端口，然后就可以使用send()函数向目的地址发送数据了，因为此时套接字已经包含目的地址/端口，也就是send()函数已经知道包含目的地址/端口。
 
 **44. 阻塞，非阻塞，同步，异步**
 
