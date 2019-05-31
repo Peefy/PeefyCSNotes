@@ -1098,6 +1098,14 @@ mysqlimport -u root -p --local --columns=b,c,a \
 
 **1. MySQL的端口号是多少，如何修改这个端口号**
 
+* 登录mysql 
+```sql
+mysql -uroot -p
+mysql> show global variables like 'port'
+```
+
+修改端口，编辑/etc/my.cnf文件，早期版本有可能是my.conf文件名，增加端口参数，并且设定端口，注意该端口未被使用，保存退出。
+
 **2. 数据库事务以及四个特性**
 
 **3. 数据库的三大范式**
