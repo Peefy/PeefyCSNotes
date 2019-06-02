@@ -1194,11 +1194,39 @@ WAL机制的原理是：修改并不直接写入到数据库文件中，而是�
 
 **13. mysql的四种隔离状态**
 
+隔离级别|脏读|不可重复读（NonRepeatable Read）|幻读（Phantom Read） 
+-|-|-|-
+未提交读（Read uncommitted）|可能|可能|可能
+已提交读（Read committed）|不可能|可能|可能
+可重复读（Repeatable read）|不可能|不可能|可能
+可串行化（Serializable ）|不可能|不可能|不可能
+
+* **未提交读(Read Uncommitted)**-允许脏读，也就是可能读取到其他会话中未提交事务修改的数据
+* **提交读(Read Committed)**-只能读取到已经提交的数据。Oracle等多数数据库默认都是该级别 (不重复读)
+* **可重复读(Repeated Read)**-可重复读。在同一个事务内的查询都是事务开始时刻一致的，InnoDB默认级别。在SQL标准中，该隔离级别消除了不可重复读，但是还存在幻象读
+* **串行读(Serializable)**-完全串行化的读，每次读都需要获得表级共享锁，读写相互都会阻塞
+
 **14. mysql的MVCC机制**
+
+MVCC：多版本并发控制（MVCC,Multiversion Currency Control）。一般情况下，事务性储存引擎不是只使用表锁，行加锁的处理数据，而是结合了MVCC机制，以处理更多的并发问题。Mvcc处理高并发能力最强，
+
+MYSQL中，MyISAM使用的是表锁，InnoDB使用的是行锁。而InnoDB的事务分为四个隔离级别，其中默认的隔离级别REPEATABLE READ需要两个不同的事务相互之间不能影响，而且还能支持并发，这点悲观锁是达不到的，所以REPEATABLE READ采用的就是乐观锁，而乐观锁的实现采用的就是MVCC。正是因为有了MVCC，才造就了InnoDB强大的事务处理能力。
+
+MVCC是通过保存数据在某个时间点的快照来实现的. 不同存储引擎的MVCC实现是不同的,典型的有乐观并发控制和悲观并发控制.
 
 **15. SQL优化方法有哪些**
 
+* 选择最合适的字段属性
+* 尽量把字段设置为NOT NULL
+* 使用连接(JOIN)来代替子查询(Sub-Queries)
+
 **16. MySQL引擎和区别**
+
+* **InnoDB**-（默认的存储引擎）InnoDB是一个事务型的存储引擎，有行级锁定和外键约束。Innodb引擎提供了对数据库ACID事务的支持，并且实现了SQL标准的四种隔离级别，该引擎还提供了行级锁和外键约束，它的设计目标是处理大容量数据库系统，它本身其实就是基于MySQL后台的完整数据库系统，MySQL运行时Innodb会在内存中建立缓冲池，用于缓冲数据和索引。但是该引擎不支持FULLTEXT类型的索引，而且它没有保存表的行数，当SELECT COUNT(*) FROM TABLE时需要扫描全表。
+* **MyIsam**-MyIASM是MySQL默认的引擎，但是它没有提供对数据库事务的支持，也不支持行级锁和外键，因此当INSERT(插入)或UPDATE(更新)数据时即写操作需要锁定整个表，效率便会低一些。
+* **Memory**-使用存在内存中的内容来创建表。每个MEMORY表只实际对应一个磁盘文件。MEMORY类型的表访问非常得快，因为它的数据是放在内存中的，并且默认使用HASH索引。
+* **Mrg_Myisam**-
+* **Blackhole**-
 
 ### Redis
 
