@@ -1380,55 +1380,465 @@ public class TreeToString {
 
 **49. stack overflow，并举个简单例子导致栈溢出**
 
+windows栈大小默认为1M，超过1M就会报错提示栈溢出:stack overflow
+
+```c
+char maxStack[1024][1024];
+```
+
 **50. 栈和堆的区别，以及为什么栈要快**
+
+* 栈区（ stack ) ——由编译器自动分配释放，存放为运行函数而分配的局部变量、函数参数、返回数据、返回地址等。其操作方式类似于数据结构中的栈；
+* 堆区（ heap ）——一般由程序员分配释放， 若程序员不释放，程序结束时可能由 OS 回收 。分配方式类似于链表；
+
+栈是机器系统提供的数据结构，而堆栈是C/C++函数库提供的。所以栈要更快 
 
 **51. 两个栈实现一个队列**
 
+* 思路1：将stack1作为存储空间，将stack2作为临时缓冲区，入队时，直接压入stac1，出队时，将stack1中的元素依次出栈压入stack2中，再将stack2的栈顶元素弹出，最后将stack2中的元素再倒回给stack1
+* 思路2：入队时，判断stack1是否为空，如果stack1为空，则将stack2中的所有元素都倒入stack1中，再将元素直接压入stack1，否则，直接压入stack1中；出队时，判断stack2是否为空，如果stack2为空，则将stack1中的元素倒入stack2中，在将stack2的栈顶元素弹出，否则，直接弹出stack2的栈顶元素  
+* 思路3：入队时，直接压入stack1中；出队时，判断stack2是否为空，如果stack2为空，则将stack1中的元素倒入stack2中，否则直接弹出stack2中的元素
+
+```java
+//入队操作
+void EnQueue(stack<int> &s1,stack<int> &s2,int m)
+{
+    s1.push(m);
+}
+
+//出队操作
+void DeQueue(stack<int> &s1,stack<int> &s2,int &m)
+{
+    if (s2.empty())
+    {
+        int p = s1.size();
+        for (int i=0;i<p;i++)
+        {
+            s2.push(s1.top());
+            s1.pop();
+        }    
+    }
+    m = s2.top();
+    s2.pop();
+}
+```
+
 **52. 小根堆特点**
+
+大顶堆(小顶堆)堆顶记录的是最大关键字(最小关键字)这一特性
 
 **53. Array&List数组和链表的区别**
 
+不同：链表是链式的存储结构；数组是顺序的存储结构。
+
+链表通过指针来连接元素与元素，数组则是把所有元素按次序依次存储。
+
+链表的插入删除元素相对数组较为简单，不需要移动元素，且较为容易实现长度扩充，但是寻找某个元素较为困难；
+
+数组寻找某个元素较为简单，但插入与删除比较复杂，由于最大长度需要再编程一开始时指定，故当达到最大长度时，扩充长度不如链表方便。
+相同：两种结构均可实现数据的顺序存储，构造出来的模型呈线性结构。
+
 **54. 一个长度为N的整形数组，数组中每个元素的取值范围是\[0,n-1\],判断该数组否有重复的数，请说一下你的思路并手写代码**
+
+```c++
+
+bool IsDuplicateNumber(int *array, int n)
+{	
+    if(array==NULL) return false;	
+    int i,temp;
+    for(i=0;i<n;i++)		
+    {	
+        while(array[i]!=i)			
+        {		
+            if(array[array[i]]==array[i]) 
+				return true;	
+            temp=array[array[i]];	
+            array[array[i]]=array[i];		
+            array[i]=temp;			
+        }		
+    }	
+    return false;	
+}
+```
 
 **55. 手写一下快排的代码**
 
+```c++
+using namespace std;
+ 
+void Qsort(int arr[], int low, int high){
+    if (high <= low) return;
+    int i = low;
+    int j = high + 1;
+    int key = arr[low];
+    while (true)
+    {
+        /*从左向右找比key大的值*/
+        while (arr[++i] < key)
+        {
+            if (i == high){
+                break;
+            }
+        }
+        /*从右向左找比key小的值*/
+        while (arr[--j] > key)
+        {
+            if (j == low){
+                break;
+            }
+        }
+        if (i >= j) break;
+        /*交换i,j对应的值*/
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    /*中枢值与j对应值交换*/
+    int temp = arr[low];
+    arr[low] = arr[j];
+    arr[j] = temp;
+    Qsort(arr, low, j - 1);
+    Qsort(arr, j + 1, high);
+}
+```
+
 **56. 求第k大的数的方法以及各自的复杂度是怎样的，另外追问一下，当有相同元素时，还可以使用什么不同的方法求第k大的元素**
+
+* 方法1：先把数组排序，然后再取下标为K的对应数组元素。平均时间复杂度O(n*logn)
+* 方法2：利用堆调整算法的性质，建立一个大小为K的堆，然后将整个数组元素添加到其中，利用其自动调整的性质，不断移除最小的元素，最后取堆顶的元素。总的时间复杂度为O(n*logK)
+* 方法3：方法3：利用快速排序分治的思想，每次根据枢轴元素的对数组进行划分，并根据胡枢轴元素的位置和K的大小，决定向枢轴元素左侧或者右侧元素进行进一步划分。这样最坏时间复杂度为O(K\*N)。平均时间复杂度为O(K\*logK)。
 
 **57. 各种排序算法及时间复杂度**
 
-**58. 海量数据如何去取最大的k个**
+<img src="https://github.com/Peefy/IntroductionToAlgorithm.Python/tree/master/src/dugulib/sort.png"/>
+
+**58. 海量数据如何去取最大的k个(10亿个数中找出最大的K个数 top K问题)**
+
+先拿K个数建堆，然后一次添加剩余元素，如果大于堆顶的数（K中最小的），将这个数替换堆顶，并调整结构使之仍然是一个最小堆，这样，遍历完后，堆中的K个数就是所需的最大的K个。建堆时间复杂度是O（mlogm），算法的时间复杂度为O（nmlogm）（n为10亿，m为K）。
 
 **59. Top(K)问题**
 
+先拿K个数建堆，然后一次添加剩余元素，如果大于堆顶的数（K中最小的），将这个数替换堆顶，并调整结构使之仍然是一个最小堆，这样，遍历完后，堆中的K个数就是所需的最大的K个。建堆时间复杂度是O（mlogm），算法的时间复杂度为O（nmlogm）（n为10亿，m为K）。
+
 **60. 快排的时间复杂度最差是多少？什么时候时间最差**
 
-O(nlgn) O(n^2)
+平均时间复杂度O(nlgn)，最差请去昂时间复杂度为 O(n^2)。
+在最坏的情况下，待排序的序列为正序或者逆序。
 
 **61. 稳定排序哪几种**
 
+稳定排序：冒泡排序，插入排序，并归排序，计数排序，桶排序，基数排序
+
+非稳定排序：选择排序，希尔排序，快速排序，堆排序
+
 **62. 快排算法；以及什么是稳定性排序，快排是稳定性的吗；快排算法最差情况推导公式**
+
+快排是非稳定排序算法那，快排最差情况为待排序序列已经升序或者降序排好序。
 
 **63. hash表的实现，包括STL中的哈希桶长度常数。**
 
+哈希表（Hash table，也叫散列表）， 是根据关键码值(Key value)而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中一个位置来访问记录，以加快查找的速度。这个映射函数叫做散列函数，存放记录的数组叫做散列表。
+
+采用的是开放式寻址法，哈希桶为映射单元，桶内部用链表来维护。
+
+开始确定一个素数，根据表的填装因子，然后表满了就以两倍的容量进行扩展，移动数据到新的表中。
+
 **64. hash表如何rehash，以及怎么处理其中保存的资源**
+
+两倍的容量进行扩展
+
+移动数据到新的表中
 
 **65. 哈希表的桶个数为什么是质数，合数有何不妥？**
 
+在实际中往往关键字有某种规律，例如大量的等差数列，那么公差和模数不互质的时候发生碰撞的概率会变大，而用质数就可以很大程度上回避这个问题。基本可以保证c的每一位都参与H( c )的运算，从而在常见应用中减小冲突几率.
+
 **66. 解决hash冲突的方法**
+
+* **开放定址法**-用开放定址法解决冲突的做法是：当冲突发生时，使用某种探查(亦称探测)技术在散列表中形成一个探查(测)序列。沿此序列逐个单元地查找，直到找到给定 的关键字，或者碰到一个开放的地址(即该地址单元为空)为止（若要插入，在探查到开放的地址，则可将待插入的新结点存人该地址单元）。查找时探查到开放的 地址则表明表中无待查的关键字，即查找失败。
+
+*线性探查法(Linear Probing)*-将散列表T\[0..m-1\]看成是一个循环向量，若初始探查的地址为d(即h(key)=d)，则最长的探查序列为：
+
+*线性补偿探测法*-线性补偿探测法的基本思想是：
+将线性探测的步长从 1 改为 Q ，即将上述算法中的 j ＝ (j ＋ 1) % m 改为： j ＝ (j ＋ Q) % m ，而且要求 Q 与 m 是互质的，以便能探测到哈希表中的所有单元。
+
+*随机探测*-随机探测的基本思想是：将线性探测的步长从常数改为随机数，即令： j ＝ (j ＋ RN) % m ，其中 RN 是一个随机数。在实际程序中应预先用随机数发生器产生一个随机序列，0将此序列作为依次探测的步长。
+
+* **拉链法**-
+
+拉链法解决冲突的做法是：将所有关键字为同义词的结点链接在同一个单链表中。若选定的散列表长度为m，则可将散列表定义为一个由m个头指针组成的指针数 组T\[0..m-1\]。凡是散列地址为i的结点，均插入到以T\[i\]为头指针的单链表中。T中各分量的初值均应为空指针。在拉链法中，装填因子α可以大于 1，但一般均取α≤1。如java的HashMap取初始装填因子为0.75
 
 **67. 合并两个有序链表**
 
+```java
+public static Node CombineList(Node head1, Node head2){
+    if(head1 == null || head2 == null){
+        return head1 != null ? head1 : head2;
+    }
+    Node head = head1.value < head2.value ? head1 : head2;
+    Node cur1 = head == head1 ? head1 : head2;
+    Node cur2 = head == head1 ? head2 : head1;
+    Node pre = null;
+    Node next = null;
+    while(cur1 != null && cur2 != null){
+        if(cur1.value <= cur2.value){//这里一定要有=，否则一旦cur1的value和cur2的value相等的话，下面的pre.next会出现空指针异常
+            pre = cur1;
+            cur1 = cur1.next;
+        }else{
+            next = cur2.next;
+            pre.next = cur2;
+            cur2.next = cur1;
+            pre = cur2;
+            cur2 = next;
+        }
+    }
+    pre.next = cur1 == null ? cur2 : cur1;    
+    return head;
+```
+
 **68. 反转链表**
+
+```java
+public static Node reverseList(Node head){
+    Node pre = null;
+    Node next = null;
+    while(head != null){
+        next = head.next;
+        head.next = pre;
+        pre = head;
+        head = next;
+    }
+    return pre;
+}
+```
 
 **69. 链表是否为回文链表，说出你的思路并手写代码**
 
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) 
+    {
+        ListNode *point1, *point2, *point3;
+        point3 = point2 = head;
+        point1 = NULL;
+        long int sum = 0;
+        int n = 1;
+        if(head == NULL || head->next == NULL
+            return true;
+        while(point3->next != NULL)//第一次遍历，取值并逆置
+        {
+            sum += n*point3->val;
+            n++;
+            point3 = point3->next;
+            point2->next = point1;
+            point1 = point2;
+            point2 = point3;
+        }
+        sum += n*point3->val;
+        point2->next = point1;
+        n = 1;
+        while(point2 != NULL)//第二次遍历
+        {
+            sum -= n*point2->val;
+            n++;
+            point2 = point2->next;
+        }
+        if(sum == 0)
+            return true;
+        else
+            return false;
+    }
+};
+```
+
 **70. 单向链表，如何判断两个单向链表是否相交**
+
+```c++
+bool check(const node* head)
+{
+    if(head==NULL) return false;
+    node *low=head, *fast=head->next;
+    while(fast!=NULL && fast->next!=NULL)
+    {
+        low=low->next;
+        fast=fast->next->next;
+        if(low==fast) return true;
+    }
+    return false;
+}
+```
 
 **71. 加密方法都有哪些**
 
+**密钥**-密钥是一种参数，它是在使用密码（cipher）算法过程中输入的参数。同一个明文在相同的密码算法和不同的密钥计算下会产生不同的密文。很多知名的密码算法都是公开的，密钥才是决定密文是否安全的重要参数，通常密钥越长，破解的难度越大，比如一个8位的密钥最多有256种情况，使用穷举法，能非常轻易的破解，知名的DES算法使用56位的密钥，目前已经不是一种安全的加密算法了，主要还是因为56位的密钥太短，在数小时内就可以被破解。密钥分为对称密钥与非对称密钥。
+
+**明文/密文**-明文（plaintext）是加密之前的原始数据，密文是通过密码（cipher）运算后得到的结果成为密文（ciphertext）
+
+**对称密钥**-对称密钥（Symmetric-key algorithm）又称为共享密钥加密，对称密钥在加密和解密的过程中使用的密钥是相同的，常见的对称加密算法有DES、3DES、AES、RC5、RC6。对称密钥的优点是计算速度快，但是他也有缺点，密钥需要在通讯的两端共享，让彼此知道密钥是什么对方才能正确解密，如果所有客户端都共享同一个密钥，那么这个密钥就像万能钥匙一样，可以凭借一个密钥破解所有人的密文了，如果每个客户端与服务端单独维护一个密钥，那么服务端需要管理的密钥将是成千上万，这会给服务端带来噩梦。下面就是一个简单的对称加密，将明文加密成ASCII。
+
+**非对称密钥**-非对称密钥（public-key cryptography），又称为公开密钥加密，服务端会生成一对密钥，一个私钥保存在服务端，仅自己知道，另一个是公钥，公钥可以自由发布供任何人使用。客户端的明文通过公钥加密后的密文需要用私钥解密。非对称密钥在加密和解密的过程的使用的密钥是不同的密钥，加密和解密是不对称的，所以称之为非对称加密。与对称密钥加密相比，非对称加密无需在客户端和服务端之间共享密钥，只要私钥不发给任何用户，即使公钥在网上被截获，也无法被解密，仅有被窃取的公钥是没有任何用处的。常见的非对称加密有RSA，非对称加解密的过程： 
+服务端生成配对的公钥和私钥 
+私钥保存在服务端，公钥发送给客户端 
+客户端使用公钥加密明文传输给服务端 
+服务端使用私钥解密密文得到明文 
+
+**数字密钥**-数据在浏览器和服务器之间传输时，有可能在传输过程中被冒充的盗贼把内容替换了，那么如何保证数据是真实服务器发送的而不被调包呢，同时如何保证传输的数据没有被人篡改呢，要解决这两个问题就必须用到数字签名，数字签名就如同日常生活的中的签名一样，一旦在合同书上落下了你的大名，从法律意义上就确定是你本人签的字儿，这是任何人都没法仿造的，因为这是你专有的手迹，任何人是造不出来的。那么在计算机中的数字签名怎么回事呢？数字签名就是用于验证传输的内容是不是真实服务器发送的数据，发送的数据有没有被篡改过，它就干这两件事，是非对称加密的一种应用场景。不过他是反过来用私钥来加密，通过与之配对的公钥来解密。 
+第一步：服务端把报文经过Hash处理后生成摘要信息Digest，摘要信息使用私钥private-key加密之后就生成签名，服务器把签名连同报文一起发送给客户端。
+
+常见的对称加密算法：DES、3DES、DESX、Blowfish、IDEA、RC4、RC5、RC6和AES
+
+常见的Hash算法：MD2、MD4、MD5、HAVAL、SHA、SHA-1、HMAC、HMAC-MD5、HMAC-SHA1
+
+DES（Data Encryption Standard）：数据加密标准，速度较快，适用于加密大量数据的场合。
+
+3DES（Triple DES）：是基于DES，对一块数据用三个不同的密钥进行三次加密，强度更高。
+
+AES（Advanced Encryption Standard）：高级加密标准，是下一代的加密算法标准，速度快，安全级别高；
+
+RSA：由 RSA 公司发明，是一个支持变长密钥的公共密钥算法，需要加密的文件块的长度也是可变的；
+
+DSA（Digital Signature Algorithm）：数字签名算法，是一种标准的 DSS（数字签名标准）；
+
+ECC（Elliptic Curves Cryptography）：椭圆曲线密码编码学。
+
 **72. LRU缓存**
 
+内存管理的一种页面置换算法，对于在内存中但又不用的数据块（内存块）叫做LRU，操作系统会根据哪些数据属于LRU而将其移出内存而腾出空间来加载另外的数据。
+
+关于`操作系统的内存管理`，如何节省利用容量不大的内存为最多的`进程`提供资源，一直是研究的重要方向。而内存的虚拟存储管理，是现在最通用，最成功的方式—— 在内存有限的情况下，**扩展一部分外存作为虚拟内存**，真正的内存只存储当前运行时所用得到信息。
+
+<img src="https://github.com/Peefy/PeefyCSNotes/tree/master/src/LRU.jpg" />
+
+> 可以基于 哈希表HashMap 和 双向链表实现 LRU 
+
+可以使用 HashMap 存储 key，这样可以做到 save 和 get key的时间都是 O(1)，而 HashMap 的 Value 指向双向链表实现的 LRU 的 Node 节点，如图所示。LRU 存储是基于双向链表实现的，其中 head 代表双向链表的表头，tail 代表尾部。首先预先设置 LRU 的容量，如果存储满了，可以通过 O(1) 的时间淘汰掉双向链表的尾部，每次新增和访问数据，都可以通过 O(1)的效率把新的节点增加到对头，或者把已经存在的节点移动到队头。
+
+```c++
+#include <iostream>
+#include <hash_map>
+#include <list>
+#include <utility>
+using namespace std;
+using namespace stdext;
+
+class LRUCache{
+public:
+    LRUCache(int capacity) {
+        m_capacity = capacity ;
+    }
+    int get(int key) {
+        int retValue = -1 ;
+        hash_map<int, list<pair<int, int> > :: iterator> ::iterator it = cachesMap.find(key) ;
+        //如果在Cashe中，将记录移动到链表的最前端
+        if (it != cachesMap.end())
+        {
+            retValue = it ->second->second ;
+            //移动到最前端
+            list<pair<int, int> > :: iterator ptrPair = it -> second ;
+            pair<int, int> tmpPair = *ptrPair ;
+            caches.erase(ptrPair) ;
+            caches.push_front(tmpPair) ;
+            //修改map中的值
+            cachesMap[key] = caches.begin() ;
+        }
+        return retValue ;
+    }
+    void set(int key, int value) {
+        hash_map<int, list<pair<int, int> > :: iterator> ::iterator it = cachesMap.find(key) ;
+        if (it != cachesMap.end()) //已经存在其中
+        {
+            list<pair<int, int> > :: iterator ptrPait = it ->second ;
+            ptrPait->second = value ;
+            //移动到最前面
+            pair<int , int > tmpPair = *ptrPait ;
+            caches.erase(ptrPait) ;
+            caches.push_front(tmpPair) ;
+            //更新map
+            cachesMap[key] = caches.begin() ;
+        }
+        else //不存在其中
+        {
+            pair<int , int > tmpPair = make_pair(key, value) ;
+
+
+            if (m_capacity == caches.size()) //已经满
+            {
+                int delKey = caches.back().first ;
+                caches.pop_back() ; //删除最后一个
+
+
+                //删除在map中的相应项
+                hash_map<int, list<pair<int, int> > :: iterator> ::iterator delIt = cachesMap.find(delKey) ;
+                cachesMap.erase(delIt) ;
+            }
+
+
+            caches.push_front(tmpPair) ;
+            cachesMap[key] = caches.begin() ; //更新map
+        }
+    }
+
+private:
+    int m_capacity ;                                               //cashe的大小
+    list<pair<int, int> > caches ;                                 //用一个双链表存储cashe的内容
+    hash_map< int, list<pair<int, int> > :: iterator> cachesMap ;  //使用map加快查找的速度
+};
+```
+
 **73. 洗牌算法**
+
+* **Fisher-Yates Shuffle算法**-基本思想就是从原始数组中随机取一个之前没取过的数字到新的数组中
+```c++
+#define N 10
+#define M 5
+void Fisher_Yates_Shuffle(vector<int>& arr,vector<int>& res)
+{
+     srand((unsigned)time(NULL));
+     int k;
+     for (int i=0;i<M;++i)
+     {
+     	k=rand()%arr.size();
+     	res.push_back(arr[k]);
+     	arr.erase(arr.begin()+k);
+     }
+}
+```
+* **Knuth-Durstenfeld Shuffle算法**-在原始数组上对数字进行交互，省去了额外O(n)的空间。该算法的基本思想和 Fisher 类似，每次从未处理的数据中随机取出一个数字，然后把该数字放在数组的尾部，即数组尾部存放的是已经处理过的数字。
+```c++
+void Knuth_Durstenfeld_Shuffle(vector<int>&arr)
+{
+	for (int i=arr.size()-1;i>=0;--i)
+	{
+		srand((unsigned)time(NULL));
+		swap(arr[rand()%(i+1)],arr[i]);
+	}
+}
+```
+* **Inside-Out Algorithm**-基本思思是从前向后扫描数据，把位置i的数据随机插入到前i个（包括第i个）位置中（假设为k），这个操作是在新数组中进行，然后把原始数据中位置k的数字替换新数组位置i的数字。其实效果相当于新数组中位置k和位置i的数字进行交互。
+```c++
+void Inside_Out_Shuffle(const vector<int>&arr,vector<int>& res)
+{
+	res.assign(arr.size(),0);
+	copy(arr.begin(),arr.end(),res.begin());
+	int k;
+	for (int i=0;i<arr.size();++i)
+	{
+		srand((unsigned)time(NULL));
+		k=rand()%(i+1);
+		res[i]=res[k];
+		res[k]=arr[i];
+	}
+}
+```
 
 **74. **
 
