@@ -1232,21 +1232,302 @@ MVCC是通过保存数据在某个时间点的快照来实现的. 不同存储�
 
 **17. mongodb和redis的区别**
 
+MongoDB更类似Mysql，支持字段索引、游标操作，其优势在于查询功能比较强大，擅长查询JSON数据，能存储海量数据，但是不支持事务。Mysql在大数据量时效率显著下降，MongoDB更多时候作为关系数据库的一种替代。
+
+* **内存管理机制**-Redis数据全部存在内存，定期写入磁盘，当内存不够时，可以选择指定的LRU算法删除数据。MongoDB数据存在内存，由linux系统mmap实现，当内存不够时，只将热点数据放入内存，其他数据存在磁盘。
+* **支持的数据结构**-Redis支持的数据结构丰富，包括hash、set、list等。MongoDB数据结构比较单一，但是支持丰富的数据表达，索引，最类似关系型数据库，支持的查询语言非常丰富。
+* **性能**-二者性能都比较高，应该说都不会是瓶颈。
+* **可靠性**-二者均支持持久化。
+* **集群**-MongoDB集群技术比较成熟，Redis从3.0开始支持集群。
+
 **18. Redis的定时机制怎么实现的**
+
+暂时不会
 
 **19. Redis是单线程的，但是为什么这么高效呢?**
 
+* 完全基于内存，绝大部分请求是纯粹的内存操作，非常快速。数据存在内存中，类似于HashMap，HashMap的优势就是查找和操作的时间复杂度都是O(1)；
+* 数据结构简单，对数据操作也简单，Redis中的数据结构是专门进行设计的；
+* 采用单线程，避免了不必要的上下文切换和竞争条件，也不存在多进程或者多线程导致的切换而消耗 CPU，不用去考虑各种锁的问题，不存在加锁释放锁操作，没有因为可能出现死锁而导致的性能消耗；
+* 使用多路I/O复用模型，非阻塞IO；
+* 使用底层模型不同，它们之间底层实现方式以及与客户端之间通信的应用协议不一样，Redis直接自己构建了VM 机制 ，因为一般的系统调用系统函数的话，会浪费一定的时间去移动和请求；
+
 **20. Redis的数据类型有哪些，底层怎么实现?**
+
+类型常量|对象名称
+-|-
+REDIS_STRING|字符串对象
+REDIS_LIST|列表对象
+REDIS_HASH|哈希对象
+REDIS_SET|集合对象
+REDIS_ZSET|有序集合对象
+
+```c
+/*
+ * Redis 对象
+ */
+typedef struct redisObject {
+ 
+    // 类型
+    unsigned type:4;        
+ 
+    // 不使用(对齐位)
+    unsigned notused:2;
+ 
+    // 编码方式
+    unsigned encoding:4;
+ 
+    // LRU 时间（相对于 server.lruclock）
+    unsigned lru:22;
+ 
+    // 引用计数
+    int refcount;
+ 
+    // 指向对象的值
+    void *ptr;
+ 
+} robj;
+```
+
+```c
+#define REDIS_ENCODING_EMBSTR_SIZE_LIMIT 39
+robj *createStringObject(char *ptr, size_t len) {
+    if (len <= REDIS_ENCODING_EMBSTR_SIZE_LIMIT)
+        return createEmbeddedStringObject(ptr,len);
+    else
+        return createRawStringObject(ptr,len);
+}
+```
+
+```c
+typedef struct dict {
+    dictType *type;
+    void *privdata;
+    dictht ht[2];
+    long rehashidx; /* rehashing not in progress if rehashidx == -1 */
+    int iterators; /* number of iterators currently running */
+} dict;
+```
+
+dict是一个字典，其中的指针dicht ht[2] 指向了两个哈希表
+
+```c
+typedef struct dictht {
+    dictEntry **table;
+    unsigned long size;
+    unsigned long sizemask;
+    unsigned long used;
+} dictht;
+```
+
+skiplist是一种跳跃表，它实现了有序集合中的快速查找，在大多数情况下它的速度都可以和平衡树差不多。但它的实现比较简单，可以作为平衡树的替代品。它的结构比较特殊。
+
+```c
+/*
+ * 跳跃表
+ */
+typedef struct zskiplist {
+    // 头节点，尾节点
+    struct zskiplistNode *header, *tail;
+    // 节点数量
+    unsigned long length;
+    // 目前表内节点的最大层数
+    int level;
+} zskiplist;
+/* ZSETs use a specialized version of Skiplists */
+/*
+ * 跳跃表节点
+ */
+typedef struct zskiplistNode {
+    // member 对象
+    robj *obj;
+    // 分值
+    double score;
+    // 后退指针
+    struct zskiplistNode *backward;
+    // 层
+    struct zskiplistLevel {
+        // 前进指针
+        struct zskiplistNode *forward;
+        // 这个层跨越的节点数量
+        unsigned int span;
+    } level[];
+} zskiplistNode;
+```
+
+有序集合ZSET是有跳跃表和hashtable共同形成的。
+
+```c
+typedef struct zset {
+    // 字典
+    dict *dict;
+    // 跳跃表
+    zskiplist *zsl;
+} zset;
+```
 
 **21. Redis的rehash怎么做的，为什么要渐进rehash，渐进rehash又是怎么实现的?**
 
-**22. Redis和memcached的区别**
+随着操作的不断进行，哈希表保存的键值对会逐渐的增多或减少，为了让哈希表的负载因子维持在一个合理的范围内，当哈希表保存的键值对数量太多或太少，就对哈希表进行扩展或收缩。
+
+整个rehash过程并不是一步完成的，而是分多次、渐进式的完成。如果哈希表中保存着数量巨大的键值对时，若一次进行rehash，很有可能会导致服务器宕机。
+
+*rehash的步骤*
+
+* 为字典的ht\[1\]哈希表分配空间:若是扩展操作，那么ht\[1\]的大小为>=ht\[0\].used*2的2^n;若是收缩操作，那么ht\[1\]的大小为>=ht\[0\].used的2^n
+* 将保存在ht\[0\]中的所有键值对rehash到ht\[1\]中，rehash指重新计算键的哈希值和索引值，然后将键值对放置到ht\[1\]哈希表的指定位置上。
+* 当ht\[0\]的所有键值对都迁移到了ht\[1\]之后（ht\[0\]变为空表），释放ht\[0\]，将ht\[1\]设置为ht\[0\],新建空白的哈希表ht\[1\]，以备下次rehash使用。
+
+*渐进rehash的步骤*
+
+* 为ht\[1\]分配空间，让字典同时持有ht\[0\]和ht\[1\]两个哈希表
+* 维持索引计数器变量rehashidx，并将它的值设置为0，表示rehash开始
+* 每次对字典执行增删改查时，将ht\[0\]的rehashidx索引上的所有键值对rehash到ht\[1\]，将rehashidx值+1。
+* 当ht\[0\]的所有键值对都被rehash到ht\[1\]中，程序将rehashidx的值设置为-1，表示rehash操作完成
+
+**22. Redis和memcached的区别1**
+
+* **Redis和Memcache都是将数据存放在内存中**-都是内存数据库。不过memcache还可用于缓存其他东西，例如图片、视频等等；
+* **不同的数据结构**-Redis不仅仅支持简单的k/v类型的数据，同时还提供list，set，hash等数据结构的存储；
+* **虚拟内存**-Redis当物理内存用完时，可以将一些很久没用到的value 交换到磁盘；
+* **过期策略**-memcache在set时就指定，例如set key1 0 0 8,即永不过期。Redis可以通过例如expire 设定，例如expire name 10；
+* **分布式**-设定memcache集群，利用magent做一主多从;redis可以做一主多从。都可以一主一从；
+* **存储数据安全**-memcache挂掉后，数据没了；redis可以定期保存到磁盘（持久化）；
+* **灾难恢复**-memcache挂掉后，数据不可恢复; redis数据丢失后可以通过aof恢复；
+* **数据备份**-Redis支持数据的备份，即master-slave模式的数据备份；
 
 **23. Redis怎么实现的定期删除功能**
 
+定时删除，用一个定时器来负责监视key，当这个key过期就自动删除，虽然内存及时释放，但是十分消耗CPU资源，在大并发请求下CPU要尽可能的把时间都用在处理请求，而不是删除key，因此没有采用这一策略
+
+定期删除+惰性删除：定时删除，redis默认每100ms检查是否有过期的key，有过期的key则删除。需要说明的是redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查（如果每100ms，全部key进行检查，redis岂不是卡死了）。因此，如果只采用定期策略，会导致很多key到时间没有删除。也就是使用定时删除会导致删除不完全，于是惰性删除就登场了。也就是说你在获取key的时候，redis会检查一下，这个key如果设置过期时间那么是否过期了？如果过期 此时就删除。
+
 **24. Redis对应的命令和数据类型...**
 
-**25. **
+### Redis 字符串 (String)
+
+* SET key value | 设定指定key的值
+* GET key | 获取指定key的值
+* GETRANGE key start end | 返回key中字符串的子字符
+* GETSET key value | 将给定key的值设为value，并返回key的旧值(old value)
+* GETBIT key offset | 对key所存储的字符串值，获取指定偏移量上的位(bit)
+* MGET key1 [key2..] | 获取所有(一个或多个)给定key的值
+* SETBIT key offset value | 对key所存储的字符串值，设置或清除指定偏移量上的位(bit)
+* SETEX key seconds value | 将值value关联到key，并将key的过期时间设为seconds (以秒为单位)
+* SETNX key value | 只有在key不存在时设置key的值
+* SETRANGE key offset value | 用value参数覆写给定key所存储的字符串值，从偏移量offset开始
+* STRLEN key | 返回key所存储的字符串值的长度
+* MSET key value [key value...] | 同时设置一个或多个key-value对
+* MSETNX key value [key value...] | 同时设置一个或多个key-value对，当且仅当所有给定key都不存在
+* PSETEX key milliseconds value | 这个命令和SETEX命令相似，但它以毫秒为单位设置key的生存时间，而不是像SETEX命令那样，以秒为单位
+* INCR key | 将key中存储的数字值增一
+* INCRBY key increment | 将key所存储的值加上给定的增量值 (increment)
+* INCRBYFLOAT key increment | 将key所存储的值加上给定的浮点增量值 (increment)
+* DECR key | 将key中存储的数字值减一
+* DECRBY key decrement | key所存储的值减去给定的减量值 (decrement)
+* APPEND key value | 如果key已经存在并且是一个字符串，APPEND命令将制定的value追加到该key原来值(value)的末尾
+
+### Redis 哈希 (Hash) 
+
+Redis hash是一个string类型的field和value的映射表，hash特别适合用于存储对象
+Redis中每个hash可以存储2的32次方-1键值对(40多亿)
+
+* HDEL key field1 [field2] | 删除一个或多个哈希表字段
+* HEXIST key field | 查看哈希表key中，制定的字段是否存在
+* HGET key field | 获取存储在哈希表中指定字段的值
+* HGETALL key | 获取在哈希表中指定key的所有字段和值
+* HINCRBY key field increment | 为哈希表key中的指定字段的整数值加上增量increment
+* HINCRBYFLOAT key field increment | 为哈希表key中的指定字段的浮点数值加上增量increment
+* HKEYS key | 获取所有哈希表中的字段
+* HLEN key | 获取哈希表中字段的数量
+* HMGET key field1 [field2] | 获取所有给定字段的值
+* HMSET key field1 value1 [field2 value2] | 同时将多个field-value(域-值)对设置到哈希表key中
+* HSET key field value | 将哈希表key中的字段field的值设为value
+* HSETNX key field value | 只有在字段field不存在时，设置哈希表字段的值
+* HVALS key | 获取哈希表中的所有值
+* HSCAN key cursor [MATCH pattern] [COUNT count] | 迭代哈希表中的键值对
+
+### Redis 列表 (List)
+
+Redis列表是简单的字符串列表，按照插入顺序排序。可以添加一个元素到列表的头部或尾部,一个列表最多可以包含2的32次方减1个元素*(超过40亿个元素)
+
+* BLPOP key1 [key2] timeout | 移出并获取列表的第一个元素，如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止
+* BRPOP key1 [key2] timeout | 移出并获取列表的最后一个元素，如果列表没有元素会阻塞直到等待超时或发现可弹出元素为止
+* BRPOPLPUSH source destination timeout | 从列表中弹出一个值，将弹出元素插入到另外一个列表中并返回它；如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止 
+* LINDEX key index | 通过索引获取列表中的元素
+* LINSERT key BEFORE|AFTER pivot value | 在列表的元素前或者后插入元素
+* LLEN key | 获取列表长度
+* LPOP key | 移出并获取列表的第一个元素
+* LPUSH key value1 [value2] | 将一个或多个值插入到列表头部
+* LPUSHX key value | 将一个值插入到已存在的列表头部
+* LRANGE key start stop | 获取列表指定范围内的元素
+* LREM key count value | 移除列表元素
+* LSET key index value | 通过索引设置列表元素的值
+* LTRIM key start stop | 对一个列表进行修剪(trim),就是说，让列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除
+* RPOP key | 移除列表的最后一个元素，返回值为移除的元素
+* RPOPLPUSH source destination | 移除列表的最后一个元素，并将该元素添加到另一个列表并返回
+* RPUSH key value1 [value2] | 在列表中添加一个或多个值
+* RPUSHX key value | 为已存在的列表添加值
+
+### Redis 集合 (Set)
+
+Redis的Set是String类型的无序集合，集合成员是唯一的，意味着集合中不能出现重复的数据。
+Redis中集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1),集合中最大的成员数为2的32次方减1 (每个集合可存储40多亿个成员)
+
+* SADD key member1 [member2] | 向集合添加一个或多个成员
+* SCARD key | 获取集合的成员数
+* SDIFF key1 [key2] | 返回给定所有集合的差集
+* SDIFFSTORE destination key1 [key2] | 返回给定所有集合的差集并存储在destination中
+* SINTER key1 [key2] | 返回给定所有集合的交集
+* SINTERSTORE destination key1 [key2] | 返回给定所有集合的交集并存储在destination中
+* SISMEMBER key member | 判断member元素是否是集合key的成员 
+* SMEMBERS key | 返回集合中的所有成员
+* SMOVE source destination member | 将 member 元素从 source 集合移动到 destination 集合
+* SPOP key | 移除并返回集合中的一个随机元素
+* SRANDMEMBER key [count] | 返回集合中一个或多个随机数
+* SREM key member1 [member2] | 移除集合中一个或多个成员
+* SUNION key1 [key2] | 返回所有给定集合的并集
+* SUNIONSTORE destination key1 [key2] | 所有给定集合的并集存储在 destination 集合中
+* SSCAN key cursor [MATCH pattern] [COUNT count] | 迭代集合中的元素
+
+### Redis 有序集合 (sorted set)
+
+Redis有序集合和集合一样也是string类型元素的集合，且不允许重复的成员.不同的是每个元素都会关联一个double类型的分数。Redis正是通过分数来为集合中的成员进行从小到大的排序。有序集合的成员是唯一的，但分数score却可以重复。
+
+集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1),集合中最大的成员数为2的32次方减1 (每个集合可存储40多亿个成员)
+
+* ZADD key score1 member1 [score2 member2] 
+* ZCARD key 
+* ZCOUNT key min max 
+* ZINCRBY key increment member 
+* ZINTERSTORE destination numkeys key [key ...] 
+* ZLEXCOUNT key min max 
+* ZRANGE key start stop [WITHSCORES] 
+* ZRANGEBYLEX key min max [LIMIT offset count] 
+* ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT] 
+* ZRANK key member 
+* ZREM key member [member ...] 
+* ZREMRANGEBYLEX key min max 
+* ZREMRANGEBYRANK key start stop 
+* ZREMRANGEBYSCORE key min max 
+* ZREVRANGE key start stop [WITHSCORES] 
+* ZREVRANGEBYSCORE key max min [WITHSCORES] 
+* ZREVRANK key member 
+* ZSCORE key member 
+* ZUNIONSTORE destination numkeys key [key ...] 
+* ZSCAN key cursor [MATCH pattern] [COUNT count] 
+
+**25. Redis、memcached、mongoDB的区别**
+
+* **性能**-都比较高，性能对我们来说应该都不是瓶颈。总体来讲，TPS方面redis和memcache差不多，要大于mongodb
+* **操作的便利性**-memcache数据结构单一。redis丰富一些，数据操作方面，redis更好一些，较少的网络IO次数。mongodb支持丰富的数据表达，索引，最类似关系型数据库，支持的查询语言非常丰富。
+* **内存空间的大小和数据量的大小**-redis在2.0版本后增加了自己的VM特性，突破物理内存的限制；可以对key value设置过期时间（类似memcache）。memcache可以修改最大可用内存,采用LRU算法。mongoDB适合大数据量的存储，依赖操作系统VM做内存管理，吃内存也比较厉害，服务不要和别的服务在一起。
+* **可用性（单点问题）**-redis，依赖客户端来实现分布式读写；主从复制时，每次从节点重新连接主节点都要依赖整个快照,无增量复制，因性能和效率问题，所以单点问题比较复杂；不支持自动sharding,需要依赖程序设定一致hash 机制。Memcache本身没有数据冗余机制，也没必要；对于故障预防，采用依赖成熟的hash或者环状的算法，解决单点故障引起的抖动问题。
+mongoDB支持master-slave,replicaset（内部采用paxos选举算法，自动故障恢复）,auto sharding机制，对客户端屏蔽了故障转移和切分机制。
+* **可靠性（持久化）**-redis支持（快照、AOF）：依赖快照进行持久化，aof增强了可靠性的同时，对性能有所影响；memcache不支持，通常用在做缓存,提升性能；MongoDB从1.8版本开始采用binlog方式支持持久化的可靠性
+* **数据一致性（事务支持）**-Memcache 在并发场景下，用cas保证一致性；redis事务支持比较弱，只能保证事务中的每个操作连续执行；mongoDB不支持事务
+* **数据分析**-mongoDB内置了数据分析的功能(mapreduce),其他不支持
+* **应用场景**-redis：数据量较小的更性能操作和运算上；memcache：用于在动态系统中减少数据库负载，提升性能;做缓存，提高性能（适合读多写少，对于数据量比较大，可以采用sharding）；MongoDB:主要解决海量数据的访问效率问题。
 
 **26. **
 

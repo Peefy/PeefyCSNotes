@@ -1056,29 +1056,327 @@ PriorityQueue是一个基于优先级堆的无界队列。它的元素是按照�
 
 **37. 红黑树和AVL树的定义，特点，以及二者区别**
 
+一棵红黑树是指一棵满足下述性质的二叉搜索树（BST, binary search tree）： 1. 每个结点或者为黑色或者为红色。 2. 根结点为黑色。 3. 每个叶结点(实际上就是NULL指针)都是黑色的。 4. 如果一个结点是红色的，那么它的两个子节点都是黑色的（也就是说，不能有两个相邻的红色结点）。 5. 对于每个结点，从该结点到其所有子孙叶结点的路径中所包含的黑色结点数量必须相同。红黑树能够以O(log2 n) 的时间复杂度进行搜索、插入、删除操作。此外，由于它的设计，任何不平衡都会在三次旋转之内解决。
+
+AVL树是最先发明的自平衡二叉查找树。在AVL树中任何节点的两个儿子子树的高度最大差别为一，所以它也被称为高度平衡树。查找、插入和删除在平均和最坏情况下都是O(log n)。增加和删除可能需要通过一次或多次树旋转来重新平衡这个树。
+引入二叉树的目的是为了提高二叉树的搜索的效率,减少树的平均搜索长度.为此,就必须每向二叉树插入一个结点时调整树的结构,使得二叉树搜索保持平衡,从而可能降低树的高度,减少的平均树的搜索长度.为了保证平衡，AVL树中的每个结点都有一个平衡因子（balance factor，以下用BF表示），它表示这个结点的左、右子树的高度差，也就是左子树的高度减去右子树的高度的结果值。AVL树上所有结点的BF值只能是-1、0、1。反之，只要二叉树上一个结点的BF的绝对值大于1，则该二叉树就不是平衡二叉树。下图演示了平衡二叉树和非平衡二叉树。
+
+*区别*
+
+红黑树和AVL树的区别在于平衡二叉树追求的是全局平衡，而红黑树只追求局部平衡，因此在操作时对红黑树的平衡调整更高效。红黑树并不是严格意义上的左右子树深度差不大于1，但它依然保持平衡，并保持好的查找时间复杂度。
+
 **38. 哈夫曼编码**
+
+哈夫曼编码(Huffman Coding)，又称霍夫曼编码，是一种编码方式，可变字长编码(VLC)的一种。Huffman于1952年提出一种编码方法，该方法完全依据字符出现概率来构造异字头的平均长度最短的码字，有时称之为最佳编码，一般就叫做Huffman编码（有时也称为霍夫曼编码）。
+
+哈夫曼编码，主要目的是根据使用频率来最大化节省字符（编码）的存储空间。
+
+简易的理解就是，假如我有A,B,C,D,E五个字符，出现的频率（即权值）分别为5,4,3,2,1,那么我们第一步先取两个最小权值作为左右子树构造一个新树，即取1，2构成新树，其结点为1+2=3，
+
+```python
+
+from __future__ import division, absolute_import, print_function
+from copy import deepcopy as _deepcopy
+
+class HuffmanTreeNode:
+    '''
+    Huffman二叉树结点
+    '''
+    def __init__(self, left = None, right = None, f = None, p = None, character=None, index=None):
+        '''
+        Huffman二叉树结点
+
+        Args
+        ===
+        `left` : BTreeNode : 左儿子结点
+
+        `right`  : BTreeNode : 右儿子结点
+
+        `f` : 结点自身频度
+
+        '''
+        self.left = left
+        self.right = right
+        self.f = f
+        self.p = p
+        self.character = character
+        self.coding = ''
+        self.index = None
+
+class HuffmanTree:
+    def __init__(self):
+        self.root = None
+        self.__nodes = []
+        self.codings = []
+        self.characters = []
+        self.fs = []
+        self.__coding = ""
+        
+    def addnode(self, node):
+        '''
+        加入二叉树结点
+
+        Args
+        ===
+        `node` : `HuffmanTreeNode` 结点
+
+        '''
+        self.__nodes.append(node)
+
+    def buildnodecodingformcharacter(self, node):
+        if node is not None:
+            if node.p is None:
+                return
+            if node.p.left == node:
+                self.__coding += '0'
+            if node.p.right == node:
+                self.__coding += '1'
+            self.buildnodecodingformcharacter(node.p)
+        
+    def __findnode(self, f):
+        '''
+        根据`f`从`nodes`中寻找结点
+        '''
+        if f is None:
+            return None
+        for node in self.__nodes:
+            if f == node.f:
+                return node
+            if node.left is not None:
+                if f == node.left.f:
+                    return node.left
+            if node.right is not None:
+                if f == node.right.f:
+                    return node.right
+        return None
+
+    def __findnode_f_c(self, f, c):
+        '''
+        根据`f`从`nodes`中寻找结点
+        '''
+        if f is None:
+            return None
+        for node in self.__nodes:
+            if f == node.f and c == node.character:
+                return node
+            if node.left is not None:
+                if f == node.left.f and c == node.left.character:
+                    return node.left
+            if node.right is not None:
+                if f == node.right.f and c == node.right.character:
+                    return node.right
+        return None
+
+    def __findnodefromc(self, c):
+        '''
+        根据`f`从`nodes`中寻找结点
+        '''
+        if c is None:
+            return None
+        for node in self.__nodes:
+            if c == node.character:
+                return node
+            if node.left is not None:
+                if c == node.left.character:
+                    return node.left
+            if node.right is not None:
+                if c == node.right.character:
+                    return node.right
+        return None
+
+    def renewall(self):
+        '''
+        更新/连接/构造二叉树
+        '''
+        for node in self.__nodes:
+            if node.left is not None:
+                node.left = self.__findnode_f_c(node.left.f, node.left.character)
+                node.left.p = node
+            if node.right is not None:
+                node.right = self.__findnode_f_c(node.right.f, node.right.character)
+                node.right.p = node
+    
+    def renewnode(self, node):
+        '''
+        更新/连接/构造二叉树结点
+        '''
+        if node is None:
+            return
+        if node.left is not None:
+            node.left = self.__findnode_index(node.left.index)
+            node.left.p = node
+        if node.right is not None:
+            node.right = self.__findnode_index(node.right.index)
+            node.right.p = node
+
+    def renewallcoding(self, characters):
+        n = len(characters)
+        for i in range(n):
+            c = characters[i]
+            node = self.__findnodefromc(c)
+            self.__coding = ""
+            self.buildnodecodingformcharacter(node)
+            if node is not None:
+                node.coding = self.__coding[::-1]
+                self.codings.append(node.coding)
+
+class HuffmanTreeBuilder:
+    '''
+    HuffmanTree 构造器
+    '''
+    def __init__(self, C : list, f : list):
+        self.C = C
+        self.f = f
+
+    def extract_min(self, C : list):
+        min_val = min(C)
+        C.remove(min_val)
+        node = HuffmanTreeNode(None, None, min_val)
+        return node
+
+    def build_character(self, C : list, f : list, node : HuffmanTreeNode):
+        try:
+            index = f.index(int(node.f))
+            f.pop(index)
+            node.character = C[index]
+            C.pop(index)
+        except Exception as err:
+            pass
+
+    def huffman(self, C : list, f : list):
+        '''
+        赫夫曼编码
+
+        算法自底向上的方式构造出最优编码所对应的树T
+
+        Args
+        ===
+        `C` : 一个包含n个字符的集合，且每个字符都是一个出现频度为f[c]的对象
+
+        '''
+        n = len(f)
+        Q = _deepcopy(f)
+        tree = HuffmanTree()
+        tree.characters = _deepcopy(self.C)
+        tree.fs = _deepcopy(self.f)
+        index = 0
+        for i in range(n - 1):
+            x = self.extract_min(Q)
+            self.build_character(C, f, x)
+            x.index = index
+            index += 1
+            y = self.extract_min(Q)
+            self.build_character(C, f, y)
+            y.index = index
+            index += 1
+            z = HuffmanTreeNode(x, y, x.f + y.f)
+            z.index = index
+            index += 1
+            x.p = z
+            y.p = z
+            tree.addnode(z)
+            Q.append(z.f)
+        tree.renewall()
+        tree.root = z
+        tree.renewallcoding(tree.characters)
+        
+        return tree
+
+    def build(self):
+        '''
+        构造一个HuffmanTree
+        '''
+        return self.huffman(self.C, self.f)
+        
+```
 
 **39. map底层为什么用红黑树实现**
 
+HashMap新引进的红黑树树化的过程，与原来的链表相比当同一个bucket上存储很多entry的话树形的查找结构明显要比链表线性的的效率要高。
+
 **40. B+树**
+
++树：B+树是B-树的变体，也是一种多路搜索树：其定义基本与B-树同，除了：非叶子结点的子树指针与关键字个数相同；非叶子结点的子树指针P\[i\]，指向关键字值属于\[K\[i\], K\[i+1\])的子树（B-树是开区间）；为所有叶子结点增加一个链指针；所有关键字都在叶子结点出现；B+的搜索与B-树也基本相同，区别是B+树只有达到叶子结点才命中（B-树可以在非叶子结点命中），其性能也等价于在关键字全集做一次二分查找；
+
+B+的特性：所有关键字都出现在叶子结点的链表中（稠密索引），且链表中的关键字恰好是有序的；不可能在非叶子结点命中；非叶子结点相当于是叶子结点的索引（稀疏索引），叶子结点相当于是存储（关键字）数据的数据层；更适合文件索引系统；增删文件（节点）时，效率更高，因为B+树的叶子节点包含所有关键字，并以有序的链表结构存储，这样可很好提高增删效率。
 
 **41. map和unordered_map的底层实现**
 
+map底层采用红黑树实现，有序映射，unordered_map底层采用哈希表实现，无序映射
+
 **42. map和unordered_map优点和缺点**
+
+* **内部实现机理不同**-map： map内部实现了一个红黑树（红黑树是非严格平衡二叉搜索树，而AVL是严格平衡二叉搜索树），红黑树具有自动排序的功能，因此map内部的所有元素都是有序的，红黑树的每一个节点都代表着map的一个元素。因此，对于map进行的查找，删除，添加等一系列的操作都相当于是对红黑树进行的操作。map中的元素是按照二叉搜索树（又名二叉查找树、二叉排序树，特点就是左子树上所有节点的键值都小于根节点的键值，右子树所有节点的键值都大于根节点的键值）存储的，使用中序遍历可将键值按照从小到大遍历出来。
+unordered_map: unordered_map内部实现了一个哈希表（也叫散列表，通过把关键码值映射到Hash表中一个位置来访问记录，查找的时间复杂度可达到O(1)，其在海量数据处理中有着广泛应用）。因此，其元素的排列顺序是无序的
+* **优缺点以及适用处**-
+
+map：
+
+优点：
+有序性，这是map结构最大的优点，其元素的有序性在很多应用中都会简化很多的操作
+红黑树，内部实现一个红黑书使得map的很多操作在lgn的时间复杂度下就可以实现，因此效率非常的高
+缺点： 空间占用率高，因为map内部实现了红黑树，虽然提高了运行效率，但是因为每一个节点都需要额外保存父节点、孩子节点和红/黑性质，使得每一个节点都占用大量的空间
+适用处：对于那些有顺序要求的问题，用map会更高效一些
+
+unordered_map：
+
+优点： 因为内部实现了哈希表，因此其查找速度非常的快
+缺点： 哈希表的建立比较耗费时间
+适用处：对于查找问题，unordered_map会更加高效一些，因此遇到查找问题，常会考虑一下用unordered_map
 
 **43. epoll怎么实现的**
 
+epoll是Linux内核为处理大批量文件描述符而作了改进的poll，是Linux下多路复用IO接口select/poll的增强版本，它能显著提高程序在大量并发连接中只有少量活跃的情况下的系统CPU利用率。另一点原因就是获取事件的时候，它无须遍历整个被侦听的描述符集，只要遍历那些被内核IO事件异步唤醒而加入Ready队列的描述符集合就行了。epoll除了提供select/poll那种IO事件的水平触发（Level Triggered）外，还提供了边缘触发（Edge Triggered），这就使得用户空间程序有可能缓存IO状态，减少epoll_wait/epoll_pwait的调用，提高应用程序效率。
+
 **44. C++两种map**
+
+map和unordered_map
 
 **45. 红黑树的性质还有左右旋转**
 
+一棵红黑树是指一棵满足下述性质的二叉搜索树（BST, binary search tree）： 1. 每个结点或者为黑色或者为红色。 2. 根结点为黑色。 3. 每个叶结点(实际上就是NULL指针)都是黑色的。 4. 如果一个结点是红色的，那么它的两个子节点都是黑色的（也就是说，不能有两个相邻的红色结点）。 5. 对于每个结点，从该结点到其所有子孙叶结点的路径中所包含的黑色结点数量必须相同。红黑树能够以O(log2 n) 的时间复杂度进行搜索、插入、删除操作。此外，由于它的设计，任何不平衡都会在三次旋转之内解决。
+
 **46. 红黑树的原理以及erase以后迭代器的具体分布情况？**
+
+C++ 中经常使用的容器类有vector，list，map。其中vector和list的erase都是返回迭代器，但是map就比较不一样。究其原因是map 是关联容器,对于关联容器来说，如果某一个元素已经被删除，那么其对应的迭代器就失效了，不应该再被使用；
+
+```c++
+for(auto iter=mapTest.begin();iter!=mapTest.end();)
+{
+cout<<iter->first<<":"<<iter->second<<endl;
+mapTest.erase(iter++);
+}
+```
 
 **47. 二叉树的层序遍历并输出**
 
 bfs + 链表
 
 **48. 二叉树序列化反序列化**
+
+先序序列化二叉树==定义一个stringbuilder保存序列过程中的结果：按照先序遍历方式遍历二叉树，若结点非空则把 "结点值!" append到builder中；若结点空则把  "#!" append到builder中；
+
+```java
+public class TreeToString {
+    public String toString(TreeNode root) {
+        StringBuilder builder=new StringBuilder();
+        pre(root,builder);
+        return builder.toString();
+    }
+    public void pre(TreeNode root,StringBuilder builder){
+        if(root==null){
+            builder.append("#!");
+        }else{
+            builder.append(root.val+"!");
+        //注意递归边界：如果当前结点不是null则递归左右儿子；如果不判断当前结点是否为空，则在递归到null时出现空指针异常
+            pre(root.left,builder);
+            pre(root.right,builder);
+        }
+    }
+}
+```
+
+二叉树的反序列化是指：根据某种遍历顺序得到的序列化字符串结果str，重构二叉树
 
 **49. stack overflow，并举个简单例子导致栈溢出**
 
