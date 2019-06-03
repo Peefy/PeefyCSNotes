@@ -31,17 +31,25 @@
 
 [算法导论笔记](https://github.com/Peefy/IntroductionToAlgorithm.Python)
 
-[机器学习笔记](https://github.com/Peefy/StatisticalLearningMethod.Python/tree/master/src)
-
-[正则表达式](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_REGEX.md)
-
 [其他算法知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_ALGORITHM.md)
 
 [算法习题](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_ALGORITHM_PRACTICE.md)
 
+[机器学习笔记](https://github.com/Peefy/StatisticalLearningMethod.Python/tree/master/src)
+
+[机器学习问答](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_MACHINE_LEARNING.md)
+
+[正则表达式](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_REGEX.md)
+
+## 大数据
+
+[大数据问答](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_BIGDATA.md)
+
 ## 程序语言设计
 
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_CODING.md)
+[计算机程序设计笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_CODING.md)
+
+[Json&XML](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_JSON_XML.md)
 
 ## 编译原理 
 
