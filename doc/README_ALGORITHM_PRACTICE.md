@@ -495,9 +495,59 @@ public String longestPalindrome(String s) {
     }
 ```
 
-**9. **
+**9. n个人的座位随机打乱，有k个人正好坐在自己原来位置的概率为**
 
-**10. **
+C(n, k)∑i~(n-k)(C(n,k)\*(-1)^i\*i!)/ A(n,k)
+
+**10. 网格走法数目**
+
+有一个X*Y的网格，小团要在此网格上从左上角到右下角，只能走格点且只能向右或向下走。请设计一个算法，计算小团有多少种走法。给定两个正整数int x,int y，请返回小团的走法数目。
+
+如 输入3 2, 输出10
+
+*解法1：递归*
+
+```c++
+#include<iostream>
+using namespace std;
+int step(int m,int n){
+    if(m == 0 || n == 0)
+        return 1;
+    return step(m - 1,n) + step(m,n -1);
+}
+int main(){
+    int x,y;
+    cin >> x >> y;
+    cout << step(x,y) <<endl;
+}
+```
+
+*解法2：循环*
+
+```c++
+#include<iostream>
+#include<vector>
+using namespace std;
+ 
+int main()
+{
+    int x, y;
+    cin >> x >> y;
+    int dp[11][11];
+    for (int j = 0; j <= y; j++)
+        dp[0][j] = 1;
+    for (int i = 0; i <= x; i++)
+        dp[i][0] = 1;
+    for (int i = 1; i <= x; i++)
+    {
+        for (int j = 1; j <= y; j++)
+          {
+             dp[i][j] = dp[i - 1][j] + dp[i][j-1];
+          }
+    }
+    cout << dp[x][y] << endl;
+}
+```
 
 **11. **
 
