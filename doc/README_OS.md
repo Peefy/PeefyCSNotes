@@ -3005,53 +3005,703 @@ int main()
 
 **73. windows消息机制**
 
+消息，就是指Windows发出的一个通知，告诉应用程序某个事情发生了。例如，单击鼠标、改变窗口尺寸、按下键盘上的一个键都会使Windows发送一个消息给应用程序。
+
+消息本身是作为一个记录传递给应用程序的，这个记录（一般在 C/C++/汇编 中称为“结构体”）中包含了消息的类型以及其他信息。例如，对单击鼠标所产生的消息来说，这个记录（结构体）中包含了单击鼠标的消息号（WM_LBUTTONDOWN）、单击鼠标时的坐标(由X,Y值连接而成的一个32位整数)。这个记录类型叫做TMsg。
+
+Windows消息控制中心一般是三层结构，其顶端就是Windows内核。Windows内核维护着一个消息队列，第二级控制中心从这个消息队列中获取属于自己管辖的消息，后做出处理，有些消息直接处理掉，有些还要发送给下一级窗体(Window)或控件（Control）。第二级控制中心一般是各Windows应用程序的Application对象。第三级控制中心就是Windows窗体对象，每一个窗体都有一个默认的窗体过程，这个过程负责处理各种接收到的消息。
+
 **74. C++的锁**
+
+C++11提供了4个互斥对象(C++14提供了1个)用于同步多个线程对共享资源的访问。
+
+类名|描述
+-|-
+std::mutex|最简单的互斥对象。
+std::timed_mutex|带有超时机制的互斥对象，允许等待一段时间或直到某个时间点仍未能获得互斥对象的所有权时放弃等待。
+std::recursive_mutex|允许被同一个线程递归的Lock和Unlock。
+std::recursive_timed_mutex|顾名思义(bù jiě shì)。
+std::shared_timed_mutex(C++14)|允许多个线程共享所有权的互斥对象，如读写锁，本文不讨论这种互斥。
+
+锁是动词而非名词，互斥对象的主要操作有两个加锁(lock)和释放锁(unlock)。当一个线程对互斥对象进行lock操作并成功获得这个互斥对象的所有权，在此线程对此对象unlock前，其他线程对这个互斥对象的lock操作都会被阻塞。
+
+*使用RAII管理互斥对象*
+
+在使用锁时应避免发生死锁(Deadlock)。如果程序有多个分支，不得不在每个要提前返回的分支在返回前对这个互斥对象执行unlock操作。一但有某个分支在返回前忘了对这个互斥对象执行unlock，就可能会导致程序死锁。为避免这类死锁的发生，其他高级语言如C#提供了lock关键字、Java提供了synchronized关键字，它们都是通过finally关键字来实现的。
+
+C++通常使用RAII(Resource Acquisition Is Initialization)来自动管理资源。如果可能应总是使用标准库提供的互斥对象管理类模板。
+
+类模板|描述
+-|-
+std::lock_guard|	严格基于作用域(scope-based)的锁管理类模板，构造时是否加锁是可选的(不加锁时假定当前线程已经获得锁的所有权)，析构时自动释放锁，所有权不可转移，对象生存期内不允许手动加锁和释放锁。
+std::unique_lock|	更加灵活的锁管理类模板，构造时是否加锁是可选的，在对象析构时如果持有锁会自动释放锁，所有权可以转移。对象生命期内允许手动加锁和释放锁。
+std::shared_lock(C++14)|	用于管理可转移和共享所有权的互斥对象。
+
+使用std::lock_guard类模板修改前面的代码，在lck对象构造时加锁，析构时自动释放锁，即使执行的函数抛出了异常也会被正确的析构，所以也就不会发生互斥对象没有释放锁而导致死锁的问题。
+
+```c++
+std::set<int> int_set;
+std::mutex mt;
+auto f = [&int_set, &mt]() {
+    try {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(1, 1000);
+        for(std::size_t i = 0; i != 100000; ++i) {
+            std::lock_guard<std::mutex> lck(mt);
+            int_set.insert(dis(gen));
+        }
+    } catch(...) {}
+};
+std::thread td1(f), td2(f);
+td1.join();
+td2.join();
+```
+
+*互斥对象管理类模板的加锁策略*
+
+C++11提供了3种加锁策略
+
+策略|tag type|描述
+-|-|-
+(默认)|无|请求锁，阻塞当前线程直到成功获得锁。
+std::defer_lock|std::defer_lock_t|不请求锁。
+std::try_to_lock|std::try_to_lock_t|尝试请求锁，但不阻塞线程，锁不可用时也会立即返回。
+std::adopt_lock|std::adopt_lock_t|假定当前线程已经获得互斥对象的所有权，所以不再请求锁。
+
+下表列出了互斥对象管理类模板对各策略的支持情况。
+
+策略|std::lock_guard|std::unique_lock|std::shared_lock
+-|-|-|-
+(默认)|√|√|√(共享)
+std::defer_lock|×|√|√
+std::try_to_lock|×|√|√
+std::adopt_lock|√|√|√
 
 **75. 死锁产生的必要条件？**
 
+*产生死锁的四个必要条件*
+
+* **互斥条件**-进程要求对所分配的资源（如打印机）进行排他性控制，即在一段时间内某资源仅为一个进程所占有。此时若有其他进程请求该资源，则请求进程只能等待
+* **不可剥夺条件**-进程所获得的资源在未使用完毕之前，不能被其他进程强行夺走，即只能由获得该资源的进程自己来释放（只能是主动释放)
+* **请求与保持条件**-进程已经保持了至少一个资源，但又提出了新的资源请求，而该资源已被其他进程占有，此时请求进程被阻塞，但对自己已获得的资源保持不放
+* **循环等待条件**-存在一种进程资源的循环等待链，链中每一个进程已获得的资源同时被 链中下一个进程所请求。即存在一个处于等待状态的进程集合{Pl, P2, …, pn}，其中Pi等 待的资源被P(i+1)占有（i=0, 1, …, n-1)，Pn等待的资源被P0占有
+
 **76. 什么是线程和进程，多线程和多进程通信方式**
+
+*线程和进程的区别*
+
+**进程**: 是并发执行的程序在执行过程中分配和管理资源的基本单位，是一个动态概念，竞争计算机系统资源的基本单位
+
+**线程**: 是进程的一个执行单元，是进程内科调度实体。比进程更小的独立运行的基本单位。线程也被称为轻量级进程
+
+*一个程序至少一个进程，一个进程至少一个线程*
+
+每个进程都有自己的地址空间，即进程空间，在网络或多用户换机下，一个服务器通常需要接收大量不确定数量用户的并发请求，为每一个请求都创建一个进程显然行不通（系统开销大响应用户请求效率低），因此操作系统中线程概念被引进
+
+* 线程的执行过程是线性的，尽管中间会发生中断或者暂停，但是进程所拥有的资源只为改变线状执行过程服务，一旦发生线程切换，这些资源需要被保护起来
+
+* 进程分为单线程进程和多线程进程，单线程进程宏观看起来也是线性执行过程，微观上只有单一的执行过程。多线程进程是宏观是线性的，微观上执行过个操作
+
+线程的改变只代表CPU的执行过程的改变，而没有发生进程所拥有的资源的变化
+
+*进程线程的区别*
+
+* 地址空间：同一进程的线程共享本进程的地址空间，而进程之间则是独立的地址空间
+* 资源拥有：同一进程的线程共享本进程的资源如内存、I/O、CPU等，但是进程之间的资源是独立的
+
+一个进程崩溃后，在保护模式下不会对其他进程产生影响，但是一个线程崩溃整个进程都死掉。所以多进程要比多线程健壮
+
+进程切换时，消耗的资源大，效率高。所以涉及到频繁的切换时，使用线程要好于进程。同样如果要求同时进行并且又要共享某些变量的并发操作，只能用线程不能用进程
+
+* 执行过程：每个独立的进程有一个程序运行的入口、顺序执行序列和程序入口。但是线程不能独立执行，必须依存在应用程序中,由应用程序提供过个线程执行控制
+* 线程是处理器调度的基本单位，但是进程不是
+* 两者均可并发执行
+
+优缺点：
+
+* 线程执行开销小，但是不利于资源的管理和保护。线程适合在SMP机器(双CPU系统)上运行
+* 进程执行开销大，但是能够很好的进行资源管理和保护。进程可以跨机器前移.
+
+*多进程之间通信方式*
+
+* **文件映射**-本地之间
+* **共享内存**-本地之间
+* **匿名管道**-本地之间
+* **命名管道**-跨服务器
+* **邮件槽**-一对多的传输数据，通常通过网络向一台Windows机器传输
+* **剪切板**-本地之间
+* **socket**-跨服务器
+
+*多线程之间通信方式*
+
+* **全局变量**-
+* **自定义消息响应**-
+
+*多线程之间同步机制*
+
+* **临界区**-不可以跨进程，忘记解锁会无限等待，要么存在要么没有，多线程访问独占性共享资源
+* **互斥量**-可以跨进程，忘记解锁会自动释放，要么存在要么没有
+* **事件**-又叫线程触发器，不可以跨进程，要么存在要么没有，一个线程来唤醒另一个线程（包括自动和人工两种方式）
+* **信号量**-可以跨进程，始终代表可用资源数量，当资源数为o时，线程阻塞，允许多个线程同时访问一个共享资源
 
 **77. 内存溢出和内存泄漏**
 
-**78. 使用什么线程模型**
+`内存溢出 out of memory`-是指程序在申请内存时，没有足够的内存空间供其使用，出现out of memory；比如申请了一个integer,但给它存了long才能存下的数，那就是内存溢出。
+
+`内存泄露 memory leak`-是指程序在申请内存后，无法释放已申请的内存空间，一次内存泄露危害可以忽略，但内存泄露堆积后果很严重，无论多少内存,迟早会被占光。
+
+`内存泄露`会最终导致`内存泄露`
+
+`内存泄漏`是指你向系统申请分配内存进行使用(new)，可是使用完了以后却不归还(delete)，结果你申请到的那块内存你自己也不能再访问（也许你把它的地址给弄丢了），而系统也不能再次将它分配给需要的程序。一个盘子用尽各种方法只能装4个果子，你装了5个，结果掉倒地上不能吃了。这就是溢出！比方说栈，栈满时再做进栈必定产生空间溢出，叫上溢，栈空时再做退栈也产生空间溢出，称为下溢。就是分配的内存不足以放下数据项序列,称为内存溢出. 
+
+*内存泄露的分类*
+
+* **常发性内存泄漏**-发生内存泄漏的代码会被多次执行到，每次被执行的时候都会导致一块内存泄漏。
+* **偶发性内存泄漏**-发生内存泄漏的代码只有在某些特定环境或操作过程下才会发生。
+* **一次性内存泄漏**-发生内存泄漏的代码只会被执行一次，或者由于算法上的缺陷，导致总会有一块仅且一块内存发生泄漏。
+* **隐式内存泄漏**-程序在运行过程中不停的分配内存，但是直到结束的时候才释放内存。严格的说这里并没有发生内存泄漏，因为最终程序释放了所有申请的内存。
+
+**78. 线程模型**
+
+线程模型|描述
+-|-
+BIO|阻塞式IO，采用传统的java IO进行操作，该模式下每个请求都会创建一个线程，适用于并发量小的场景
+NIO|同步非阻塞，比传统BIO能更好的支持大并发，tomcat 8.0 后默认采用该模式
+APR|tomcat 以JNI形式调用http服务器的核心动态链接库来处理文件读取或网络传输操作，需要编译安装APR库
+AIO|异步非阻塞，tomcat8.0后支持
 
 **79. 协程**
 
-**80. 系统调用是什么，你用过哪些系统调用**
+协程不是进程，也不是线程，它就是一个函数，一个特殊的函数——可以在某个地方挂起，并且可以重新在挂起处继续运行。
+
+一个进程可以包含多个线程，一个线程也可以包含多个协程，也就是说，一个线程内可以有多个那样的特殊函数在运行。但是有一点，必须明确，一个线程内的多个协程的运行是串行的。如果有多核CPU的话，多个进程或一个进程内的多个线程是可以并行运行的，但是一个线程内的多个协程却绝对串行的，无论有多少个CPU（核）。
+
+*协程与进程、线程的比较*
+
+* 协程既不是进程，也不是线程，协程仅仅是一个特殊的函数，协程跟他们就不是一个维度。
+* 一个进程可以包含多个线程，一个线程可以包含多个协程。
+* 一个线程内的多个协程虽然可以切换，但是这多个协程是串行执行的，只能在这一个线程内运行，没法利用CPU多核能力。
+* 协程与进程一样，它们的切换都存在上下文切换问题。
+
+*进程、线程、协程的上下文切换的比较*
+
+比较内容|进程|线程|协程
+-|-|-|-
+切换者|操作系统|操作系统|用户(编程者/应用程序)
+切换时机|根据操作系统自己切换策略，用户不感知|根据操作系统自己的切换策略，用户不感知|用户自己(的程序)决定
+切换内容|页全局目录,内核栈,硬件上下文|内核栈,硬件上下文|硬件上下文
+切换内容的保存|保存于内核栈中|保存于内核栈中|保存于用户自己的变量(用户栈或堆)
+切换过程|用户态-内核态-用户态|用户态-内核态-用户态|用户态(没有陷入内核态)
+切换效率|低|中|高
+
+**80. 系统调用是什么，为什么要用系统调用**
+
+Linux内核中设置了一组用于实现各种系统功能的子程序，称为系统调用。用户可以通过系统调用命令在自己的应用程序中调用它们。从某种角度来看，系统调用和普通的函数调用非常相似。区别仅仅在于，系统调用由操作系统核心提供，运行于核心态;而普通的函数调用由函数库或用户自己提供，运行于用户态。
+
+随Linux核心还提供了一些C语言函数库，这些库对系统调用进行了一些包装和扩展，因为这些库函数与系统调用的关系非常紧密，所以习惯上把这些函数也称为系统调用。
 
 **81. 用户态到内核态的转化原理**
 
+*用户态切换到内核态的3种方式*
+
+* **系统调用**-这是用户态进程主动要求切换到内核态的一种方式，用户态进程通过系统调用申请使用操作系统提供的服务程序完成工作，比如前例中fork()实际上就是执行了一个创建新进程的系统调用。而系统调用的机制其核心还是使用了操作系统为用户特别开放的一个中断来实现，例如Linux的int 80h中断。系统调用实质上是一个中断，而汇编指令int 就可以实现用户态向内核态切换，iret实现内核态向用户态切换 
+* **异常**-当CPU在执行运行在用户态下的程序时，发生了某些事先不可知的异常，这时会触发由当前运行进程切换到处理此异常的内核相关程序中，也就转到了内核态，比如缺页异常。
+* **外围设备的中断**-当外围设备完成用户请求的操作后，会向CPU发出相应的中断信号，这时CPU会暂停执行下一条即将要执行的指令转而去执行与中断信号对应的处理程序，如果先前执行的指令是用户态下的程序，那么这个转换的过程自然也就发生了由用户态到内核态的切换。比如硬盘读写操作完成，系统会切换到硬盘读写的中断处理程序中执行后续操作等。
+
 **82. 源码到可执行文件的过程**
+
+编译，编译程序读取源程序（字符流），对之进行词法和语法的分析，将高级语言指令转换为功能等效的汇编代码，再由汇编程序转换为机器语言，并且按照操作系统对可执行文件格式的要求链接生成可执行程序。
+
+> 源代码－－>预处理－－>编译－－>优化－－>汇编－－>链接-->可执行文件
+
+> Source--（编译）--> Assembly--（汇编）-->Obj--（链接）-->PE/ELF
+
+* **编译预处理**-读取c源程序，对其中的伪指令（以#开头的指令）和特殊符号进行处理
+* **编译阶段**-经过预编译得到的输出文件中，将只有常量。如数字、字符串、变量的定义，以及C语言的关键字，如main,if,else,for,while,{,},+,-,*,\，等等。预编译程序所要作得工作就是通过词法分析和语法分析，在确认所有的指令都符合语法规则之后，将其翻译成等价的中间代码表示或汇编代码。
+* **优化阶段**-优化处理是编译系统中一项比较艰深的技术。它涉及到的问题不仅同编译技术本身有关，而且同机器的硬件环境也有很大的关系。优化一部分是对中间代码的优化。
+* **汇编过程**-汇编过程实际上指把汇编语言代码翻译成目标机器指令的过程。
+* **链接程序**-由汇编程序生成的目标文件并不能立即就被执行，其中可能还有许多没有解决的问题。例如，某个源文件中的函数可能引用了另一个源文件中定义的某个符号（如变量或者函数调用等）；在程序中可能调用了某个库文件中的函数，等等。所有的这些问题，都需要经链接程序的处理方能得以解决。
 
 **83. 微内核与宏内核**
 
+* **宏内核**-简单来说，就是把很多东西都集成进内核，例如linux内核，除了最基本的进程、线程管理、内存管理外，文件系统，驱动，网络协议等等都在内核里面。优点是效率高。缺点是稳定性差，开发过程中的bug经常会导致整个系统挂掉。做驱动开发的应该经常有按电源键强行关机的经历。
+* **微内核**-内核中只有最基本的调度、内存管理。驱动、文件系统等都是用户态的守护进程去实现的。优点是超级稳定，驱动等的错误只会导致相应进程死掉，不会导致整个系统都崩溃，做驱动开发时，发现错误，只需要kill掉进程，修正后重启进程就行了，比较方便。缺点是效率低。典型代表QNX，QNX的文件系统是跑在用户态的进程，称为resmgr的东西，是订阅发布机制，文件系统的错误只会导致这个守护进程挂掉。不过数据吞吐量就比较不乐观了
+
 **84. 僵尸进程**
+
+僵尸进程是当子进程比父进程先结束，而父进程又没有回收子进程，释放子进程占用的资源，此时子进程将成为一个僵尸进程。如果父进程先退出 ，子进程被init接管，子进程退出后init会回收其占用的相关资源
 
 **85. GDB调试用过吗，什么是条件断点**
 
+GDB调试,启动程序准备调试,GDB yourpram,或者先输入GDB,然后输入 file yourpram
+
+然后使用run或者r命令开始程序的执行,也可以使用 run parameter将参数传递给该程序
+
+命令|命令缩写|命令说明
+-|-|-
+list|l|显示多行源代码
+break|b|设置断点,程序运行到断点的位置会停下来
+info|i|描述程序的状态
+run|r|开始运行程序
+display|disp|跟踪查看某个变量,每次停下来都显示它的值
+step|s|执行下一条语句,如果该语句为函数调用,则进入函数执行其中的第一条语句
+next|n|执行下一条语句,如果该语句为函数调用,不会进入函数内部执行(即不会一步步地调试函数内部语句)
+print|p|打印内部变量值
+continue|c|继续程序的运行,直到遇到下一个断点
+set var name=v||设置变量的值
+start|st|开始执行程序,在main函数的第一条语句前面停下来
+file||装入需要调试的程序
+kill|k|终止正在调试的程序
+watch||监视变量值的变化
+backtrace|bt|产看函数调用信息(堆栈)
+frame|f|查看栈帧
+quit|q|退出GDB环境
+
+条件断点是一种拥有可设置条件属性，满足一定条件才触发的断点
+
+*条件断点的使用*
+
+* 测试一个变量是否满足一个给定的值。
+* 让某个函数执行给定的次数。
+* 只在特定的线程或处理器上才触发。
+
 **86. 5种IO模型**
+
+五种IO模型包括：`阻塞IO`、`非阻塞IO`、`信号驱动IO`、`IO多路转接`、`异步IO`。其中，前四个被称为同步IO。
+
+* **阻塞IO（blocking I/O）**-
+* **非阻塞IO（noblocking I/O）**-
+* **信号驱动IO（signal blocking I/O）**-
+* **IO多路转接（I/O multiplexing）**-
+* **异步IO（asynchronous I/O）**-
 
 **87. 异步编程的事件循环**
 
+同步的代码进入调用栈执行完会立马弹出，异步调用的代码才会留在栈中等待执行完毕
+
+1. setTimeout执行的时候，就是放置一个定时器，执行完这个操作之后，函数本身会立刻从栈中弹出，此时已经和这个函数无关了
+2. 防止的定时器会一直留在回调队列中去，setTimeout是不会自动将回调放到事件循环队列中去，他设置了一个计时器，环境将回调放到事件循环中，一边将来某个tick将接收并执行他
+
 **88. 操作系统为什么要分内核态和用户态**
+
+在CPU的所有指令中，有一些指令是非常危险的，如果错用，将导致整个系统崩溃。所以，CPU将指令分为特权指令和非特权指令，对于那些危险的指令，只允许操作系统及其相关模块使用，普通的应用程序只能使用那些不会造成灾难的指令。Intel的CPU将特权级别分为4个级别：RING0,RING1,RING2,RING3。
 
 **89. 为什么要有page cache，操作系统怎么设计的page cache**
 
+在现代计算机系统中，CPU，RAM，DISK的速度不相同，按速度高低排列为：CPU>RAM>DISK。CPU与RAM之间、RAM与DISK之间的速度差异常常是指数级。同时，它们之间的处理容量也不相同，其差异也是指数级。为了在速度和容量上折中，在CPU与RAM之间使用CPU cache以提高访存速度，在RAM与磁盘之间，操作系统使用page cache提高系统对文件的访问速度。
+
 **90. server端监听端口，但还没有客户端连接进来，此时进程处于什么状态？**
+
+State显示是LISTENING时表示处于侦听状态,就是说该端口是开放的,等待连接,但还没有被连接。
 
 **91. 就绪状态的进程在等待什么？**
 
+进程状态反映进程执行过程的变化。这些状态随着进程的执行和外界条件的变化而转换。在三态模型中，进程状态分为三个基本状态，即运行态，就绪态，阻塞态。在五态模型中，进程分为新建态、终止态，运行态，就绪态，阻塞态。
+
+进程就绪状态是指进程已获得除CPU之外的所有必须资源,只等待操作系统利用CPU调度算法将CPU分配给该进程以便执行. 
+
 **92. 两个进程访问临界区资源，会不会出现都获得自旋锁的情况**
+
+从保证临界区访问原子性的目的来考虑，自旋锁应该阻止在代码运行过程中出现的任何并发干扰。所以对同一临界区访问会出现都获得自旋锁的情况
 
 **93. 假设临界区资源释放，如何保证只让一个线程获得临界区资源而不是都获得？**
 
+加锁
+
 **94. 怎么实现C++线程池**
+
+*为什么使用线程池*-简单来说就是线程本身存在开销，我们利用多线程来进行任务处理，单线程也不能滥用，无止禁的开新线程会给系统产生大量消耗，而线程本来就是可重用的资源，不需要每次使用时都进行初始化，因此可以采用有限的线程个数处理无限的任务。
+
+condition.h
+```c++
+#ifndef _CONDITION_H_
+#define _CONDITION_H_
+
+#include <pthread.h>
+
+//封装一个互斥量和条件变量作为状态
+typedef struct condition
+{
+    pthread_mutex_t pmutex;
+    pthread_cond_t pcond;
+}condition_t;
+
+//对状态的操作函数
+int condition_init(condition_t *cond);
+int condition_lock(condition_t *cond);
+int condition_unlock(condition_t *cond);
+int condition_wait(condition_t *cond);
+int condition_timedwait(condition_t *cond, const struct timespec *abstime);
+int condition_signal(condition_t* cond);
+int condition_broadcast(condition_t *cond);
+int condition_destroy(condition_t *cond);
+
+#endif
+```
+
+condition.c
+```c++
+#include "condition.h"
+
+//初始化
+int condition_init(condition_t *cond)
+{
+    int status;
+    if((status = pthread_mutex_init(&cond->pmutex, NULL)))
+        return status;
+    
+    if((status = pthread_cond_init(&cond->pcond, NULL)))
+        return status;
+    
+    return 0;
+}
+
+//加锁
+int condition_lock(condition_t *cond)
+{
+    return pthread_mutex_lock(&cond->pmutex);
+}
+
+//解锁
+int condition_unlock(condition_t *cond)
+{
+    return pthread_mutex_unlock(&cond->pmutex);
+}
+
+//等待
+int condition_wait(condition_t *cond)
+{
+    return pthread_cond_wait(&cond->pcond, &cond->pmutex);
+}
+
+//固定时间等待
+int condition_timedwait(condition_t *cond, const struct timespec *abstime)
+{
+    return pthread_cond_timedwait(&cond->pcond, &cond->pmutex, abstime);
+}
+
+//唤醒一个睡眠线程
+int condition_signal(condition_t* cond)
+{
+    return pthread_cond_signal(&cond->pcond);
+}
+
+//唤醒所有睡眠线程
+int condition_broadcast(condition_t *cond)
+{
+    return pthread_cond_broadcast(&cond->pcond);
+}
+
+//释放
+int condition_destroy(condition_t *cond)
+{
+    int status;
+    if((status = pthread_mutex_destroy(&cond->pmutex)))
+        return status;
+    
+    if((status = pthread_cond_destroy(&cond->pcond)))
+        return status;
+        
+    return 0;
+}
+```
+然后是线程池对应的threadpool.h和threadpool.c
+```c++
+#ifndef _THREAD_POOL_H_
+#define _THREAD_POOL_H_
+
+//线程池头文件
+
+#include "condition.h"
+
+//封装线程池中的对象需要执行的任务对象
+typedef struct task
+{
+    void *(*run)(void *args);  //函数指针，需要执行的任务
+    void *arg;              //参数
+    struct task *next;      //任务队列中下一个任务
+}task_t;
+
+
+//下面是线程池结构体
+typedef struct threadpool
+{
+    condition_t ready;    //状态量
+    task_t *first;       //任务队列中第一个任务
+    task_t *last;        //任务队列中最后一个任务
+    int counter;         //线程池中已有线程数
+    int idle;            //线程池中kongxi线程数
+    int max_threads;     //线程池最大线程数
+    int quit;            //是否退出标志
+}threadpool_t;
+
+
+//线程池初始化
+void threadpool_init(threadpool_t *pool, int threads);
+
+//往线程池中加入任务
+void threadpool_add_task(threadpool_t *pool, void *(*run)(void *arg), void *arg);
+
+//摧毁线程池
+void threadpool_destroy(threadpool_t *pool);
+
+#endif
+```
+```c++
+#include "threadpool.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <time.h>
+
+//创建的线程执行
+void *thread_routine(void *arg)
+{
+    struct timespec abstime;
+    int timeout;
+    printf("thread %d is starting\n", (int)pthread_self());
+    threadpool_t *pool = (threadpool_t *)arg;
+    while(1)
+    {
+        timeout = 0;
+        //访问线程池之前需要加锁
+        condition_lock(&pool->ready);
+        //空闲
+        pool->idle++;
+        //等待队列有任务到来 或者 收到线程池销毁通知
+        while(pool->first == NULL && !pool->quit)
+        {
+            //否则线程阻塞等待
+            printf("thread %d is waiting\n", (int)pthread_self());
+            //获取从当前时间，并加上等待时间， 设置进程的超时睡眠时间
+            clock_gettime(CLOCK_REALTIME, &abstime);  
+            abstime.tv_sec += 2;
+            int status;
+            status = condition_timedwait(&pool->ready, &abstime);  //该函数会解锁，允许其他线程访问，当被唤醒时，加锁
+            if(status == ETIMEDOUT)
+            {
+                printf("thread %d wait timed out\n", (int)pthread_self());
+                timeout = 1;
+                break;
+            }
+        }
+        
+        pool->idle--;
+        if(pool->first != NULL)
+        {
+            //取出等待队列最前的任务，移除任务，并执行任务
+            task_t *t = pool->first;
+            pool->first = t->next;
+            //由于任务执行需要消耗时间，先解锁让其他线程访问线程池
+            condition_unlock(&pool->ready);
+            //执行任务
+            t->run(t->arg);
+            //执行完任务释放内存
+            free(t);
+            //重新加锁
+            condition_lock(&pool->ready);
+        }
+        
+        //退出线程池
+        if(pool->quit && pool->first == NULL)
+        {
+            pool->counter--;//当前工作的线程数-1
+            //若线程池中没有线程，通知等待线程（主线程）全部任务已经完成
+            if(pool->counter == 0)
+            {
+                condition_signal(&pool->ready);
+            }
+            condition_unlock(&pool->ready);
+            break;
+        }
+        //超时，跳出销毁线程
+        if(timeout == 1)
+        {
+            pool->counter--;//当前工作的线程数-1
+            condition_unlock(&pool->ready);
+            break;
+        }
+        
+        condition_unlock(&pool->ready);
+    }
+    
+    printf("thread %d is exiting\n", (int)pthread_self());
+    return NULL;
+    
+}
+
+
+//线程池初始化
+void threadpool_init(threadpool_t *pool, int threads)
+{
+    
+    condition_init(&pool->ready);
+    pool->first = NULL;
+    pool->last =NULL;
+    pool->counter =0;
+    pool->idle =0;
+    pool->max_threads = threads;
+    pool->quit =0;
+    
+}
+
+
+//增加一个任务到线程池
+void threadpool_add_task(threadpool_t *pool, void *(*run)(void *arg), void *arg)
+{
+    //产生一个新的任务
+    task_t *newtask = (task_t *)malloc(sizeof(task_t));
+    newtask->run = run;
+    newtask->arg = arg;
+    newtask->next=NULL;//新加的任务放在队列尾端
+    
+    //线程池的状态被多个线程共享，操作前需要加锁
+    condition_lock(&pool->ready);
+    
+    if(pool->first == NULL)//第一个任务加入
+    {
+        pool->first = newtask;
+    }        
+    else    
+    {
+        pool->last->next = newtask;
+    }
+    pool->last = newtask;  //队列尾指向新加入的线程
+    
+    //线程池中有线程空闲，唤醒
+    if(pool->idle > 0)
+    {
+        condition_signal(&pool->ready);
+    }
+    //当前线程池中线程个数没有达到设定的最大值，创建一个新的线性
+    else if(pool->counter < pool->max_threads)
+    {
+        pthread_t tid;
+        pthread_create(&tid, NULL, thread_routine, pool);
+        pool->counter++;
+    }
+    //结束，访问
+    condition_unlock(&pool->ready);
+}
+
+//线程池销毁
+void threadpool_destroy(threadpool_t *pool)
+{
+    //如果已经调用销毁，直接返回
+    if(pool->quit)
+    {
+    return;
+    }
+    //加锁
+    condition_lock(&pool->ready);
+    //设置销毁标记为1
+    pool->quit = 1;
+    //线程池中线程个数大于0
+    if(pool->counter > 0)
+    {
+        //对于等待的线程，发送信号唤醒
+        if(pool->idle > 0)
+        {
+            condition_broadcast(&pool->ready);
+        }
+        //正在执行任务的线程，等待他们结束任务
+        while(pool->counter)
+        {
+            condition_wait(&pool->ready);
+        }
+    }
+    condition_unlock(&pool->ready);
+    condition_destroy(&pool->ready);
+}
+```
+测试代码
+```c++
+#include "threadpool.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+void* mytask(void *arg)
+{
+    printf("thread %d is working on task %d\n", (int)pthread_self(), *(int*)arg);
+    sleep(1);
+    free(arg);
+    return NULL;
+}
+
+//测试代码
+int main(void)
+{
+    threadpool_t pool;
+    //初始化线程池，最多三个线程
+    threadpool_init(&pool, 3);
+    int i;
+    //创建十个任务
+    for(i=0; i < 10; i++)
+    {
+        int *arg = malloc(sizeof(int));
+        *arg = i;
+        threadpool_add_task(&pool, mytask, arg);
+        
+    }
+    threadpool_destroy(&pool);
+    return 0;
+}
+```
 
 **95. Linux下怎么得到一个文件的100到200行**
 
+```linux
+sed -n '100,200p' inputfile
+awk 'NR>=100&&NR<=200{print}' inputfile
+head -200 inputfile|tail -100
+```
+
+或者
+
+```linux
+tail -n -100 xxxx.xxx | head -n 200
+```
+
 **96. awk的使用**
 
+awk是一个强大的文本分析工具，相对于grep的查找，sed的编辑，awk在其对数据分析并生成报告时，显得尤为强大。简单来说awk就是把文件逐行的读入，以空格为默认分隔符将每行切片，切开的部分再进行各种分析处理。
+
+“样式扫描和处理语言”。它允许您创建简短的程序，这些程序读取输入文件、为数据排序、处理数据、对输入执行计算以及生成报 表，还有无数其他的功能。
+
+```awk
+awk '{pattern + action}' {filenames}
+```
+
 **97. linux内核中的Timer 定时器机制**
+
+内核定时器是内核用来控制在未来某个时间点（基于jiffies）调度执行某个函数的一种机制，其实现位于 \<linux/timer.h\> 和 kernel/timer.c 文件中。
+
+被调度的函数肯定是异步执行的，它类似于一种“软件中断”，而且是处于非进程的上下文中，所以调度函数必须遵守以下规则：
+
+内核定时器的调度函数运行过一次后就不会再被运行了（相当于自动注销），但可以通过在被调度的函数中重新调度自己来周期运行。
+
+在SMP系统中，`调度函数总是在注册它的同一CPU上运行，以尽可能获得缓存的局域性。`
+
+* 没有 current 指针、不允许访问用户空间。因为没有进程上下文，相关代码和被中断的进程没有任何联系。
+* 不能执行休眠（或可能引起休眠的函数）和调度
+* 任何被访问的数据结构都应该针对并发访问进行保护，以防止竞争条件
+
+*内核定时器的数据结构*
+```c
+struct timer_list {
+    struct list_head entry;
+    unsigned long expires;
+    void (*function)(unsigned long);
+    unsigned long data;
+    struct tvec_base *base;
+    /* ... */
+};
+```
+
+其中 expires 字段表示期望定时器执行的 jiffies 值，到达该 jiffies 值时，将调用 function 函数，并传递 data 作为参数。当一个定时器被注册到内核之后，entry 字段用来连接该定时器到一个内核链表中。base 字段是内核内部实现所用的。
 
 **98. 对进程创建时的空间进行分配算法**
 
@@ -3060,9 +3710,17 @@ int main()
 * **最大适应算法(Wrost fit)**-找到当前内存中最大的空闲空间
 * **首次适应算法(First fit)**-从链表的第一个开始，找到第一个能满足进程要求的内存空间
 
-**99. **
+**99. 动态链接和静态链接的区别**
 
-**100. **
+* **静态链接**-在这种链接方式下，函数的代码将从其所在地静态链接库中被拷贝到最终的可执行程序中。这样该程序在被执行时这些代码将被装入到该进程的虚拟地址空间中。静态链接库实际上是一个目标文件的集合，其中的每个文件含有库中的一个或者一组相关函数的代码。
+* **动态链接**-在此种方式下，函数的代码被放到称作是动态链接库或共享对象的某个目标文件中。链接程序此时所作的只是在最终的可执行程序中记录下共享对象的名字以及其它少量的登记信息。在此可执行文件被执行时，动态链接库的全部内容将被映射到运行时相应进程的虚地址空间。动态链接程序将根据可执行程序中记录的信息找到相应的函数代码。
+
+**100. 同步、异步、阻塞、非阻塞**
+
+* **同步**-所谓同步，就是在发出一个功能调用时，在没有得到结果之前，该调用就不返回。也就是必须一件一件事做,等前一件做完了才能做下一件事。
+* **异步**-异步的概念和同步相对。当一个异步过程调用发出后，调用者不能立刻得到结果。实际处理这个调用的部件在完成后，通过状态、通知和回调来通知调用者。
+* **阻塞**-阻塞调用是指调用结果返回之前，当前线程会被挂起（线程进入非可执行状态，在这个状态下，cpu不会给线程分配时间片，即线程暂停运行）。函数只有在得到结果之后才会返回。
+* **非阻塞**-非阻塞和阻塞的概念相对应，指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。
 
 **101. **
 
