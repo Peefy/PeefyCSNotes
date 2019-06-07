@@ -549,45 +549,786 @@ int main()
 }
 ```
 
-**11. **
+**11. 有n个带编号的人和n个带编号的座位，求每个人都不坐在相同号码座位的方案数目**
 
-**12. **
+动态规划的思想
 
-**13. **
+f(i) = (i-1) * ( f(i-1) + f(i-2) )
 
-**14. **
+**12. 二叉树的中序遍历（Stack类型的写法）**
 
-**15. **
+```c++
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        auto cur = root;
+        vector<int> res;
+        stack<TreeNode*> stk;
+        while(cur||!stk.empty()){
+            if(cur){
+                stk.push(cur);
+                cur = cur->left;
+            }else{
+                cur = stk.top();
+                stk.pop();
+                res.push_back(cur->val);
+                cur = cur->right;
+            }
+        }
+        return res;
+    }
+};
+```
 
-**16. **
+**13. 一个无序数组求第K大数**
 
-**17. **
+```c++
+class Solution_1 {
+  public:
+    int partion(vector<int> &nums, int left, int right) {
+        int pivot = nums[right], i = left;
+        while (left < right) {
+            if (nums[left] < pivot) {
+                swap(nums[left], nums[i]);
+                i++;
+            }
+            left++;
+        }
+        swap(nums[i], nums[right]);
+        return i;
+    }
+    int partion2(vector<int> &nums, int left, int right) {//第二种partion的写法
+        int i = left, j = right + 1;
+        int pivot = nums[left];
+        while (i < j) {
+            while (i < right && nums[++i] < pivot);
+            while (j > left && nums[--j] > pivot);
+            if (i >= j) {
+                break;
+            }
+            swap(nums[i], nums[j]);
+        }
+        swap(nums[left], nums[j]);
+        return j;
+    }
+    int findKthLargest(vector<int> &nums, int k) {
+        int m = nums.size();
+        k = m - k;
+        return helper(nums, 0, m - 1, k);
+    }
+    int helper(vector<int> &nums, int left, int right, int k) {
+        int pos = partion(nums, left, right);
+        if (pos == k) {
+            return nums[pos];
+        }
+        if (pos < k) {
+            return helper(nums, pos + 1, right, k);
+        }
+        return helper(nums, left, pos - 1, k);
+    }
+};
+```
 
-**18. **
+**14. 插入排序链表**
 
-**19. **
+```c++
+// 链表排序 leetcode147
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
 
-**20. **
+class Solution {
+  public:
+    ListNode *insertionSortList(ListNode *head) {
+        ListNode result(0);
+        ListNode *cur = head, *pre = &result;
+        while (cur) {
+            ListNode *temp = cur->next;
+            pre = &result;
+            ListNode *inp = pre->next;
+            while (inp && inp->val < cur->val) {
+                inp = inp->next;
+                pre = pre->next;
+            }
+            cur->next = inp;
+            pre->next = cur;
+            cur = temp;
+        }
+        return result.next;
+    }
+};
+```
 
-**21. **
+**15. 归并排序链表**
 
-**22. **
+```c++
+// lc148 链表排序
+class Solution_0 {
+  public:
+    ListNode *sortList(ListNode *head) {
+        if (head == NULL || head->next == NULL) {
+            return head;
+        }
+        ListNode *walker = head, *runner = head->next;
+        while (runner && runner->next) {
+            walker = walker->next;
+            runner = runner->next->next;
+        }
+        ListNode *head_2 = sortList(walker->next);
+        walker->next = NULL;
+        ListNode *head_1 = sortList(head);
+        return mergerList(head_1, head_2);
+    }
+    ListNode *mergerList(ListNode *head_1, ListNode *head_2) {
+        if (head_1 == NULL) {
+            return head_2;
+        }
+        if (head_2 == NULL) {
+            return head_1;
+        }
+        if (head_1->val < head_2->val) {
+            head_1->next = mergerList(head_1->next, head_2);
+            return head_1;
+        } else {
+            head_2->next = mergerList(head_1, head_2->next);
+            return head_2;
+        }
+    }
+};
+```
 
-**23. **
+**16. 二叉树转中序链表**
 
-**24. **
+```c++
+// 牛客剑指offer26题
+class Solution {
+  public:
+    TreeNode *Convert(TreeNode *root) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+        TreeNode *current = nullptr;
+        helper(root, current);
+        while (current->left) {
+            current = current->left;
+        }
+        return current;
+    }
+    void helper(TreeNode *root, TreeNode *&pre) {
+        if (root == nullptr) {
+            return;
+        }
+        helper(root->left, pre);
+        root->left = pre;
+        if (pre) {
+            pre->right = root;
+        }
+        pre = root;
+        helper(root->right, pre);
+    }
+};
+```
 
-**25. **
+**17. 无序数组的中位数**
 
-**26. **
+```c++
+// https://www.cnblogs.com/shizhh/p/5746151.html
+class Solution_1 {
+  public:
+    double median(vector<int> nums) {
+        priority_queue<int> max_heap;
+        int m = nums.size();
+        int size = m / 2 + 1;
+        for (int i = 0; i < size; i++) {
+            max_heap.push(nums[i]);
+        }
+        for (int i = size; i < m; i++) {
+            if (max_heap.top() > nums[i]) {
+                max_heap.pop();
+                max_heap.push(nums[i]);
+            }
+        }
+        double res = 0;
+        if (m & 1 == 1) {
+            return max_heap.top();
+        } else {
+            res += max_heap.top();
+            max_heap.pop();
+            res += max_heap.top();
+            return res;
+        }
+    }
+};
 
-**27. **
+// lc 215 类似 不过是找第k大的位数
+class Solution_1 {
+  public:
+    int partion(vector<int> &nums, int left, int right) {
+        int pivot = nums[right], i = left;
+        while (left < right) {
+            if (nums[left] < pivot) {
+                swap(nums[left], nums[i]);
+                i++;
+            }
+            left++;
+        }
+        swap(nums[i], nums[right]);
+        return i;
+    }
+    int findKthLargest(vector<int> &nums, int k) {
+        int m = nums.size();
+        k = m - k;
+        return helper(nums, 0, m - 1, k);
+    }
+    int helper(vector<int> &nums, int left, int right, int k) {
+        int pos = partion(nums, left, right);
+        if (pos == k) {
+            return nums[pos];
+        }
+        if (pos < k) {
+            return helper(nums, pos + 1, right, k);
+        }
+        return helper(nums, left, pos - 1, k);
+    }
+};
+```
 
-**28. **
+**18. LRU Cache数据结构**
 
-**29. **
+```c++
+#include <bits/stdc++.h>
+using namespace std;
 
-**30. **
+class LRUCache {
+  public:
+    LRUCache(int capacity) { this->capacity = capacity; }
+
+    int get(int key) {
+        if (dir.count(key)) {
+            vistied(key);
+            return dir[key]->second;
+        }
+        return -1;
+    }
+
+    void put(int key, int value) {
+        if (dir.count(key)) {
+            vistied(key);
+        } else {
+            if (capacity <= dir.size()) {
+                dir.erase(cacheList.back().first);
+                cacheList.pop_back();
+            }
+            cacheList.push_front(make_pair(key, value));
+            dir[key] = cacheList.begin();
+        }
+        dir[key]->second = value;
+    }
+    void vistied(int key) {
+        auto p = *dir[key];
+        cacheList.erase(dir[key]);
+        cacheList.push_front(p);
+        dir[key] = cacheList.begin();
+    }
+
+  private:
+    unordered_map<int, list<pair<int, int>>::iterator> dir;
+    list<pair<int, int>> cacheList;
+    int capacity;
+};
+```
+
+**19. 旋转数组最小值**
+
+```c++
+#include <bits/stdc++.h>
+using namespace std;
+/**
+ * 原题链接
+ * https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/description/
+ */
+class Solution {
+  public:
+    int findMin(vector<int> &rotateArray) {
+        int left = 0, right = rotateArray.size() - 1;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (rotateArray[mid] < rotateArray[right]) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return rotateArray[left];
+    }
+};
+```
+
+**20. 旋转数组最小值（有重复的数）**
+
+```c++
+#include <bits/stdc++.h>
+using namespace std;
+/**
+ * 原题链接
+ * https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/description/
+ */
+class Solution {
+  public:
+    int findMin(vector<int> &nums) {
+        int m = nums.size();
+        int left = 0, right = m - 1;
+        while (left < right) {
+            int middle = (left + right) / 2;
+            if (nums[middle] < nums[right]) {
+                right = middle;
+            } else if (nums[middle] > nums[right]) {
+                left = middle + 1;
+            } else {
+                // if里面能找到真正的旋转点，而不是最小值
+                if (nums[right - 1] > nums[right]) {
+                    left = right;
+                    break;
+                }
+                right--;
+            }
+        }
+        return nums[left];
+    }
+};
+```
+
+**21. 旋转数组的某个值(无重复值)**
+
+```c++
+#include <bits/stdc++.h>
+using namespace std;
+/**
+ * https://leetcode.com/problems/search-in-rotated-sorted-array/discuss/14425/Concise-O(log-N)-Binary-search-solution
+ *
+ */
+class Solution_2 {
+  public:
+    int find_min_in_rotateArr(vector<int> &nums) {
+        int m = nums.size();
+        int left = 0, right = m - 1;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] < nums[right]) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+    int search(vector<int> &nums, int target) {
+        int m = nums.size();
+        int min_index = find_min_in_rotateArr(nums);
+        int left = 0, right = m - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            int real_mid = (mid + min_index) % m;
+            if (nums[real_mid] == target) {
+                return real_mid;
+            } else if (nums[real_mid] < target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return -1;
+    }
+};
+
+class Solution_0 {
+  public:
+    int search(vector<int> &nums, int target) {
+        if (nums.empty()) {
+            return -1;
+        }
+        int m = nums.size();
+        int left = 0, right = m - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            }
+            if (nums[mid] < nums[right]) {
+                if (nums[mid] < target && target <= nums[right]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            } else {
+                if (nums[mid] > target && nums[left] <= target) {
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
+                }
+            }
+        }
+        return -1;
+    }
+};
+```
+
+**22. 旋转数组的某个值(有重复值)**
+
+```c++
+/**
+ * leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/discuss/48808/My-pretty-simple-code-to-solve-it/48840
+ */
+class Solution {
+  public:
+    int find_min_in_rotateArr(vector<int> &nums) {
+        int m = nums.size();
+        int left = 0, right = m - 1;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] < nums[right]) {
+                right = mid;
+            } else if (nums[mid] > nums[right]) {
+                left = mid + 1;
+            } else {
+                // if里面能找到真正的旋转点，而不是最小值
+                if (nums[right - 1] > nums[right]) {
+                    left = right;
+                    break;
+                }
+                right--;
+            }
+        }
+        return left;
+    }
+    bool search(vector<int> &nums, int target) {
+        int m = nums.size();
+        int min_index = find_min_in_rotateArr(nums);
+        int left = 0, right = m - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            int real_mid = (mid + min_index) % m;
+            if (nums[real_mid] == target) {
+                return true;
+            } else if (nums[real_mid] < target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return false;
+    }
+};
+
+// https://leetcode.com/problems/search-in-rotated-sorted-array-ii/
+class Solution {
+  public:
+    bool search(vector<int> &nums, int target) {
+        int left = 0, right = nums.size() - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] == target) {
+                return true;
+            }
+            if (nums[left] == nums[mid] && nums[right] == nums[mid]) {
+                left++;
+                right--;
+            } else if (nums[left] <= nums[mid]) {
+                if (nums[left] <= target && nums[mid] > target)
+                    right = mid - 1;
+                else
+                    left = mid + 1;
+            } else {
+                if (nums[right] >= target && nums[mid] < target) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        }
+        return false;
+    }
+};
+```
+
+**23. 二叉树右视图**
+
+```c++
+#include <bits/stdc++.h>
+using namespace std;
+/**
+ * 原题链接
+ * https://leetcode.com/problems/binary-tree-right-side-view/description/
+ */
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+class Solution {
+  public:
+    vector<int> rightSideView(TreeNode *root) {
+        vector<int> res;
+        helper(root, 0, res);
+        return res;
+    }
+    void helper(TreeNode *root, int level, vector<int> &res) {
+        if (root == NULL)
+            return;
+        if (res.size() == level)
+            res.push_back(root->val);
+        helper(root->right, level + 1, res);
+        helper(root->left, level + 1, res);
+    }
+};
+```
+
+**24. 数据流的中位数**
+
+```c++
+class MedianFinder {
+  public:
+    /** initialize your data structure here. */
+    MedianFinder() {}
+
+    void addNum(int num) {
+        min_heap.push(num);
+        max_heap.push(min_heap.top());
+        min_heap.pop();
+        if (min_heap.size() < max_heap.size()) {
+            min_heap.push(max_heap.top());
+            max_heap.pop();
+        }
+    }
+
+    double findMedian() {
+        int m = max_heap.size() + min_heap.size();
+        if (m & 1 == 1) {
+            return min_heap.top();
+        }
+        return (max_heap.top() + min_heap.top()) / 2.0;
+    }
+
+  private:
+    priority_queue<int, vector<int>, less<int>> max_heap;
+    priority_queue<int, vector<int>, greater<int>> min_heap;
+};
+```
+
+**25. 合并两个有序的链表**
+
+```c++
+// https://leetcode.com/problems/merge-two-sorted-lists/description/
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        if(l1==NULL){
+            return l2;
+        }
+        if(l2==NULL){
+            return l1;
+        }
+        ListNode *result;
+        if(l1->val<l2->val){ 
+            l1->next = mergeTwoLists(l1->next,l2);
+            return l1;
+        }else{
+            l2->next = mergeTwoLists(l1,l2->next);
+            return l2;
+        }
+    }
+};
+```
+
+**26. 合并K个有序链表**
+
+```c++
+#include <bits/stdc++.h>
+using namespace std;
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+/**
+ * https://leetcode.com/problems/merge-k-sorted-lists/description/
+ */
+class Solution {
+  public:
+    struct compare_listNode {
+        bool operator()(const ListNode *p, const ListNode *q) {
+            return p->val > q->val;
+        }
+    };
+    ListNode *mergeKLists(vector<ListNode *> &lists) {
+        ListNode result(0);
+        ListNode *pre = &result;
+        priority_queue<ListNode *, vector<ListNode *>, compare_listNode>
+            min_heap;
+        int m = lists.size();
+        for (int i = 0; i < m; i++) {
+            if (lists[i]) {
+                min_heap.push(lists[i]);
+            }
+        }
+        while (!min_heap.empty()) {
+            ListNode *cur = min_heap.top();
+            min_heap.pop();
+            pre->next = cur;
+            if (cur->next) {
+                min_heap.push(cur->next);
+            }
+            pre = pre->next;
+        }
+        return result.next;
+    }
+};
+```
+
+**27. Swap Nodes in Pairs**
+
+```c++
+#include <bits/stdc++.h>
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+/**
+ * https://leetcode.com/problems/swap-nodes-in-pairs/description/
+ */
+class Solution {
+  public:
+    ListNode *swapPairs(ListNode *head) {
+        ListNode **cur = &head, *a, *b;
+        while ((a = *cur) && (b = a->next)) {
+            a->next = b->next;
+            b->next = a;
+            cur = &(a->next);
+        }
+    }
+};
+
+class Solution_1 {
+  public:
+    ListNode *swapPairs(ListNode *head) {
+        if (head == NULL || head->next == NULL) {
+            return head;
+        }
+        ListNode *first = head, *second = head->next;
+        ListNode *tail = swapPairs(second->next);
+        second->next = first;
+        first->next = tail;
+        return second;
+    }
+};
+```
+
+**28. 入栈和出栈**
+
+```c++
+#include <bits/stdc++.h>
+using namespace std;
+class Solution {
+  public:
+    bool IsPopOrder(vector<int> pushV, vector<int> popV) {
+        stack<int> stk;
+        int j = 0;
+        for (int i = 0; i < pushV.size(); i++) {
+            stk.push(pushV[i]);
+            while (!stk.empty() && stk.top() == popV[j]) {
+                stk.pop();
+                j++;
+            }
+        }
+        return j == popV.size();
+    }
+};
+```
+
+**29. 两个有序数组找中位数**
+
+```c++
+// lc4
+class Solution {
+public:
+    double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2) {
+        int m = nums1.size(), n = nums2.size();
+        int left = (m + n + 1) / 2, right = (m + n + 2) / 2;
+        return (find_kth(nums1.begin(), m, nums2.begin(), n, left) +
+                find_kth(nums1.begin(), m, nums2.begin(), n, right)) /
+               2.0;
+    }
+    int find_kth(vector<int>::iterator a, int m, vector<int>::iterator b, int n,
+                 int k) {
+        if(m>n){
+            return find_kth(b,n,a,m,k);
+        }
+        if(m==0){
+            return b[k-1];
+        }
+        if(k==1){
+            return min(a[0],b[0]);
+        }
+        int i = min(m,k/2),j = k - i;
+        if(a[i-1]<b[j-1]){
+            return find_kth(a+i,m-i,b,j,k-i);
+        }else if(a[i-1]>b[j-1]){
+            return find_kth(a,i,b+j,n-j,k-j);
+        }
+        return a[i-1];
+    }
+};
+```
+
+**30. LRU的设计**
+
+```c++
+class LRUCache {
+  public:
+    LRUCache(int capacity) { this->capacity = capacity; }
+
+    int get(int key) {
+        if(dir.count(key)){
+            vistied(key);
+            return dir[key]->second;
+        }
+        return -1;
+    }
+
+    void put(int key, int value) {
+        if(dir.count(key)){
+            vistied(key);
+            dir[key]->second = value;
+        }else{
+            if(cacheList.size()>=capacity){      
+                dir.erase(cacheList.back().first);
+                cacheList.pop_back();
+            }
+            cacheList.push_front(make_pair(key,value));
+            dir[key] = cacheList.begin();
+        }
+    }
+    void vistied(int key) {
+        auto it = *dir[key];
+        cacheList.erase(dir[key]);
+        cacheList.push_front(it);
+        dir[key] = cacheList.begin();
+    }
+
+  private:
+    unordered_map<int, list<pair<int, int>>::iterator> dir;
+    list<pair<int, int>> cacheList;
+    int capacity;
+};
+```
 
 **31. **
 
