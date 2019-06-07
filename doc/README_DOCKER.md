@@ -309,8 +309,4 @@ dock search httpd
     1. info
     2. version
 
-****
 
-****
-
-****
