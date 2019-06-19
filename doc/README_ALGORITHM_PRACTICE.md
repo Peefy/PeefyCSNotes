@@ -1332,7 +1332,106 @@ class LRUCache {
 };
 ```
 
-**31. **
+**31. 猜数游戏**
+
+牛牛和羊羊在玩一个有趣的猜数游戏。在这个游戏中,牛牛玩家选择一个正整数,羊羊根据已给的提示猜这个数字。第i个提示是"Y"或者"N",表示牛牛选择的数是否是i的倍数。
+例如,如果提示是"YYNYY",它表示这个数使1,2,4,5的倍数,但不是3的倍数。
+注意到一些提示会出现错误。例如: 提示"NYYY"是错误的,因为所有的整数都是1的倍数,所以起始元素肯定不会是"N"。此外,例如"YNNY"的提示也是错误的,因为结果不可能是4的倍数但不是2的倍数。
+现在给出一个整数n,表示已给的提示的长度。请计算出长度为n的合法的提示的个数。
+例如 n = 5:
+合法的提示有:
+YNNNN YNNNY YNYNN YNYNY YYNNN YYNNY
+YYNYN YYNYY YYYNN YYYNY YYYYN YYYYY
+所以输出12
+
+**输入描述**
+> 输入包括一个整数n(1 ≤ n ≤ 10^6),表示已给提示的长度。
+
+**输出描述**
+> 输出一个整数,表示合法的提示个数。因为答案可能会很大,所以输出对于1000000007的模
+
+**示例**-输入5，输出12
+
+**解析**
+>思路： 1.第i个数是素数，那么dp\[i\]=dp\[i-1\]*
+
+> 2，这是因为素数和前面的所有数都没有依赖关系，因此YN都行 2.第i个数不是素数的幂次，也就是像6这样的数字，你会发现，它已经被2,3唯一确定了，例如23分别是YY，那么6一定是Y，23分别是YN或NY或NN，6一定是N，所以说这时候有dp\[i\]=dp\[i-1\]
+
+> 3.第i个数是素数的幂次，它不能唯一确定，比如4，当2为Y时，4不确定，可以是Y，也可以是N。将4和2放入集合，若2取，4必定取，所以有NN，YN，YY三种情况。那么引申一下，加入8就是3个元素的集合，共4种情况，9就是2个元素的集合（3、9），有3种情况，以此类推。最后将这些情况相乘即可，因为这些集合之间相互不影响
+
+```c++
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <string>
+using namespace std;
+  
+const int MOD = 1E9+7;
+const int maxn = 1e6+5;
+  
+int vis[maxn];
+  
+int main()
+{
+    int n;
+    while(cin >> n)
+    {
+        long long ans = 1;
+          
+        for(int i = 2; i <= n; i++)
+        {
+            int cnt = 0;
+            if(vis[i])
+                continue;
+            for(int j = i+i; j <= n; j += i)        //处理他的倍数
+            {
+                vis[j] = 1;
+            }
+            //求i的幂次
+            long long mi = i;       //用 int 会溢出
+            while(mi <= n)
+            {
+                cnt++;
+                mi *= i;
+            }
+              
+            ans = ans * (cnt + 1) % MOD;
+        }
+        cout << ans << endl;
+    }
+}
+ //找规律....
+ //例子 n=16  2的4次幂在16之内  3的2次幂在16之内  5的1次幂在16之内 
+ //           7的1次幂在16之内  11的1次幂在16之内  13的1次幂在16之内 
+ //接下来  把 (幂+1) 相乘  即:(4+1)*(2+1)*(1+1)*(1+1)*(1+1)*(1+1)=5*3*2*2*2*2=240
+ //流程就是  把素数的幂找一遍  +1  相乘
+```
+
+```java
+import java.util.Scanner;
+    public class Main {
+        public static void main(String[] args) {
+            Scanner scanner = new Scanner(System.in);
+            int len=scanner.nextInt();
+            long ans=1;
+            boolean[] visited = new boolean[len+1];
+            for(int i=2; i<=len; i++) {
+                if(visited[i])
+                    continue;
+                for(int j=2*i; j<=len; j+=i)
+                    visited[j] = true;
+                int count=0;
+                long k = i;  //int会溢出
+                while(k<=len) {
+                    k *= i;
+                    count++;
+                }
+                ans=ans*(count+1)%1000000007;
+            }
+            System.out.println(ans);
+        }
+    }
+```
 
 **32. **
 

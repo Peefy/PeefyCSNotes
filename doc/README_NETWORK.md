@@ -756,11 +756,11 @@ MAC 地址是链路层地址，长度为 6 字节（48 位），用于唯一标�
 
 *三次握手*
 
-第一次握手：建立连接时，客户端发送syn包（syn=j）到服务器，并进入SYN_SENT状态，等待服务器确认；SYN：同步序列编号（Synchronize Sequence Numbers）。
+第一次握手：建立连接时，客户端发送syn包（syn=j）到服务器，并进入`SYN_SENT`状态，等待服务器确认；SYN：同步序列编号（Synchronize Sequence Numbers）。
 
-第二次握手：服务器收到syn包，必须确认客户的SYN（ack=j+1），同时自己也发送一个SYN包（syn=k），即SYN+ACK包，此时服务器进入SYN_RECV状态；
+第二次握手：服务器收到syn包，必须确认客户的SYN（ack=j+1），同时自己也发送一个SYN包（syn=k），即`SYN+ACK`包，此时服务器进入`SYN_RECV`状态；
 
-第三次握手：客户端收到服务器的SYN+ACK包，向服务器发送确认包ACK(ack=k+1），此包发送完毕，客户端和服务器进入ESTABLISHED（TCP连接成功）状态，完成三次握手。
+第三次握手：客户端收到服务器的`SYN+ACK`包，向服务器发送确认包ACK(ack=k+1），此包发送完毕，客户端和服务器进入`ESTABLISHED`（TCP连接成功）状态，完成三次握手。
 
 *四次挥手*
 
