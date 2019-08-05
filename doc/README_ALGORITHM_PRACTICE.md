@@ -1433,9 +1433,132 @@ import java.util.Scanner;
     }
 ```
 
-**32. **
+**32. 给定一个01矩阵，求最大矩形的面积**
 
-**33. **
+```c
+#include <iostream>
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <cmath>
+#define debug(x) cout<<#x<<" = "<<x<<endl;
+#define maxn 1005
+using namespace std;
+ 
+int n,m,len,ans;
+char s[3];
+int a[maxn][maxn],l[maxn][maxn],r[maxn][maxn],up[maxn][maxn];
+ 
+int read()
+{
+	int xx=0,kk=1;char ch=' ';
+	while(!isdigit(ch)){ch=getchar();if(ch=='-')kk=-1;}
+	while(isdigit(ch)){xx=xx*10+ch-'0';ch=getchar();}
+	return kk*xx;
+}
+ 
+int main()
+{
+	n=read(),m=read();
+	for(int i=1;i<=n;++i)
+	for(int j=1;j<=m;++j)
+	{
+		scanf("%s",s+1);
+		a[i][j]=s[1]=='F'?1:0;
+	}
+	for(int i=1;i<=n;++i)
+	for(int j=1;j<=m;++j)
+	{
+		l[i][j]=r[i][j]=j;
+		up[i][j]=1;
+	}
+	for(int i=1;i<=n;++i)
+	    for(int j=2;j<=m;++j)
+	        if(a[i][j]&&a[i][j-1])
+	            l[i][j]=l[i][j-1];
+	for(int i=1;i<=n;++i)
+	    for(int j=m-1;j>=1;--j)
+	        if(a[i][j]&&a[i][j+1])
+	            r[i][j]=r[i][j+1];
+	for(int i=2;i<=n;++i)
+	    for(int j=1;j<=m;++j)
+	    {
+		    if(a[i][j]&&a[i-1][j])
+		    {
+			    l[i][j]=max(l[i][j],l[i-1][j]);
+			    r[i][j]=min(r[i][j],r[i-1][j]);
+			    up[i][j]=up[i-1][j]+1;
+		    }
+		    len=r[i][j]-l[i][j]+1;
+		    ans=max(ans,len*up[i][j]);
+	    }
+	printf("%d",ans*3);
+	return 0;
+}
+```
+
+**33. 给一个大小为n*n的矩阵，和k个障碍物的坐标，求最大正方形的边长**
+
+```c
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
+#include <ctime>
+#define debug(x) cout<<#x<<" = "<<x<<endl;
+#define maxn 2005
+using namespace std;
+ 
+int n,m,len,ans,x,y,a[maxn][maxn];
+int l[maxn][maxn],r[maxn][maxn],up[maxn][maxn];
+ 
+int read()
+{
+	int xx=0,kk=1;char ch=' ';
+	while(!isdigit(ch)){ch=getchar();if(ch=='-')kk=-1;}
+	while(isdigit(ch)){xx=xx*10+ch-'0';ch=getchar();}
+	return kk*xx;
+}
+ 
+int main()
+{
+	n=read(),m=read();
+	for(int i=1;i<=n;++i)
+	for(int j=1;j<=n;++j)
+	{
+		l[i][j]=r[i][j]=j;//将能到达的最左和最右的端点的列数赋为自己本身所在的列数（即还未扩张）
+		up[i][j]=a[i][j]=1; //可以向上扩张的列数为1（即本行） 
+    }
+	for(int i=1;i<=m;++i)
+	   x=read(),y=read(),a[x][y]=0;
+	for(int i=1;i<=n;++i)
+	for(int j=2;j<=n;++j)
+	    if(a[i][j]&&a[i][j-1])
+	        l[i][j]=l[i][j-1];//求得i行j列向左扩展最多能扩展到的地方 
+	for(int i=1;i<=n;++i)
+	for(int j=n-1;j>=1;--j)
+	    if(a[i][j]&&a[i][j+1])
+	        r[i][j]=r[i][j+1];//求得i行j列向右扩展最多能扩展到的地方
+	for(int i=2;i<=n;++i)
+	for(int j=1;j<=n;++j)
+	{
+		if(a[i][j]&&a[i-1][j])//第i-1行j列元素和第i行j列元素都符合要求，说明最大矩阵可以更新 
+		{
+			l[i][j]=max(l[i][j],l[i-1][j]); 
+			r[i][j]=min(r[i][j],r[i-1][j]);// 取该行和上一行分别向扩展的最大距离
+			up[i][j]=up[i-1][j]+1;//可以向上扩张的行数（包括本行） 
+		}
+		len=r[i][j]-l[i][j]+1;//可扩张的区间长度 
+		ans=max(ans,min(len,up[i][j]));//由于题目要求最大正方形，在左右扩张长度和向上扩张长度取min就ok啦 
+	}
+	printf("%d",ans);
+	return 0;
+```
 
 **34. **
 
