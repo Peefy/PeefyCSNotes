@@ -1560,7 +1560,27 @@ int main()
 	return 0;
 ```
 
-**34. **
+**34. 从一个整数数组中找出总和为S的所有子集**
+
+```java
+public void populateSubset(final int[] data, int fromIndex, int endIndex) {  
+    if (sumInStack >= TARGET_SUM) {  
+        if (sumInStack == TARGET_SUM) {  
+            print(stack);  
+        }  
+        return;  
+    }  
+  
+    for (int currentIndex = fromIndex; currentIndex < endIndex; currentIndex++) {  
+        if (sumInStack + data[currentIndex] <= TARGET_SUM) {  
+            stack.push(data[currentIndex]);  
+            sumInStack += data[currentIndex];  
+            populateSubset(data, currentIndex + 1, endIndex);  
+            sumInStack -= (Integer) stack.pop();  
+        }  
+    }  
+}  
+```
 
 **35. **
 
