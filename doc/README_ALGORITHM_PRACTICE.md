@@ -1582,11 +1582,197 @@ public void populateSubset(final int[] data, int fromIndex, int endIndex) {
 }  
 ```
 
-**35. **
+**35. 数组中的逆序对**
 
-**36. **
+在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组,求出这个数组中的逆序对的总数P。并将P对1000000007取模的结果输出。 即输出P%1000000007
 
-**37. **
+**采用并归排序的思想**
+
+```java
+public class Solution {
+ 
+    /**主要是剑指offer的思想，用了归并排序，用count来记录数量
+     * 所不同的是用的--而不是++
+     * 每一次归并之前，记录当前有的个数，
+     * @param array
+     * @return
+     */
+	int count = 0;
+    public int InversePairs(int [] array) {
+    	if(array == null || array.length ==0)
+    		return 0;
+    	mergeSort(array, 0, array.length -1);
+    	return count;
+    	
+    }
+    public void mergeSort(int []array, int start, int end) {
+		if(start < end) {
+			int mid = (start + end)/2;
+			mergeSort(array, start, mid);
+			mergeSort(array, mid + 1, end);
+			merge(array, start, mid, mid+ 1, end);
+		}
+	}
+    public void merge(int []array,int start1,int end1, int start2, int end2) {
+		int i = end1;
+		int j = end2;
+		int k = end2 - start1 ;
+		int [] temp = new int[end2- start1 +1];
+		while(i >= start1 && j >=start2) {
+			if(array[i] > array[j]) { 
+				//假设此时两个归并的是17 19 22 || 16 18 21
+				//那么22大于21，所以可以看出对应22
+			    //有三个，22 16 22 18 22 21
+				temp[k--] = array[i--];
+				count = count + j - start2 +1;
+				count %= 1000000007;
+			}
+			else
+				temp[k--] = array[j--];
+		}
+		while(i >= start1)
+			temp[k--] = array[i--];
+		while(j >= start2)
+			temp[k--] = array[j--];
+ 
+        int m = start1;
+        for(int element:temp)
+        	array[m++] = element;
+		
+	}
+}
+```
+
+**36. 数字在排序数组中出现的次数**
+
+统计一个数字在排序数组中出现的次数。
+
+思路：二分查找数字第一次出现的索引，二分查找数字最后一次出现的索引
+
+```java
+public class Solution {
+    /**
+     * 博客上的解题思路，也就是剑指offer的思路
+     * 首先用递归二分法找到第一个k和最后一个k，然后得到个数
+     * @param array
+     * @param k
+     * @return
+     */
+    public int GetNumberOfK(int [] array , int k) {
+        int num = 0;
+        if (array != null && array.length >0) {
+			int firstk = getFirstK(array, k,0, array.length-1);
+			int lastk = getLastK(array, k,0, array.length-1);
+			if (firstk > -1 && lastk > -1) 
+				num = lastk -firstk +1;
+			
+			
+		}
+        return num;
+    }
+    /*
+     * 找到第一个出现的数字的下标
+     */
+    public int getFirstK(int [] array, int k,int start, int end) {
+    	if(start > end)
+    		return -1;
+		int midindex = (start + end)/2;
+		int middata = array[midindex];
+		if (middata == k) {
+			//判断是不是第一个K，前一个不等于K，就是第一个K
+			if(midindex > 0 && array[midindex - 1]!=k||midindex == 0)
+				return midindex;
+			else
+				end = midindex -1;//如果不是第一个k，那么肯定是在前面找，所以end要往前放
+				
+		}
+		else if (middata > k) {
+			end = midindex -1; //二分，如果这个大于k，所以要在前面找
+		}
+		else
+			start = midindex + 1;// 如果小于k，说明要往后找
+		return getFirstK(array,k, start, end);
+	}
+ 
+    /*
+   * 找到最后一个出现的数字的下标
+   */
+    public int getLastK(int [] array, int k,int start, int end) {
+		if(start > end)
+			return -1;
+		int midindex = (start + end)/2;
+		int middata = array[midindex];
+		if(middata == k) {
+			 //判断是不是最后一个K，后一个不等于K，就是最后一个K
+			if(midindex < array.length-1 && array[midindex + 1]!= k||midindex ==array.length -1)
+		            return midindex;
+			else
+				start = midindex + 1;
+		}
+		else if (middata > k) {
+			end = midindex - 1;
+		}
+		else 
+			start = midindex +1;
+		return getLastK(array, k,start, end);
+	}
+}
+```
+
+**37. 把数组排成最小的数**
+
+输入一个正整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。例如输入数组{3，32，321}，则打印出这三个数字能排成的最小数字为321323。
+
+```
+/* 解题思路： * 考虑到大数问题，先将整型数组转换成String数组，然后将String数组排序，最后将排好序的字符串数组拼接出来。关键就是制定排序规则。 * 排序规则如下： * 若ab > ba 则 a > b， * 若ab < ba 则 a < b， * 若ab = ba 则 a = b； * 解释说明： * 比如 "3" < "31"但是 "331" > "313"，所以要将二者拼接起来进行比较 */
+```
+
+```java
+public class Solution {
+ 
+	    /**
+	     * 主要就是规则的制定，将两个数字转换为字符串，防止溢出
+	     * 假设两个数字m和n，拼接有mn和nm
+	     * 如果mn>nm, 我们打印nm，此时定义n小于m。（此处小于是我们定义的）
+	     * 不是m和n的大小关系，
+	     * 而是看拼了之后的大小，来决定m和n的大小。
+	     * 如果mn<nm 那么就是m小于n。
+	     * 
+	     * @param numbers
+	     * @return
+	     */
+	    public String PrintMinNumber(int [] numbers) {
+             if(numbers == null || numbers.length == 0)
+            	 return "";
+             int len = numbers.length;
+             String[] str = new String[len];
+             StringBuffer sb = new StringBuffer();
+             //将数字型的放在字符串数组中。
+             for (int i = 0; i < len; i++) {
+				str[i] = String.valueOf(numbers[i]);
+			}
+             //根据定义的规则重新堆str进行升序排序
+            Arrays.sort(str, new Comparator<String>() {
+ 
+				@Override
+				public int compare(String s1, String s2) {
+					// TODO Auto-generated method stub
+					String c1 = s1 + s2;
+					String c2 = s2 + s1;
+					
+					return c1.compareTo(c2);
+				}
+ 
+			});
+            //根据规则排好序，将结果依次放入stringbuffer中就行了
+            for (int i = 0; i < len; i++) {
+				sb.append(str[i]);
+			}
+            
+            return sb.toString();
+	    }
+}
+```
 
 **38. **
 
