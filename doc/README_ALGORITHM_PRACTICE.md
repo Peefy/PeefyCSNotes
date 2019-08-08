@@ -1762,7 +1762,7 @@ public class Solution {
 					
 					return c1.compareTo(c2);
 				}
- 
+
 			});
             //根据规则排好序，将结果依次放入stringbuffer中就行了
             for (int i = 0; i < len; i++) {
