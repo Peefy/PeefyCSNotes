@@ -1774,7 +1774,226 @@ public class Solution {
 }
 ```
 
-**38. **
+**38. 带括号的加减乘除运算器**
+
+```java
+
+public class Calc {
+    public static void main(String[] args) {
+        String str = "-3+5.0*-4-9/-3";
+        Result(str);
+    }
+
+    private static void Result(String str) {
+        ArrayList<String> ops = getOps(str);
+        ArrayList<Double> num = getNum(str);
+        // 先乘除再加减
+        for (int i = 0; i < ops.size(); i++) {
+            if (ops.get(i).contains("*") || ops.get(i).contains("/")) {
+                String op = ops.remove(i);
+                if (op.equals("*")) {
+                    // 从数字集合取对应和后面一位数字
+                    double d1 = num.remove(i);
+                    double d2 = num.remove(i);
+
+                    double number = d1*d2;
+                    //再加上
+                    num.add(i,number);
+                }
+                if (op.equals("/")) {
+                    double d1 = num.remove(i);
+                    double d2 = num.remove(i);
+                    double number = d1/d2;
+                    num.add(i, number);
+                }
+                i--;    //刚刚移掉两个,却又刚加上一个新数,所以i要--,因为i++,所以才能取到,如果不加那么虽然貌似正常,但是如果如8*3/3,*/连在一起就报错了;因为连着的两个if;
+            }
+        }
+        //到+-,按顺序的所以就用while()了
+        while (ops.size() != 0) {
+            String op = ops.remove(0);
+            double d1 = num.remove(0);
+            double d2 = num.remove(0);
+
+            if (op.equals("+")) {
+                double number = d1+d2;
+                //再加入
+                num.add(0, number);
+            }
+            if (op.equals("-")) {
+                double number = d1-d2;
+                num.add(0, number);
+            }
+        }
+        System.out.println(num);
+    }
+
+    /**
+     * 获取符号 1.首位 和 * /后面 的-变成@,其他的-不用
+     */
+    private static ArrayList getNum(String str) {
+        // -变成@
+        str = change(str);
+        ArrayList<Double> list = new ArrayList();
+
+        String[] split = str.split("[\\+\\-\\*/]");
+        for (int i = 0; i < split.length; i++) { // @3,5,@4,9,@3
+            String s = split[i];
+            // 再把@变成-
+            if (s.contains("@")) {
+                s = '-' + s.substring(1);
+            }
+            list.add(Double.parseDouble(s));
+        }
+
+        return list;
+    }
+
+    private static String change(String str) {
+        char[] chars = str.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            // @3+5*-4-9/-3
+            if (i == 0 && chars[i] == '-') {
+                str = '@' + str.substring(i + 1);
+            }
+            // @3+5*@4-9/@3
+            if (chars[i] == '*' && chars[i + 1] == '-' || chars[i] == '/' && chars[i + 1] == '-') {
+                str = str.substring(0, i + 1) + '@' + str.substring(i + 2);
+            }
+        }
+        return str;
+    }
+
+    // 获取符号
+    private static ArrayList getOps(String str) {
+        ArrayList<String> list = new ArrayList();
+        // @变-
+        str = change(str);
+        // @3+5*@4-9/@3
+        String[] split = str.split("[0-9\\.@]");// 表示0-9包括小数和@
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].contains("+") || split[i].contains("-") || split[i].contains("*") || split[i].contains("/")) {
+                list.add(split[i]);
+            }
+        }
+        return list;
+    }
+}
+
+private static void calcDemo() {
+        String str = "3+12/(2-8)+7*((55+1)/2+0.2*(9-1))/2+10";
+        // 括弧:先判断左括号和右括号是否相等,再判断括号是否左右是否匹配
+        if (!isPiPei(str)) {
+            return;
+        }
+        if (str.contains("()")) {
+            System.out.println("包含了空的括号，不符合,请检查重新输入");
+            return;
+        }
+        /*--------------集合存单字符,用于随时移除和添加--------------*/
+        // 加上括号,这样就能当作最终的表达式并判断，最终求出结果
+        str = "(" + str + ")";
+
+        ArrayList str_list = new ArrayList();
+
+        for (int i = 0; i < str.length(); i++) {
+            str_list.add(str.charAt(i));
+        }
+        /*--------------获取所有的单位括号内容--------------*/
+        //关键是获取每一次“对称的括号”，并逐个计算，小到大，所以用栈是最好的方法。
+        Stack<Integer> stack = new Stack();
+        for (int i = 0; i < str_list.size(); i++) {
+            if (str_list.get(i) == '(') {
+                stack.add(i);
+            }
+            if (str_list.get(i) == ')') {
+                // 移除栈记录的内容角标
+                int s = stack.pop();
+
+                // 获取式子内容
+                StringBuilder sb = new StringBuilder();
+                for (int j = s; j <= i; j++) {
+                    sb.append(str_list.get(j));
+                }
+
+                int sbLength = i - s + 1;// 重点(这部把是最容易出错的了,(sb.Length()按照的是字符串,看似满足其实不满足list,因为8123488或者再长的小树，在list只占一位,这里用i-s+1才满足所有))
+
+                for (int k = 0; k < sbLength; k++) {
+                    str_list.remove(s);// 移除这个位置长度次
+                }
+                // 获取括号中的式子,计算成结果,在放入集合变成新的式子
+                String strCalc = sb.substring(1, sb.length() - 1);
+                double num = Calc.Result(strCalc);
+                str_list.add(s, num);
+
+                System.out.println(str_list);
+                i = i - sbLength + 1; // 移掉后,占一位,++后要能获取"本来i位置"的下一位
+                if (i < -1) {// 防越界
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * 判断字符串里的"左和右"括号是否"相等"
+     */
+    private static boolean isCountEqual(String str) {
+        char[] chars = str.toCharArray();
+        int left = 0;
+        int right = 0;
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '(') {
+                left++;
+            }
+        }
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == ')') {
+                right++;
+            }
+        }
+        if (left == right) {
+
+        } else {
+            System.out.println("表达式括号不匹配");
+        }
+        return left == right;
+    }
+
+    /**
+     * 判断字符串里的"左和右"括号是否"匹配"
+     */
+    private static boolean isPiPei(String str) {
+        boolean isPiPei = false;
+        //先判断是否相等
+        if (!isCountEqual(str)) {
+            return false;
+        }
+        //定义栈记录左
+        Stack<Character> stack = new Stack<>();
+        char pop;
+        char[] chs = str.toCharArray();
+        fo:
+        for (int i = 0; i < chs.length; i++) {
+            switch (chs[i]) {
+                case '(':
+                    stack.add(chs[i]);// 放在前面
+                    break;
+                case ')':
+                    pop = stack.pop();// 获取并移除
+                    if (pop == '(') {
+                        isPiPei = true;
+                    } else {
+                        isPiPei = false;
+                        // 并停止所有
+                        break fo;
+                    }
+                    break;
+            }
+        }
+        return isPiPei;
+    }
+```
 
 **39. **
 
