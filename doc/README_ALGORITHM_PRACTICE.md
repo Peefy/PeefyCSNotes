@@ -1995,11 +1995,139 @@ private static void calcDemo() {
     }
 ```
 
-**39. **
+**39. 给定一个数字数组，写一个函数，将所有0元素移动到它的末端，同时保持非零元素的相对顺序**
 
-**40. **
+**双指针**记录数据
 
-**41. **
+```java
+public void moveZeros(int[] nums){
+    int slow = 0, fast = 0;
+    while (fast < nums.length){
+        if (num[fast] != 0){
+            nums[slow] = nums[fast];
+            slow += 1;
+            fast += 1;
+        }
+        else {
+            fast += 1;
+        }
+    }
+    for (i = slow;i < nums.length;++i) {
+        nums[i] = 0;
+    }
+}
+```
+
+**40. 如何利用快排对一个单链表进行排序**
+
+```c++
+
+struct ListNode {
+    int _val;
+    ListNode* _next;
+
+    ListNode(const int x):_val(x),_next(NULL){
+
+    }
+};
+
+//快速排序(前后指针法)
+//这里注意一定要传引用，如果不传引用会导致连接不上的问题
+void sort_quick(ListNode* &head, ListNode* &end){
+    if (head == NULL&&head == end){
+        return;
+    }
+    //设置快排基准值，将基准值进行单独保存
+    int key = head->_val;
+    ListNode* ret = head->_next;
+    head->_next = NULL;
+    //标识两个分区的头尾，pre用来向后标识记录节点
+    ListNode* head1 = NULL;
+    ListNode* pre1 = NULL;
+    ListNode* end1 = NULL;
+
+    ListNode* head2 = NULL;
+    ListNode* pre2 = NULL;
+    ListNode* end2 = NULL;
+
+    //head1链表存放大于key的数值
+    while (ret != NULL){
+        if (ret->_val > key){
+            if (head1 == NULL){
+                head1 = ret;
+                pre1 = ret;
+            }
+            else{
+                pre1->_next = ret;
+                pre1 = ret;
+            }
+            ret = ret->_next;
+            pre1->_next = NULL;
+        }
+        //head2存放小于基准值的数据
+        else{
+            if (head2 == NULL){
+                head2 = ret;
+                pre2 = ret;
+            }
+            else{
+                pre2->_next = ret;
+                pre2 = ret;
+            }
+            ret = ret->_next;
+            pre2->_next = NULL;
+        }
+    }
+    //记录尾节点
+    end1 = pre1;
+    end2 = pre2;
+
+    //对分区进行同样的操作
+    sort_quick(head1, end1);
+    sort_quick(head2, end2);
+
+    //将分区进行连接
+    if (head1 != NULL&&head2 != NULL){
+        end1->_next = head;
+        head->_next = head2;
+        head = head1;
+        end = end2;
+    }
+    else if (head1 != NULL){
+        end1->_next = head;
+        end = head;
+        head = head1;
+    }
+    else if (head2 != NULL){
+        head->_next = head2;
+        end = end2;
+    }
+}
+
+```
+
+**41. 判断一棵二叉树是否是平衡二叉树**
+
+左右子树的高度差不超过1的二叉树是平衡二叉树
+
+int IsBalance(BNode *root){
+	if (root == NULL){
+		return 1;
+	}
+	int isBalance = IsBalance(root->left);
+	if (isBalance == 0){
+		return 0;
+	}
+	int leftHight = GetHeight(root->left);
+	int rightHight = GetHeight(root->right);
+	int diff = leftHight - rightHight;
+	if (diff < -1 && diff>1){
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
 
 **42. **
 
