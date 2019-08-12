@@ -2129,9 +2129,57 @@ int IsBalance(BNode *root){
 	}
 }
 
-**42. **
+**42. 字符串反转**
 
-**43. **
+abc -> cba
+
+www.tencent.com.cn -> cn.com.tencent.www
+
+```c++
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+#define N 1000
+
+void reverseString(char * s, int start, int end){
+    while (start < end){
+        char tmp = s[start];
+        s[start] = s[end];
+        s[end] = tmp;
+        start++;
+        end--;
+    }
+}
+
+int main(void)
+{
+	char buf[N] = "www.tencent.com.cn";  
+    char split = '.';
+    scanf("%s, %c", buf, &split);
+    auto n = strlen(buf);
+    reverseString(buf, 0, n - 1);
+    int slow = 0;
+    int flag = 0;
+    for (int i = 0;i < n;++i){
+        if (s[i] == split){
+            reverseString(buf, slow, i - 1);
+            slow = i + 1;
+            flag = 1;
+        }
+    }
+    if (flag == 1){
+        reverseString(buf, slow, n - 1);
+    }
+	printf("buf:%s\n", buf);
+	system("pause");
+	return 0;
+}
+```
+
+**43. 快速排序的稳定方法实现**
+
+原始快速排序是一种非稳定算法，实现快排的稳定性是在交换时用额外的空间存储要交换的数据
 
 **44. **
 
