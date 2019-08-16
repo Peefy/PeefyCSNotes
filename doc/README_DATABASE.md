@@ -1529,7 +1529,43 @@ mongoDB支持master-slave,replicaset（内部采用paxos选举算法，自动故
 * **数据分析**-mongoDB内置了数据分析的功能(mapreduce),其他不支持
 * **应用场景**-redis：数据量较小的更性能操作和运算上；memcache：用于在动态系统中减少数据库负载，提升性能;做缓存，提高性能（适合读多写少，对于数据量比较大，可以采用sharding）；MongoDB:主要解决海量数据的访问效率问题。
 
-**26. **
+**26. MySQL 的增删查改**
+
+查看数据库
+
+```sql
+SHOW DATABASE;
+```
+
+创建数据库
+
+```sql
+CREATE DATABASE sqlname;
+```
+
+增
+
+```sql
+INSERT INTO table_name ( field1, field2,...fieldN )VALUES( value1, value2,...valueN );
+```
+
+删
+
+```sql
+DELETE FROM table_name WHERE `id`>10
+```
+
+查
+
+```sql
+SELECT column_name,column_name FROM table_name
+```
+
+改
+
+```sql
+UPDATE table_name SET field1='value' WHERE `id`>10
+```
 
 **27. **
 
