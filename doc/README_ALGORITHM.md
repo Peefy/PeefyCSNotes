@@ -1915,7 +1915,61 @@ ASL = (4+2+2+1+2+1)/13
 
 注意：查找成功时，分母为哈希表元素个数，查找不成功时，分母为哈希表长度。
 
-**76. **
+**76. KMP字符串匹配算法**
+
+KMP算法的主体是，在失去匹配时，查询最后一个匹配字符所对应的“部分匹配表“中的值，然后向前移动，移动位数为：
+
+```java
+private int[] getNext(String pattern) {
+    char[] p = pattern.toCharArray();
+    int[] next = new int[p.length];
+    // 第一位设为-1，方便判断当前位置是否为搜索词的最开始
+    next[0] = -1;
+    int i = 0;
+    int j = -1;
+
+    while(i < p.length - 1) {
+        if (j == -1 || p[i] == p[j]) {
+            i++;
+            j++;
+            next[i] = j;
+        } else {
+            j = next[j];
+        }
+    }
+
+    return next;
+}
+
+public int KMP(String t, String p) {
+    char[] target = t.toCharArray();
+    char[] pattern = p.toCharArray();
+    // 目标字符串下标
+    int i = 0;
+    // 搜索词下标
+    int j = 0;
+    // 整体右移一位的部分匹配表
+    int[] next = getNext(pattern);
+
+    while (i < target.length && j < patter.length) {
+        // j == -1 表示从搜索词最开始进行匹配
+        if (j == -1 || target[i] == pattern[j]) {
+            i++;
+            j++;
+        // 匹配失败时，查询“部分匹配表”，得到搜索词位置j以前的最大共同前后缀长度
+        // 将j移动到最大共同前后缀长度的后一位，然后再继续进行匹配
+        } else {
+            j = next[j];
+        }
+    }
+
+    // 搜索词每一位都能匹配成功，返回匹配的的起始位置
+    if (j == pattern.length)
+        return i - j;
+    else
+        return -1;
+}
+```
 
 **77. **
 
