@@ -2231,9 +2231,88 @@ int GetMidNumNoSort1(int *arr,int size)
 
 **45. 一根绳子随便剪两下,截成的三条线段能构成三角形的概率**
 
-若将长度为 a的线段截成三段从3段中任取2段,如果能围成三角形,这两段应满足两个条件：任意一段长度小于a/2,两段长度之和大于a/2.然后建立坐标系,x、y轴分别表示两端的长度,则全体情况是（0,0）（a,0）（0,a）三点构成的三角形,面积为a^2/2,符合题意的情况是（0,a/2）（a/2,0）（a/2,a/2）三点构成的三角形a^2/8,两面积相除得概率为1/4
+若将长度为a的线段截成三段从3段中任取2段,如果能围成三角形,这两段应满足两个条件：任意一段长度小于a/2,两段长度之和大于a/2.然后建立坐标系,x、y轴分别表示两端的长度,则全体情况是（0,0）（a,0）（0,a）三点构成的三角形,面积为a^2/2,符合题意的情况是（0,a/2）（a/2,0）（a/2,a/2）三点构成的三角形a^2/8,两面积相除得概率为1/4
 
-**46. **
+**46. 给定二叉树的先序遍历和中序遍历，恢复二叉树**
+
+```java
+
+public class TreeNode{
+    int val;
+    TreeNode left;
+    TreeNode right;
+
+    TreeNode(int x){
+        val = x;
+    }
+}
+
+public class ReContructTree{
+    public static void main(String[] args) {
+        int pre[] = {1, 2, 4, 7, 3, 5, 6, 8};
+        int in[] = {4, 7, 2, 1, 5, 3, 8, 6};
+        TreeNode root = reConstructBinaryTree(pre, in);
+        pre_order(root);
+    }
+
+    public static TreeNode reConstructBinaryTree(int[] pre, int[] in) {
+        if (pre == null || pre.length == 0 || in == null || in.length == 0)
+            return null;
+        else if (pre.length == 1 && in.length == 1){
+            TreeNode root = new TreeNode(pre[0]);
+            root.left = null;
+            root.right = null;
+            return root;
+        }
+        else{
+            TreeNode root = new TreeNode(pre[0]);
+            int in_mid = -1;
+            for (int i = 0;i < in.length;++i){
+                if (in[i] == pre[0]){
+                    in_mid = i;   //在中序遍历序列中找到前序遍历的头结点(根结点)
+                    break;
+                }
+            }
+            // 构造左子树
+            if (in_mid > 0){
+                int[] pr = new int[in_mid];
+                int[] in_temp = new int[in_mid];
+                for (int i = 0;i < in_mid;++i){
+                    pr[i] = pre[i + 1];
+                    in_temp[i] = in[i];
+                }
+                root.left = reConstructBinaryTree(pr, in_temp);
+            }
+            else{
+                root.left = null;
+            }
+            int len = pre.length;
+            if (in_mid < pre.length - 1){
+                int[] pr = new int[len - 1 - in_mid];
+                int[] in_temp = new int[len - 1 - in_mid];
+                for (int i = in_mid + 1, j = 0;i < len;i++,j++){
+                    pr[j] = pre[i];
+                    in_temp[j] = in[i];
+                }
+                root.right = reConstructBinaryTree(pr, in_temp);
+            }
+            else{
+                root.right = null;
+            }
+            return root;
+        }
+    }
+
+    public static void pre_order(TreeNode root){
+        if (root != null){
+            System.out.println(root.val);
+            pre_order(root.left);
+            pre_order(root.right);
+        }
+    }
+
+}
+```
 
 **47. **
 
