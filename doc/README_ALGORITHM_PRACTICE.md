@@ -2314,6 +2314,43 @@ public class ReContructTree{
 }
 ```
 
+利用栈和哈希表进行非递归的写法(二叉树中所有结点值不同)
+
+```c++
+class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        int n = preorder.size();
+        if (n == 0)
+            return nullptr;
+        unordered_map<int, int> idx;
+        for (int i = 0; i < n; i++) {
+            idx[inorder[i]] = i;
+        }
+        stack<TreeNode*> st;
+        TreeNode* root = new TreeNode(preorder[0]);
+        TreeNode* cur = root;
+        for (int i = 1; i < n; i++) {
+            st.push(cur);
+            int val = preorder[i];
+            if (idx[val] < idx[cur->val]){
+                cur->left = new TreeNode(val);
+                cur = cur->left;
+            }
+            else{
+                while (st.size() > 0 && idx[val] > idx[st.top()->val]){
+                    cur = st.top();
+                    st.pop();
+                }           
+                cur->right = new TreeNode(val);
+                cur = cur->right;
+            }
+        }
+        return root;
+    }
+};
+```
+
 **47. **
 
 **48. **
