@@ -2310,7 +2310,6 @@ public class ReContructTree{
             pre_order(root.right);
         }
     }
-
 }
 ```
 
@@ -2351,9 +2350,67 @@ public:
 };
 ```
 
-**47. **
+**47. 在一个圆上任取三个点，构成钝角三角形的概率是3/4,构成锐角三角形的概率是1/4**
 
-**48. **
+1. 在圆上任取第一个点A;
+2. 在任意第二个点B，有AB重合、AB在同一条直径上两个特殊点，但对于圆上无数个点来说，B取到上面两个特殊点的概率为0；所以可以使AB能够不重合且不在同一直径上的概率为1；以下叙述将不考虑上述两个特殊点；由上所述A,B两点的取法可以看做是任意取，概率为1；
+3. 再任意取第三个点C，C有与A重合、与B重合两个特殊点，同上，可以忽略不计，设原点为O，则AO交圆于点D，BO交圆于点E，则C在弧DBAE时(D,B,A,E四点除外),三角形ABC为钝角三角形；
+
+由AB的长度从趋近于零，到趋近于直径，弧DBAE的长度由趋近于圆周长1，到趋近于半圆周1/2，所以弧DBAE的平均长度(1+1/2)/2=3/4;
+
+所以三角形ABC为钝角三角形的概率为3/4
+
+**48. 二叉树中序遍历(非递归方式)**
+
+使用辅助栈实现
+
+```c++
+
+void inorder(TreeNode* root){
+    stack<TreeNode*> s;
+    auto node = root;
+    while(node != nullptr || s.size() > 0){
+        while(node != nullptr){
+            s.push_back(leftnode);
+            leftnode = leftnode->left;
+        }
+    }
+    if (s.size() > 0){
+        node = s.top();
+        s.pop();
+        printf("%d ", node->val);
+        node = node->right;
+    }
+}
+
+```
+
+不使用辅助栈实现
+
+```c++
+
+void inorder(TreeNode* root){
+    auto node = root;
+    while (node != nullptr){
+        auto left = node->left;
+        while (left->right && left->right != node){
+            left = left->right;    
+        }
+        // 线索化
+        if (left->right == null){
+            left->right = node;
+            node = node->left;
+            continue;
+        }
+        else{
+            left->right = null;
+        }
+        printf("%d ", node->val);
+        node = node->right
+    }
+}
+
+```
 
 **49. **
 
