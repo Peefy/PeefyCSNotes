@@ -2412,7 +2412,88 @@ void inorder(TreeNode* root){
 
 ```
 
-**49. **
+**49. 去掉C++文件中注释的算法**
+
+*注意：考虑转义字符，注释的嵌套(类似于程序里面的括号匹配)，单行注释和多行注释以及字符串中的注释不算\`_\`,文件的编码方式。。。*
+
+假设C++文本以ASCII方式编码，使用状态机做，输入字符串中比较特殊的字符是/,*,",\,回车\n\r等
+
+*状态机*
+
+* **0**-正在分析
+* **1**-读到第一个/
+* **2**-读到第二个/,"//...
+* **3**-读到"/*
+* **4**-"/\*...\*
+* **5**-读到一个"
+* **6**-读到字符串里面的转义符"...\
+* **7**-找到注释
+
+0和7是等价的状态，但是可以用7状态做些特别的事情，比如这个时候删除刚刚找到的注释等。
+
+```c++
+#include <stdio.h>
+#include <memory.h>
+#include <string>
+
+#define STATE_NUM 8
+#define ASCII_MAX 128
+
+char fsm[STATE_NUM][ASCII_MAX];
+
+void initfsm(){
+    const int line_len = sizeof(char) * ASCII_MAX;
+    memset(fsm[0], 0, line_len);
+    memset(fsm[1], 0, line_len);
+    memset(fsm[2], 2, line_len);
+    memset(fsm[3], 3, line_len);
+    memset(fsm[4], 3, line_len);
+    memset(fsm[5], 5, line_len);
+    memset(fsm[6], 5, line_len);
+    memset(fsm[7], 0, line_len);
+    fsm[0]['/']=1;
+    fsm[0]['"']=5;
+    fsm[1]['/']=2;
+    fsm[1]['*']=3;
+    fsm[1]['"']=5;
+    fsm[2]['\n']=7;
+    fsm[3]['*']=4;
+    fsm[4]['/']=7;
+    fsm[4]['*']=4;
+    fsm[5]['"']=0;
+    fsm[5]['\\']=6;
+    fsm[7]['/']=1;
+    fsm[7]['"']=5;
+}
+
+int main(){
+    int state = 0;
+    char c = '\0';
+    std::string s = "";
+    FILE * fin = fopen("in.cpp", "r");
+    FILE * fout = fopen("out.cpp", "w");
+    initfsm();
+    while (fscanf(fin, "%c", &c) != EOF){
+        state = fsm[state][c];
+        s += c;
+        switch (state){
+            case 0:
+                fprintf(fout, "%s", s.c_str());
+                break;
+            case 7:
+                s = "";
+                if (c == '\n'){
+                    fputc(c, fout);
+                }
+                break;
+        }
+    }
+    fclose(fin);
+    fclose(fout);
+    return 0;
+}
+
+```
 
 **50. **
 
