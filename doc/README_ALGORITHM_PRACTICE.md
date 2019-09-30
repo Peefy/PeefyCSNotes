@@ -2495,7 +2495,105 @@ int main(){
 
 ```
 
-**50. **
+**50.把n个骰子扔在地上，所有骰子朝上一面的点数之和为S。输入n，打印出S的所有可能的值出现的概率。**
+
+*动态规划*
+
+*解题思路*：
+* 1.确定问题解的表达式，可将f(n,s)表示n个骰子点数的和为s的排列情况总数
+* 2.确定状态转移方程。n个骰子点数和为s的种类数只与n-1个骰子的和有关。因为一个
+骰子有六个点数，那么第n个骰子可能出现1到6的点数。所以第n个骰子点数为1的话，
+f(n, s) = f(n - 1, s - 1),当第n个骰子点数为2的话，f(n, s) = f(n - 1, s - 2),
+依次类推。在n - 1个骰子的基础上，再增加一个骰子出现点数和s的结果只有6种情况。
+
+*递归版本*
+
+```c++
+#include <stdio.h>
+#include <string.h>
+
+#include <iostream>
+using namespace std;
+
+/****************************
+func:获取n个骰子指定点数和出现的次数
+para:n:骰子个数;sum:指定的点数和
+return:点数和为sum的排列数
+****************************/
+int getNSumCount(int n, int sum) {
+    if (n < 1 || sum < n || sum > 6 * n) {
+        return 0;
+    }
+    if (n == 1)
+        return 1;
+    int resCount = 0;
+    resCount = getNsumCount(n - 1, sum - 1) + getNsumCount(n - 1, sum - 2)
+        + getNsumCount(n - 1, sum - 3) +  + getNsumCount(n - 1, sum - 4)
+        + getNsumCount(n - 1, sum - 5) +  + getNsumCount(n - 1, sum - 6);
+    return resCount;
+}
+
+int main() {
+    int n = 0;
+    while (true) {
+        cout << "input dice num:";
+        cin >> n;
+        for (int i = n;i < 6 * n;++i) {
+            cout << "f("<< n <<","<< i <<")=" << getNSumCount(n, i) << endl;
+        }
+    }
+}
+```
+
+*迭代版本*
+
+```c++
+/****************************************
+func:给定骰子数目n，求所有可能点数和的种类数
+para：n:骰子个数;count:存放各种点数和的种类数，下标i表示点数和为（i+n）
+return:出错返回-1，成功返回0
+****************************************/
+#define N 6
+
+int getNSumCountNotRecusion(int n, int * count) {
+    if (n < 1)
+        return -1;
+    for (int i = 0;i < N;++i)
+        count[i] = 1;
+    if (n == 1)
+        return 0;
+    for (int i = 2;i <= n;++i){
+        for(int sum = 6 * i;sum >= i;--sum){
+            int tmp1=((sum-1-(i-1))>=0?count[sum-1-(i-1)]:0); //上一阶段点数和sum-1的排列总数
+            int tmp2=(sum-2-(i-1)>=0?count[sum-2-(i-1)]:0);
+            int tmp3=(sum-3-(i-1)>=0?count[sum-3-(i-1)]:0);
+            int tmp4(sum-4-(i-1)>=0?count[sum-4-(i-1)]:0);
+            int tmp5=(sum-5-(i-1)>=0?count[sum-5-(i-1)]:0);
+            int tmp6=(sum-6-(i-1)>=0?count[sum-6-(i-1)]:0);
+            count[sum-i]=tmp1+tmp2+tmp3+tmp4+tmp5+tmp6;
+        }
+    }
+    return 0;
+}
+
+//验证
+int main(){
+    int n;
+    while(true){
+        cout<<"iteration input dice num：";
+        cin>>n;
+        int* count=new int[5*n+1];
+        memset(count,0,(5*n+1)*sizeof(int));
+        getNSumCountNotRecusion(n,count);
+        int allCount=0;
+        for(int i=0;i<5*n+1;++i){
+            cout<<"f("<<n<<","<<i+n<<")="<<count[i]<<endl;
+            allCount+=count[i];
+        }
+        delete[] count;
+    }
+}
+```
 
 **51. **
 
