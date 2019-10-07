@@ -743,7 +743,78 @@ Item-Based CF:这类算法会面临两个典型的问题:矩阵稀疏问题,计�
 2. 但是可以采用user-cf, 再记录一个在线的用户item行为对, 就可以根据用户最近类似的用户的行为进行时效性item推荐;
 3. 对于像影视, 音乐之类的还是可以采用item-cf的;
 
-**70. **
+**70. 数据降维方法-多维缩放MDS(Multiple Dimensional Scaling)**
+
+有n个样本，每个样本的维度为m，目标是用不同的新的k维向量(k \<\< m)替代原来的n个m维向量，使得在新的低维空间中，所有样本相互之间的距离等于(或最大程度接近)原空间中的距离(默认欧式距离)。
+
+**MDS算法**给出在给定k值条件下的最优解决方案，
+
+* 计算所有原空间样本相互之间的距离平方矩阵Dist\[\]\[\]
+* 根据Dist推算出目标降维后内积矩阵B
+
+B\[i\]\[j\]=-0.5(Dist\[i\]\[j\] - avg(Dist\[i\]) - avg(Dist\[j\]) + avg_Dist)
+
+* 对矩阵B做特征分解或者奇异值分解B=V\*diag\*V^T
+* 取最大的k个特征值及其对应的特征向量构成diag_k和V_k,此时U=V_k\*diag_k就是降维后的n个行向量组成的矩阵。
+
+```python
+import numpy as np
+
+# run this to get a test matrix
+# A = np.random.randint(1,100,(5,20))
+# np.save('mat.npy', A)
+# exit()
+
+A = np.load('mat.npy')
+
+n,m = A.shape
+Dist = np.zeros((n,n))
+B = np.zeros((n,n))
+for i in range(n):
+    for j in range(n):
+        Dist[i][j] = sum((ix-jx)**2 for ix,jx in zip(A[i], A[j]))
+
+disti2 = np.array([0]*n)
+distj2 = np.array([0]*n)
+
+for x in range(n):
+    disti2[x] = np.mean([Dist[x][j] for j in range(n)])
+    distj2[x] = np.mean([Dist[i][x] for i in range(n)])
+
+distij2 = np.mean([Dist[i][j] for i in range(n) for j in range(n)])
+
+for i in range(n):
+    for j in range(n):
+        B[i][j] = -0.5*(Dist[i][j] - disti2[i] - distj2[j] + distij2)
+
+w,v = np.linalg.eig(B)
+
+v=v.transpose()
+
+U = [{'eVal':w[i], 'eVec':v[i]} for i in range(n)]
+
+U.sort(key = lambda obj:obj.get('eVal'), reverse = True)
+k=4
+w=np.array([0]*k)
+v=np.zeros((k,n))
+
+for i in range(k):
+    w[i] = U[i].get('eVal')**0.5
+    v[i] = U[i].get('eVec')
+
+ans = np.dot(v.transpose(), np.diag(w))
+
+ans_dist = np.zeros((n,n))
+for i in range(n):
+    ans_str=""
+    for j in range(n):
+        ans_dist[i][j] = sum((ix-jx)**2 for ix,jx in zip(ans[i], ans[j]))
+
+print("Orign dis[][] is :")
+print Dist
+print("MDS dis[][] is :")
+print(ans_dist)
+```
 
 **71. **
 
