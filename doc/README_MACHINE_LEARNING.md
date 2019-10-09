@@ -1,6 +1,5 @@
-# 机器学习
 
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+# 机器学习
 
 * 传统机器学习：sklearn
 * 深度学习：tensorflow theano pytorch
@@ -820,17 +819,27 @@ print(ans_dist)
 
 **71. L-BFGS算法**
 
-Broyden, Fletcher, Goldfarb, Shanno.四位数学家名字的首字母是BFGS，L是Limited memory的意思
+Broyden, Fletcher, Goldfarb, Shanno.四位数学家名字的首字母是BFGS，L是**Limited memory**的意思
 
-L-BFGS是机器学习中解决函数最优化问题比较常用的手段，
+L-BFGS是机器学习中解决函数最优化问题比较常用的手段。
 
-BFGS算法是通过迭代逼近海森Hessian矩阵的逆的近似算法
+BFGS算法是通过迭代逼近海森Hessian矩阵的逆的近似算法(求解H矩阵后可用于牛顿法求根和求驻点算法)，从形式上可以理解为从梯度下降逐步转换为牛顿法求函数解的一个算法。
+但是缺点之一是每次迭代时必须存储迭代的海森矩阵逆矩阵。
 
-$$x$$
+L-BFGS算法可以理解为对BFGS算法的又一次近似，不直接存储迭代矩阵，转而存储迭代向量，
+设置迭代最大存储次数（远小于矩阵的维度），这样虽然损失了精度，但是可以保证使用有限的内存将函数的解通过BFGS算法求得到。
 
-<img src="http://www.forkosh.com/mathtex.cgi? \Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}">
+**72. 梯度下降算法**
 
-**72. **
+* **梯度下降算法 GD**-最常用的最优化算法，使用梯度更新搜索极值，缺点是靠近极小值时收敛速度减慢，直线搜索可能会产生一些问题，可能会呈“之字形”地下降
+* **随机梯度下降算法 SGD**-梯度下降过程从样本中随机抽出进行迭代更新
+* **小批量梯度下降算法 mini-batch SGD**-梯度下降过程从样本中随机抽出一小批样本进行迭代更新
+* **动量法 SGD with momentum**-不使用梯度而是速度更新应用参数，使用动量之后，会积累之前的梯度，假如梯度发生振荡，速度受到的影响可以减少
+* **Nesterov动量法 SGD with Nesterov momentum**-Nesterov动量计算梯度的时候首先临时更新了权重参数，使用的是之前的动量进行临时更新，再根据临时的参数进行计算梯度。
+* **AdaGrad**-算法将每一个参数每一次迭代的梯度取平方累加后在开方，用全局学习率除以这个数，作为学习率的动态更新，
+* **RMSprop**-修改AdaGrad，加入了一个新的超参数，修改累积平方梯度为一阶滞后控制累加的步进长度范围
+* **RMSprop with Nesterov动量**-RMSProp已经被证明是一种有效且实用的深度神经网络优化算法，结合了Nesterov动量以及RMSProp算法。
+* **Adam算法**-一阶矩估计与动量相似，二阶矩估计与AdaGrad类似。
 
 **73. **
 
