@@ -828,6 +828,8 @@ BFGS算法是通过迭代逼近海森Hessian矩阵的逆的近似算法
 
 $$x$$
 
+<img src="http://www.forkosh.com/mathtex.cgi? \Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}">
+
 **72. **
 
 **73. **
