@@ -1,5 +1,7 @@
 # 机器学习
 
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+
 * 传统机器学习：sklearn
 * 深度学习：tensorflow theano pytorch
 * 强化学习：
@@ -816,7 +818,15 @@ print("MDS dis[][] is :")
 print(ans_dist)
 ```
 
-**71. **
+**71. L-BFGS算法**
+
+Broyden, Fletcher, Goldfarb, Shanno.四位数学家名字的首字母是BFGS，L是Limited memory的意思
+
+L-BFGS是机器学习中解决函数最优化问题比较常用的手段，
+
+BFGS算法是通过迭代逼近海森Hessian矩阵的逆的近似算法
+
+$$x$$
 
 **72. **
 
