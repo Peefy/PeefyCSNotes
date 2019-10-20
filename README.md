@@ -55,6 +55,10 @@
 
 [计算机程序设计笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_CODING.md)
 
+[前端问答](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_FRONTEND.md)
+
+[Git](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_GIT.md)
+
 [Json&XML](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_JSON_XML.md)
 
 ## 编译原理 
