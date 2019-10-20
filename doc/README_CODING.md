@@ -15,6 +15,15 @@
 
 [Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/README_NOTE.md)
 
+## Go知识点
+
+[Go笔记](https://github.com/Peefy/GoInVSCode)
+
+## 前端H5知识点
+
+[H5笔记](https://github.com/Peefy/H5_CSS_JS_TS_Collection)
+
+
 ## 面向对象
 
 ## 控制反转Ioc、依赖注入DI、反射Reflection、注解(Annotation)、特性(Attribute)、装饰器(Decorator)
