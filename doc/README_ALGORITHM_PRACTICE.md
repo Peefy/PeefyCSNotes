@@ -2595,7 +2595,46 @@ int main(){
 }
 ```
 
-**51. **
+**51. 青蛙跳台阶问题**
+
+* 1. 一只青蛙一次可以跳上1级台阶，也可以跳上2级。求该青蛙跳上一个n级的台阶总共有多少种跳法(斐波那契数列的第n项)
+
+```java
+public static int jump(int n) {
+    if (n == 0)
+        return 0;
+    if (n == 1)
+        return 1;
+    if (n == 2)
+        return 2;
+    return jump(n - 1) + jump(n - 2);
+}
+```
+
+* 2. 一只青蛙一次可以跳上1级台阶，也可以跳上2级……它也可以跳上n级。求该青蛙跳上一个n级的台阶总共有多少种跳法。
+
+```java
+public static int Jump(int n) {
+    if (n <= 1)
+        return 1;
+    else {
+        return 2 * Jump(n - 1);
+    }
+}
+```
+
+* 3. 一只青蛙一次可以跳上1级台阶，也可以跳上2级……它也可以跳上n级。求该青蛙跳上一个m级的台阶总共有多少种跳法。
+
+```java
+public static int Jump(int n, int m) {
+    if (n > m)
+        return 2 * Jump(n - 1, m) - Jump(n - 1 - m, m);
+    if (n <= 1)
+        return 1;
+    else
+        return 2 * Jump(n - 1, m);
+}
+```
 
 **52. **
 
