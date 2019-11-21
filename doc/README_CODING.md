@@ -13,7 +13,7 @@
 
 ## Python知识点
 
-[Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/README_NOTE.md)
+[Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/doc/README_NOTE.md)
 
 ## Go知识点
 
