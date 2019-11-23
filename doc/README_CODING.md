@@ -11,13 +11,25 @@
 
 [Java笔记](https://github.com/Peefy/JavaInVSCode/tree/master/)
 
+## C#知识点
+
+[C#笔记](https://github.com/Peefy/CSharpInVsCode/blob/master/doc/NOTE.md)
+
 ## Python知识点
 
 [Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/doc/README_NOTE.md)
 
 ## Go知识点
 
-[Go笔记](https://github.com/Peefy/GoInVSCode)
+[Go笔记](https://github.com/Peefy/GoInVSCode/blob/master/doc/Note.md)
+
+## Ruby知识点
+
+[Ruby笔记](https://github.com/Peefy/RubyInVSCode/blob/master/doc/NOTE.md)
+
+## Lua知识点
+
+[Lua笔记](https://github.com/Peefy/LuaInVSCode/blob/master/doc/NOTE.md)
 
 ## 前端H5知识点
 
