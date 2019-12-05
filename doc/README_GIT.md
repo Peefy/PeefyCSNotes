@@ -3,11 +3,16 @@
 
 ## Git问答
 
-**1. git的具体特点，pull和fetch的区别**
+**1. git pull和git fetch的区别**
+
+Git中从远程的分支获取最新的版本到本地有这样2个命令：
+
+1. git fetch：相当于是从远程获取最新版本到本地，不会自动merge
+2. git pull：相当于是从远程获取最新版本并merge到本地
 
 **2. git和svn的区别**
 
-**3. git rebase了解吗**
+**3. git rebase指令**
 
 **4. git commit -m提交后，message写错了想修改怎么办**
 
