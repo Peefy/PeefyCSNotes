@@ -1,8 +1,4 @@
 
-## 设计模式
-
-[C#实现的设计模式](https://peefy.github.io/blog/2018/04/13/CSharp-DesignPatterns/)
-
 ## C++知识点
 
 [C++笔记](https://github.com/Peefy/CppInVSCode/tree/master/)
@@ -11,13 +7,13 @@
 
 [Java笔记](https://github.com/Peefy/JavaInVSCode/tree/master/)
 
-## C#知识点
-
-[C#笔记](https://github.com/Peefy/CSharpInVsCode/blob/master/doc/NOTE.md)
-
 ## Python知识点
 
 [Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/doc/README_NOTE.md)
+
+## C#知识点
+
+[C#笔记](https://github.com/Peefy/CSharpInVsCode/blob/master/doc/NOTE.md)
 
 ## Go知识点
 
@@ -37,6 +33,29 @@
 
 
 ## 面向对象
+
+面向对象(Object Oriented,OO)是软件开发方法。
+
+三大特性：
+
+* **封装**-封装，就是把客观事物封装成抽象的类，并且类可以把自己的数据和方法只让可信的类或者对象操作，对不可信的进行信息隐藏。
+* **继承**-继承，指可以让某个类型的对象获得另一个类型的对象的属性的方法。它支持按级分类的概念。
+* **多态**-多态，是指一个类实例的相同方法在不同情形有不同表现形式。多态机制使具有不同内部结构的对象可以共享相同的外部接口。
+
+## 设计模式
+
+[Java实现的设计模式](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_DESIGN_PATTERNS.md)
+
+[C#实现的设计模式](https://peefy.github.io/blog/2018/04/13/CSharp-DesignPatterns/)
+
+*设计模式遵循的原则有6个*:
+
+* **开闭原则（Open Close Principle）**-对扩展开放，对修改关闭。
+* **里氏代换原则（Liskov Substitution Principle）**-只有当衍生类可以替换掉基类，软件单位的功能不受到影响时，基类才能真正被复用，而衍生类也能够在基类的基础上增加新的行为。
+* **依赖倒转原则（Dependence Inversion Principle）**-这个是开闭原则的基础，对接口编程，依赖于抽象而不依赖于具体。
+* **接口隔离原则（Interface Segregation Principle）**-使用多个隔离的借口来降低耦合度。
+* **迪米特法则（最少知道原则）（Demeter Principle）**-一个实体应当尽量少的与其他实体之间发生相互作用，使得系统功能模块相对独立。
+* **合成复用原则（Composite Reuse Principle）**-原则是尽量使用合成/聚合的方式，而不是使用继承。继承实际上破坏了类的封装性，超类的方法可能会被子类修改。
 
 ## 控制反转Ioc、依赖注入DI、反射Reflection、注解(Annotation)、特性(Attribute)、装饰器(Decorator)
 
