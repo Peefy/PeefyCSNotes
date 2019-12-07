@@ -67,7 +67,9 @@
 
 ## 编译原理 
 
-[笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_COMPILE.md)
+[编译原理龙书笔记](https://github.com/Peefy/CompileDragonBook.Cpp/blob/master/doc/NOTE.md)
+
+[编译原理其他知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_COMPILE.md)
 
 ## Thanks
 
