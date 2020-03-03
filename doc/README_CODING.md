@@ -27,10 +27,13 @@
 
 [Lua笔记](https://github.com/Peefy/LuaInVSCode/blob/master/doc/NOTE.md)
 
+## Scala知识点
+
+[Scala笔记](https://github.com/Peefy/ScalaInVSCode/blob/master/doc/NOTE.md)
+
 ## 前端H5知识点
 
 [H5笔记](https://github.com/Peefy/H5_CSS_JS_TS_Collection)
-
 
 ## 面向对象
 

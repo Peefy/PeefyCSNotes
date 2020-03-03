@@ -71,6 +71,8 @@
 
 * [编译原理其他知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_COMPILE.md)
 
+* [领域特定语言DSL](https://github.com/Peefy/CompileDragonBook.Cpp/blob/master/doc/DSL.md)
+
 ## Thanks
 
 * [菜鸟教程](http://www.runoob.com/)
