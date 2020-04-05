@@ -1,33 +1,19 @@
 
-## C++知识点
+## 编程语言
 
 [C++笔记](https://github.com/Peefy/CppInVSCode/tree/master/)
 
-## Java知识点
-
 [Java笔记](https://github.com/Peefy/JavaInVSCode/tree/master/)
-
-## Python知识点
 
 [Python笔记](https://github.com/Peefy/PythonsWithVSCode/blob/master/doc/README_NOTE.md)
 
-## C#知识点
-
 [C#笔记](https://github.com/Peefy/CSharpInVsCode/blob/master/doc/NOTE.md)
-
-## Go知识点
 
 [Go笔记](https://github.com/Peefy/GoInVSCode/blob/master/doc/Note.md)
 
-## Ruby知识点
-
 [Ruby笔记](https://github.com/Peefy/RubyInVSCode/blob/master/doc/NOTE.md)
 
-## Lua知识点
-
 [Lua笔记](https://github.com/Peefy/LuaInVSCode/blob/master/doc/NOTE.md)
-
-## Scala知识点
 
 [Scala笔记](https://github.com/Peefy/ScalaInVSCode/blob/master/doc/NOTE.md)
 
