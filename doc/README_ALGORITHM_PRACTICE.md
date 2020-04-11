@@ -2636,7 +2636,115 @@ public static int Jump(int n, int m) {
 }
 ```
 
-**52. **
+**52. 矩阵的广度有限搜索BFS和深度优先搜索DFS**
+
+* BFS
+
+```cpp
+#include<string>
+#include<cstdio>
+#include<cstring>
+#include<iostream>
+#include<algorithm>
+#include<queue>
+#include<stack>
+using namespace std;
+int MAP[101][101],m,n,fx,fy,tx,ty,ex,ey,flag;
+int a[2][4]={{0,0,1,-1},{1,-1,0,0}};   //第1步：路径走法
+queue<int> q;
+struct Point{
+ int x;
+ int y;
+ int step;
+ int prep;//前驱
+}team[1000001];
+bool Judge(int x,int y)
+{
+   if(x<=0||x>m) return false;
+   if(y<=0||y>n) return false;
+   if(MAP[x][y]==-1) return false;
+   return true;  
+}
+void print(int cnt)
+{
+
+ while(team[cnt].x!=fx||team[cnt].y!=fy)
+ {
+   cout<<team[cnt].x<<' '<<team[cnt].y<<endl;
+   cnt=team[cnt].prep;
+    }
+    cout<<fx<<' '<<fy<<endl;
+}
+void BFS()
+{
+ MAP[fx][fy]=-1;                 //注意起点必须设为-1
+ int cnt=0;     
+ q.push(++cnt);
+ team[1].x=fx;team[1].y=fy;team[1].step=0;      //第2步，确定初始状态
+ while(!q.empty())
+ {
+  int now=q.front();
+  q.pop();//取出栈首元素，出栈
+  for (int i=0;i<=3;i++)
+  {
+   int tx=team[now].x+a[0][i];
+   int ty=team[now].y+a[1][i];
+   int t_step=team[now].step;
+   if(Judge(tx,ty))//判断是否可以走   //第4步：判断可行性，可在Judge函数中单独判断
+   {
+    //cout<<tx<<' '<<ty<<endl;
+    MAP[tx][ty]=-1;                       //第3步 保存状态 （迷宫问题保存状态超级简单- -）
+    q.push(++cnt);
+    team[cnt].x=tx;team[cnt].y=ty;
+    team[cnt].step=t_step+1;team[cnt].prep=now;
+    if(tx==ex&&ty==ey)
+    {flag=1;print(cnt);break;}  //到达目的
+   }
+  }
+ }
+ if(flag==0) cout<<"N W"<<endl;
+}
+int main()
+{
+ cin>>m>>n;
+ for (int i=1;i<=m;i++)
+ for (int j=1;j<=n;j++)
+ cin>>MAP[i][j];
+ cin>>fx>>fy;
+ cin>>ex>>ey;
+ BFS();
+ return 0;
+ 
+}
+```
+
+* DFS
+
+```py
+def _dfs(rows, columns, grid, i, j, isvisited):
+    if i < 0 or i > rows:
+        return False
+    if j < 0 or j > columns:
+        return False
+    if grid[i][j] == 0 or isvisited[i][j] == 1:
+        return False
+    if grid[i][j] == 9:
+        return True
+    isvisited[i][j] == 1
+    return _dfs(rows, columns, grid, i + 1, j, isvisited) or \
+        _dfs(rows, columns, grid, i, j + 1, isvisited) or \
+        _dfs(rows, columns, grid, i - 1, j, isvisited) or \
+        _dfs(rows, columns, grid, i, j - 1, isvisited)
+
+
+def isPath(rows, columns, grid):
+    isvisited = [[0] * columns for i in range(rows)]
+    return _dfs(rows, columns, grid, 0, 0, isvisited)
+    
+print(isPath(3, 3, [[1, 1, 1], [1, 9, 1], [0, 0, 0]]))
+print(isPath(3, 3, [[1, 0, 1], [0, 9, 1], [0, 0, 0]]))
+print(isPath(3, 3, [[1, 1, 1], [0, 0, 1], [0, 0, 9]]))
+```
 
 **53. **
 
