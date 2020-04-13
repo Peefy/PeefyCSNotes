@@ -3,15 +3,102 @@
 
 **1. JS的基本数据类型**
 
-**2. 引用类型和普通类型的区别**
+js的数据类型分为两种：原始类型（即基本数据类型）和对象类型（即引用数据类型）；
+
+js常用的基本数据类型包括undefined、null、number、boolean、string；
+
+js的引用数据类型也就是对象类型Object，比如：Object、array、function、data等；
+
+**2. JS引用类型和普通类型的区别**
+
+将一个值赋给变量时，解析器必须确定这个值是基本类型值（Undefined，Null，Boolean，String，Number），还是引用类型值。
+
+基本数据类型是按值访问的，因为可以操作保存在变量中的实际的值
+
+引用类型的值是保存在内存中的对象，与其他语言不同，JavaScript不允许直接访问内存中的位置，也就是说不能直接操作对象的内存空间。在操作对象时，实际上是操作对象的引用而不是实际的对象，为此，引用类型的值是按引用访问的。
+
+注意JS中，S股他ring不是引用类型
 
 **3. 讲解一下diff算法，它是深度优先遍历还是广度优先遍历**
 
-**4. 讲一个Generator具体的实现场景**
+下面是 React diff 算法的 3 个策略：
+
+* 策略一：Web UI 中 DOM 节点跨层级的移动操作特别少。可以忽略不计。
+* 策略二：拥有相同类的两个组件将会生成相似的树形结构，拥有不同类的两个组件将会生成不同的树形结构。
+* 策略三：对于同一层级的一组子节点，它们可以通过唯一 id 进行区分。
+    
+**4. 讲一个js的Generator生成器具体实现场景**
+
+通过 Generator 函数逐行读取文本文件。
+
+```js
+function* numbers() {
+  let file = new FileReader("numbers.txt");
+  try {
+    while(!file.eof) {
+      yield parseInt(file.readLine(), 10);
+    }
+  } finally {
+    file.close();
+  }
+}
+```
+
+控制流管理
+
+```js
+let steps = [step1Func, step2Func, step3Func];
+
+function *iterateSteps(steps){
+  for (var i=0; i< steps.length; i++){
+    var step = steps[i];
+    yield step();
+  }
+}
+
+for (var step of iterateJobs(jobs)){
+  console.log(step.id);
+}
+```
 
 **5. url页面请求原理**
 
-**6. 有没有用过Canvas**
+URL（Uniform Resource Locator），统一资源定位符，用于定位互联网上资源，俗称网址。
+比如 https://www.kotlincn.net/docs/reference/using-gradle.html，遵守以下的语法规则：
+scheme://host.domain:port/path/filename
+
+各部分解释如下：
+
+* scheme - 定义因特网服务的类型。常见的协议有 http、https、ftp、file，其中最常见的类型是 http，而 https 则是进行加密的网络传输。
+* host - 定义域主机（http 的默认主机是 www）
+* domain - 定义因特网域名，比如 www.kotlincn.net
+* port - 定义主机上的端口号（https 的默认端口号是 443）
+* path - 定义服务器上的路径（如果省略，则文档必须位于网站的根目录中）。
+* filename - 定义文档/资源的名称
+
+分为以下几个过程:
+
+* DNS 解析:将域名解析成 IP 地址
+* TCP 连接：TCP 三次握手
+* 发送 HTTP 请求
+* 服务器处理请求并返回 HTTP 报文
+* 浏览器解析渲染页面
+* 断开连接：TCP 四次挥手
+
+**6. js的Canvas**
+
+canvas 元素用于在网页上绘制图形。
+
+canvas 元素本身是没有绘图能力的。所有的绘制工作必须在 JavaScript 内部完成：
+
+```html
+<script type="text/javascript">
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+cxt.fillStyle="#FF0000";
+cxt.fillRect(0,0,150,75);
+</script>
+```
 
 **7. svg、png、jpg等各种图片**
 

@@ -21,6 +21,10 @@
 
 [PHP笔记](https://github.com/Peefy/PHPInVSCode/blob/master/doc/NOTE.md)
 
+[JavaScript笔记](https://github.com/Peefy/H5_CSS_JS_TS_Collection/blob/master/ts/dugu.js)
+
+[TypeScript笔记](https://github.com/Peefy/H5_CSS_JS_TS_Collection/blob/master/ts/dugu.ts)
+
 ## 前端H5知识点
 
 [H5笔记](https://github.com/Peefy/H5_CSS_JS_TS_Collection)
