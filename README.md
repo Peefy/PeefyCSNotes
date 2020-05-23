@@ -21,11 +21,13 @@
 
 ## 计算机网络
 
-* [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_NETWORK.md)
+* [计算机网络笔记与问答](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_NETWORK.md)
 
 ## 数据库 
 
-* [笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_DATABASE.md)
+* [数据库笔记与问答](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_DATABASE.md)
+
+* [Redis笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_REDIS.md)
 
 ## 算法 
 
@@ -33,13 +35,15 @@
 
 * [算法导论笔记](https://github.com/Peefy/IntroductionToAlgorithm.Python)
 
-* [其他算法知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_ALGORITHM.md)
+* [算法知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_ALGORITHM.md)
 
 * [算法习题](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_ALGORITHM_PRACTICE.md)
 
 * [机器学习](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_MACHINE_LEARNING.md)
 
 * [正则表达式](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_REGEX.md)
+
+* [OpenCV](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_OPENCV.md)
 
 ## 大数据
 
@@ -71,18 +75,26 @@
 
 * [编译原理龙书笔记](https://github.com/Peefy/CompileDragonBook.Cpp/blob/master/doc/NOTE.md)
 
+* [领域特定语言DSL](https://github.com/Peefy/CompileDragonBook.Cpp/blob/master/doc/NOTE_DSL.md)
+
 * [编译原理其他知识点](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_COMPILE.md)
 
-* [领域特定语言DSL](https://github.com/Peefy/CompileDragonBook.Cpp/blob/master/doc/DSL.md)
+## 嵌入式
+
+* [嵌入式笔记](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_EMBEDDED)
+
+* [桌面客户端](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_CLIENT.md)
+
+## OtherLinks
+
+* [名词汇总](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_NAMES.md)
+
+* [开放性问题](https://github.com/Peefy/PeefyCSNotes/blob/master/doc/README_OPEN_PROLEMS.md)
+
+* [Peefy.github.io](https://peefy.github.io/)
 
 ## Thanks
 
 * [菜鸟教程](http://www.runoob.com/)
 
 * [牛客网](https://www.nowcoder.com/)
-
-## OtherLinks
-
-* [Peefy.github.io](https://peefy.github.io/)
-
-* [Leetcode](https://leetcode-cn.com/problemset/all/)
