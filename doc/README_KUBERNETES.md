@@ -105,3 +105,244 @@ Kubernetes中的服务是一种抽象，定义了Pod的逻辑集和访问Pod的�
 * 使用标签对对象进行分类
 
 标签可以在创建时或以后附加到对象。可以随时修改它们。
+
+## 扩展应用
+
+使用`kubectl`缩放引用程序
+
+扩展部署将确保创建新Pod并将其调度到具有可用资源的节点上。缩放会将Pod的数量增加到新的所需状态。Kubernetes还支持Pods的自动缩放，但超出了本教程的范围。缩放到零也是可能的，它将终止指定Deployment的所有Pod。
+
+运行一个应用程序的多个实例将需要一种将流量分配给所有实例的方法。服务具有集成的负载均衡器，可以将网络流量分发到公开部署的所有Pod。服务将使用端点连续监视正在运行的Pod，以确保流量仅发送到可用Pod。
+
+通过更改部署中的副本数来完成扩展。
+
+一旦运行了一个应用程序的多个实例，就可以在不停机的情况下进行滚动更新。将在下一个模块中介绍它。现在，让转到在线终端并扩展应用程序。
+
+## 更新应用
+
+使用`kubectl`执行滚动更新
+
+用户期望应用程序始终可用，而开发人员则需要每天多次部署它们的新版本。在Kubernetes中，这是通过滚动更新来完成的。滚动更新允许通过用新的Pod实例增量更新Pod实例，从而在零停机时间内进行Deployment的更新。新的Pod将在具有可用资源的节点上安排。
+
+在上一个模块中，扩展了应用程序以运行多个实例。这是执行更新而不影响应用程序可用性的要求。默认情况下，在更新过程中不可用的Pod的最大数量和可以创建的新Pod的最大数量为1。这两个选项都可以配置为数字或百分比（按Pod）。在Kubernetes中，对更新进行版本控制，并且任何部署更新都可以还原为先前（稳定）的版本。
+
+与应用程序扩展类似，如果公开公开部署，则该服务将在更新过程中仅将流量负载均衡到可用Pod。可用的Pod是可供应用程序用户使用的实例。
+
+滚动更新允许执行以下操作：
+
+* 将应用程序从一种环境升级到另一种环境（通过容器映像更新）
+* 回滚到以前的版本
+* 持续集成和持续交付应用程序，停机时间为零
+
+## 使用ConfigMap配置Redis
+
+* 创建一个kustomization.yaml包含以下内容的文件：
+- ConfigMap生成器
+- 使用ConfigMap的Pod资源配置
+* 通过运行应用目录 kubectl apply -k ./
+* 验证配置是否正确应用。
+
+```sh
+curl -OL https://k8s.io/examples/pods/config/redis-config
+
+cat <<EOF >./kustomization.yaml
+configMapGenerator:
+- name: example-redis-config
+  files:
+  - redis-config
+EOF
+```
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+spec:
+  containers:
+  - name: redis
+    image: redis:5.0.4
+    command:
+      - redis-server
+      - "/redis-master/redis.conf"
+    env:
+    - name: MASTER
+      value: "true"
+    ports:
+    - containerPort: 6379
+    resources:
+      limits:
+        cpu: "0.1"
+    volumeMounts:
+    - mountPath: /redis-master-data
+      name: data
+    - mountPath: /redis-master
+      name: config
+  volumes:
+    - name: data
+      emptyDir: {}
+    - name: config
+      configMap:
+        name: example-redis-config
+        items:
+        - key: redis-config
+          path: redis.conf
+```
+
+```sh
+curl -OL https://raw.githubusercontent.com/kubernetes/website/master/content/en/examples/pods/config/redis-pod.yaml
+
+cat <<EOF >>./kustomization.yaml
+resources:
+- redis-pod.yaml
+EOF
+```
+
+## 无状态应用-公开外部IP地址以访问群集中的应用程序
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: load-balancer-example
+  name: hello-world
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: load-balancer-example
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: load-balancer-example
+    spec:
+      containers:
+      - image: gcr.io/google-samples/node-hello:1.0
+        name: hello-world
+        ports:
+        - containerPort: 8080
+```
+
+```sh
+kubectl apply -f https://k8s.io/examples/service/load-balancer-example.yaml
+```
+
+前面的命令创建一个 Deployment 对象和一个关联的 ReplicaSet 对象。该ReplicaSet有五个步骤，每个运行Hello World应用程序。
+
+* 显示有关部署的信息：
+
+```sh
+kubectl get deployments hello-world
+kubectl describe deployments hello-world
+```
+
+* 显示有关您的ReplicaSet对象的信息：
+
+```sh
+kubectl get replicasets
+kubectl describe replicasets
+```
+
+* 创建一个公开部署的Service对象：
+
+```sh
+kubectl expose deployment hello-world --type=LoadBalancer --name=my-service
+```
+
+* 显示有关服务的信息：
+
+```sh
+kubectl get services my-service
+```
+
+* 输出类似于以下内容：
+
+```sh
+NAME         TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)    AGE
+my-service   LoadBalancer   10.3.245.137   104.198.205.71   8080/TCP   54s
+```
+
+*注意：该type=LoadBalancer服务由外部云提供商支持，此示例未涵盖此服务，有关详细信息，请参阅此页面。*
+
+```xml
+<blockquote class="note">
+```
+
+注意：如果外部IP地址显示为`<pending>`，请等待一分钟，然后再次输入相同的命令。
+显示有关服务的详细信息：
+
+```sh
+kubectl describe services my-service
+```
+
+输出类似于以下内容：
+
+```sh
+ Name:           my-service
+ Namespace:      default
+ Labels:         app.kubernetes.io/name=load-balancer-example
+ Annotations:    <none>
+ Selector:       app.kubernetes.io/name=load-balancer-example
+ Type:           LoadBalancer
+ IP:             10.3.245.137
+ LoadBalancer Ingress:   104.198.205.71
+ Port:           <unset> 8080/TCP
+ NodePort:       <unset> 32377/TCP
+ Endpoints:      10.0.0.6:8080,10.0.1.6:8080,10.0.1.7:8080 + 2 more...
+ Session Affinity:   None
+ Events:         <none>
+```
+
+记下LoadBalancer Ingress您的服务公开的外部IP地址（）。在此示例中，外部IP地址为104.198.205.71。还要注意的价值Port和NodePort。在此的示例Port 是8080和NodePort32377。
+
+在前面的输出中，您可以看到该服务具有多个终结点：10.0.0.6:8080,10.0.1.6:8080,10.0.1.7:8080 +另外2个。这些是运行Hello World应用程序的Pod的内部地址。要验证这些是pod地址，请输入以下命令：
+
+```sh
+ kubectl get pods --output=wide
+```
+
+输出类似于以下内容：
+
+```
+ NAME                         ...  IP         NODE
+ hello-world-2895499144-1jaz9 ...  10.0.1.6   gke-cluster-1-default-pool-e0b8d269-1afc
+ hello-world-2895499144-2e5uh ...  10.0.1.8   gke-cluster-1-default-pool-e0b8d269-1afc
+ hello-world-2895499144-9m4h1 ...  10.0.0.6   gke-cluster-1-default-pool-e0b8d269-5v7a
+ hello-world-2895499144-o4z13 ...  10.0.1.7   gke-cluster-1-default-pool-e0b8d269-1afc
+ hello-world-2895499144-segjf ...  10.0.2.5   gke-cluster-1-default-pool-e0b8d269-cpuc
+```
+
+使用外部IP地址（LoadBalancer Ingress）访问Hello World应用程序：
+
+```
+ curl http://<external-ip>:<port>
+```
+
+服务`<external-ip>`的外部IP地址（LoadBalancer Ingress）在哪里，并且`<port>`是Port服务说明中的值。如果您使用的是minikube，键入内容minikube service my-service将在浏览器中自动打开Hello World应用程序。
+
+对成功请求的响应是一个问候消息：
+
+```
+ Hello Kubernetes!
+```
+
+要删除服务，请输入以下命令：
+
+```
+kubectl delete services my-service
+```
+
+要删除正在运行Hello World应用程序的Deployment，ReplicaSet和Pod，请输入以下命令：
+
+```
+kubectl delete deployment hello-world
+```
+
+## 有状态的应用
+
+[官方教程](https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/)
+
+## 集群
+
+[官方教程](https://kubernetes.io/docs/tutorials/clusters/apparmor/)
