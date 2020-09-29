@@ -167,3 +167,87 @@ spring:
 ### 4. Yaml类型
 
 yaml有数据类型，基本的方式隐式构建，显式类型可以通过两个感叹号`!!`指定。
+
+### 5. 定义锚点&和引用，&和*不能作为行首使用。作用是重复引用相同的值
+
+```yaml
+port: &webport  # 定义锚点，&不可用在行首
+  - 8001
+  - 8002
+server:
+  ip: 192.168.1.1
+  port: *webport    # 引用
+
+public: 
+ addr: &addr1 liaoning  # 定义锚点
+
+
+address:                # 引用
+  - *addr1
+
+结果：
+{ port: [ 8001, 8002 ],
+  server: [ '192.168.1.1', [ 8001, 8002 ] ],
+  public: null,
+  addr: 'liaoning',
+  address: [ 'liaoning' ] }
+```
+
+### 6. 合并，<<，配合锚点使用，合并成一个字典
+
+```yaml
+merge: 
+  - &CENTER { x: 1, y: 2 } 
+  - &LEFT { x: 0, y: 2 } 
+  - &BIG { r: 10 } 
+  - &SMALL { r: 1 }
+sample1: 
+  <<: *CENTER r: 10
+sample2: 
+  << : [ *CENTER, *BIG ] 
+  other: haha
+sample3: 
+  << : [ *CENTER, *BIG ] 
+  r: 100
+  s: 6
+
+# 结果：
+{ merge: [ { x: 1, y: 2 }, { x: 0, y: 2 }, { r: 10 }, { r: 1 } ],
+  sample1: { x: 1, y: 2, r: 10 },
+  sample2: { x: 1, y: 2, r: 10, other: 'haha' },
+  sample3: { x: 1, y: 2, r: 100, s: 6 } }
+```
+
+### 7. 定义格式符号，>和|
+
+```yaml
+segment_enter: >               # >符号，只保留段落最后一个回车
+ Mark set a major league
+ home run record in 1998.
+line_enter: |                # |符号，所见即所得，保留每行的回车
+ 65 Home Runs
+ 0.278 Batting Average
+# 结果：
+{ segment_enter: 'Mark set a major league home run record in 1998.\n',
+  line_enter: '65 Home Runs\n0.278 Batting Average\n' }
+```
+
+ 
+
+### 8. 把内容分割成多个文档，以下例子相当于两个文件。
+
+```yaml
+---
+port: &webport  # 定义锚点，&不可用在行首
+  - 8001
+  - 8002
+server:
+  ip: 192.168.1.1
+  port: *webport    # 引用
+  
+---
+public: 
+ addr: &addr1 liaoning  # 定义锚点
+address:                # 引用
+  - *addr1
+```
